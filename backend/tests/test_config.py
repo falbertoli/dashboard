@@ -1,4 +1,4 @@
-# test_config.py
+# File: backend/tests/test_config.py
 import os
 from app.config import config, DevelopmentConfig, TestingConfig, ProductionConfig
 

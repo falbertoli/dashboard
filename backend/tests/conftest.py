@@ -5,6 +5,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 import os
 import shutil
+from app import create_app
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_databases():
@@ -67,3 +68,17 @@ def setup_test_databases():
     except Exception as e:
         print(f"Error setting up test databases: {str(e)}")
         raise
+
+@pytest.fixture
+def app():
+    """Create and configure a Flask app for testing."""
+    app = create_app("testing")
+    
+    # Create a test context
+    with app.app_context():
+        yield app
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
+    return app.test_client()
