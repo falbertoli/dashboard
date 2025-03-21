@@ -1,0 +1,532 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hydrogen Dashboard API",
+    "description": "API for hydrogen demand, storage, economic impact, and sustainability calculations",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "hydrogen",
+      "description": "Hydrogen demand and emissions calculations"
+    },
+    {
+      "name": "economic",
+      "description": "Economic impact calculations"
+    },
+    {
+      "name": "storage",
+      "description": "Hydrogen storage calculations"
+    },
+    {
+      "name": "sustainability",
+      "description": "Sustainability metrics calculations"
+    }
+  ],
+  "paths": {
+    "/hydrogen/h2_demand/ac": {
+      "post": {
+        "tags": ["hydrogen"],
+        "summary": "Calculate hydrogen demand for aircraft operations",
+        "description": "Computes hydrogen demand based on aircraft operations data",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["database_name"],
+                "properties": {
+                  "database_name": {
+                    "type": "string",
+                    "description": "Name of the database to query"
+                  },
+                  "slider_perc": {
+                    "type": "number",
+                    "description": "Percentage of flights converted to hydrogen (0-1)",
+                    "default": 1.0
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "description": "Target year for projection",
+                    "default": 2036
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "daily_h2_demand_ft3": {
+                      "type": "number",
+                      "description": "Daily hydrogen demand in cubic feet"
+                    },
+                    "projected_fuel_weight_lb": {
+                      "type": "number",
+                      "description": "Projected fuel weight in pounds"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/hydrogen/h2_demand/gse": {
+      "post": {
+        "tags": ["hydrogen"],
+        "summary": "Calculate hydrogen demand for Ground Support Equipment",
+        "description": "Computes hydrogen demand based on GSE operations data",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["database_name", "gse_list"],
+                "properties": {
+                  "database_name": {
+                    "type": "string",
+                    "description": "Name of the database to query"
+                  },
+                  "gse_list": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of ground support equipment to include"
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "description": "Target year for projection",
+                    "default": 2036
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "daily_h2_demand_ft3": {
+                      "type": "number",
+                      "description": "Daily hydrogen demand in cubic feet"
+                    },
+                    "total_diesel_used_lb": {
+                      "type": "number",
+                      "description": "Total diesel used in pounds"
+                    },
+                    "total_gasoline_used_lb": {
+                      "type": "number",
+                      "description": "Total gasoline used in pounds"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/hydrogen/storage_area": {
+      "post": {
+        "tags": ["hydrogen"],
+        "summary": "Calculate required storage area for hydrogen tanks",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["h2_demand_vol"],
+                "properties": {
+                  "h2_demand_vol": {
+                    "type": "number",
+                    "description": "Hydrogen demand volume in cubic feet"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "storage_area_ft2": {
+                      "type": "number",
+                      "description": "Required storage area in square feet"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/hydrogen/emissions": {
+      "post": {
+        "tags": ["hydrogen"],
+        "summary": "Calculate CO2 emissions from fuel usage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tot_jetA": {
+                    "type": "number",
+                    "description": "Total Jet A fuel in pounds",
+                    "default": 0
+                  },
+                  "tot_diesel": {
+                    "type": "number",
+                    "description": "Total diesel fuel in pounds",
+                    "default": 0
+                  },
+                  "tot_gasoline": {
+                    "type": "number",
+                    "description": "Total gasoline fuel in pounds",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total_emissions_kg": {
+                      "type": "number",
+                      "description": "Total CO2 emissions in kilograms"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/economic/impact": {
+      "get": {
+        "tags": ["economic"],
+        "summary": "Calculate economic impact of hydrogen adoption",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hydrogen_utilization": {
+                      "type": "number",
+                      "description": "Hydrogen utilization factor"
+                    },
+                    "revenue_drop": {
+                      "type": "number",
+                      "description": "Revenue drop due to hydrogen adoption"
+                    },
+                    "total_tax_credits": {
+                      "type": "number",
+                      "description": "Total tax credits available"
+                    },
+                    "baseline_revenue": {
+                      "type": "number",
+                      "description": "Baseline revenue"
+                    },
+                    "new_h2_revenue": {
+                      "type": "number",
+                      "description": "New revenue with hydrogen adoption"
+                    },
+                    "percent_revenue_drop": {
+                      "type": "number",
+                      "description": "Percentage drop in revenue"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/storage/calculate": {
+      "post": {
+        "tags": ["storage"],
+        "summary": "Calculate hydrogen storage cost",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "total_h2_volume_gal",
+                  "number_of_tanks",
+                  "tank_diameter_ft",
+                  "tank_length_ft",
+                  "cost_per_sqft_construction",
+                  "cost_per_cuft_insulation"
+                ],
+                "properties": {
+                  "total_h2_volume_gal": {
+                    "type": "number",
+                    "description": "Total hydrogen volume in gallons"
+                  },
+                  "number_of_tanks": {
+                    "type": "integer",
+                    "description": "Number of storage tanks"
+                  },
+                  "tank_diameter_ft": {
+                    "type": "number",
+                    "description": "Diameter of each tank in feet"
+                  },
+                  "tank_length_ft": {
+                    "type": "number",
+                    "description": "Length of each tank in feet"
+                  },
+                  "cost_per_sqft_construction": {
+                    "type": "number",
+                    "description": "Construction cost per square foot"
+                  },
+                  "cost_per_cuft_insulation": {
+                    "type": "number",
+                    "description": "Insulation cost per cubic foot"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "insulation_volume_total": {
+                      "type": "number",
+                      "description": "Total insulation volume"
+                    },
+                    "insulation_cost": {
+                      "type": "number",
+                      "description": "Total insulation cost"
+                    },
+                    "footprint_total": {
+                      "type": "number",
+                      "description": "Total footprint area"
+                    },
+                    "construction_cost": {
+                      "type": "number",
+                      "description": "Total construction cost"
+                    },
+                    "total_infrastructure_cost": {
+                      "type": "number",
+                      "description": "Total infrastructure cost"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/sustainability/metrics": {
+      "post": {
+        "tags": ["sustainability"],
+        "summary": "Calculate sustainability metrics for hydrogen adoption",
+        "description": "Provides comprehensive sustainability metrics including emissions reduction, water usage, and renewable energy requirements",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jet_fuel_lb": {
+                    "type": "number",
+                    "description": "Total jet fuel consumption in pounds",
+                    "default": 0
+                  },
+                  "diesel_fuel_lb": {
+                    "type": "number",
+                    "description": "Total diesel fuel consumption in pounds",
+                    "default": 0
+                  },
+                  "gasoline_fuel_lb": {
+                    "type": "number",
+                    "description": "Total gasoline fuel consumption in pounds",
+                    "default": 0
+                  },
+                  "hydrogen_adoption_rate": {
+                    "type": "number",
+                    "description": "Percentage of fleet converted to hydrogen (0-1)",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "baseline_emissions_kg": {
+                      "type": "number",
+                      "description": "Baseline CO2 emissions in kg"
+                    },
+                    "remaining_emissions_kg": {
+                      "type": "number",
+                      "description": "Remaining emissions after hydrogen adoption in kg"
+                    },
+                    "h2_production_emissions_kg": {
+                      "type": "number",
+                      "description": "Emissions from hydrogen production in kg"
+                    },
+                    "total_new_emissions_kg": {
+                      "type": "number",
+                      "description": "Total new emissions after hydrogen adoption in kg"
+                    },
+                    "emissions_reduction_kg": {
+                      "type": "number",
+                      "description": "Total emissions reduction in kg"
+                    },
+                    "percent_reduction": {
+                      "type": "number",
+                      "description": "Percentage reduction in emissions"
+                    },
+                    "hydrogen_weight_kg": {
+                      "type": "number",
+                      "description": "Weight of hydrogen produced in kg"
+                    },
+                    "water_usage_gallons": {
+                      "type": "number",
+                      "description": "Water usage for hydrogen production in gallons"
+                    },
+                    "energy_required_kwh": {
+                      "type": "number",
+                      "description": "Energy required for hydrogen production in kWh"
+                    },
+                    "renewable_energy_land_acres": {
+                      "type": "number",
+                      "description": "Land area required for renewable energy in acres"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/sustainability/sustainability": {
+      "get": {
+        "tags": ["sustainability"],
+        "summary": "Health check for sustainability endpoint",
+        "description": "Simple endpoint to verify the sustainability service is running",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Status message",
+                      "example": "Sustainability endpoint is working!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
