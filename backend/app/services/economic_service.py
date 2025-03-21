@@ -1,13 +1,14 @@
 # File: backend/app/services/economic_service.py
 import pandas as pd
-from app.constants import HYDROGEN_FLIGHT_FRACTION, EXTRA_TURNAROUND_TIME, TAX_CREDIT_PER_GALLON, DATA_PATHS
+from app.utils.data_loader import load_operational_hours, load_carrier_operations, load_income_data
+from app.constants import HYDROGEN_FLIGHT_FRACTION, EXTRA_TURNAROUND_TIME, TAX_CREDIT_PER_GALLON
 
 def load_data():
-    """Load CSV data into Pandas DataFrames"""
+    """Load required datasets using centralized data loader."""
     return {
-        "uti_data": pd.read_csv(DATA_PATHS["uti_data"]),
-        "operations_data": pd.read_csv(DATA_PATHS["operations_data"]),
-        "income_data": pd.read_csv(DATA_PATHS["income_data"]),
+        "uti_data": load_operational_hours(),  # Loads `t_schedule_t1.csv`
+        "operations_data": load_carrier_operations(),  # Loads `t_t100d_segment_us_carrier_only.csv`
+        "income_data": load_income_data(),  # Loads `t_f41schedule_p12.csv`
     }
 
 def calculate_economic_impact():

@@ -3,21 +3,10 @@ import os
 import pandas as pd
 
 # ===========================
-# 📌 PATH CONFIGURATION
-# ===========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DB_DIR = os.path.join(BASE_DIR, "databases")
-
-DATA_PATHS = {
-    "uti_data": os.path.join(DATA_DIR, "t_schedule_t1.csv"),
-    "operations_data": os.path.join(DATA_DIR, "t_t100d_segment_us_carrier_only.csv"),
-    "income_data": os.path.join(DATA_DIR, "t_f41schedule_p12.csv"),
-}
-
-# ===========================
 # 📌 HYDROGEN UTILIZATION CONSTANTS
 # ===========================
+DELTA_PART_FLIGHTS = 0.67  # Percentage of flights departed from ATL that are operated by Delta
+DELTA_PART_DOMESTIC = 0.89 # Percentage of flights operated by Delta from ATl that are domestic
 HYDROGEN_FLIGHT_FRACTION = 0.3  # Fraction of flights converted to H2
 EXTRA_TURNAROUND_TIME = 30  # Extra minutes per flight
 CONVERSION_FACTOR_JET_TO_H2 = 2.8  # LHV(H2) / LHV(JetA)
