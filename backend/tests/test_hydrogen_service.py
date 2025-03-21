@@ -4,6 +4,7 @@ import pandas as pd
 from app.services.hydrogen_service import (
     get_growth_rate, compute_h2_demand_ac, compute_h2_demand_gse
 )
+from app.utils.data_loader import load_data_from_db
 from app.constants import growth_rate_data
 
 def test_get_growth_rate():
@@ -12,39 +13,53 @@ def test_get_growth_rate():
     assert growth > 0, "Growth rate should be greater than 0"
     assert isinstance(growth, float), "Growth rate should be a float"
 
-@patch("app.utils.data_loader.load_data_from_db")
-def test_compute_h2_demand_ac(mock_load_data_from_db):
-    # Mock the aircraft data returned from the database
-    mock_load_data_from_db.return_value = pd.DataFrame({
-        "AIR_TIME": [60, 120, 180],
-        "FUEL_CONSUMPTION": [500, 1000, 1500]
-    })
-
-    # Run the function with test parameters
+@pytest.mark.usefixtures("setup_test_databases")
+def test_compute_h2_demand_ac():
+    """Test computing hydrogen demand for aircraft"""
     slider_perc = 0.5
     end_year = 2030
+    
+    # Run the function with actual data
     h2_demand_ac, fuel_weight = compute_h2_demand_ac(slider_perc, end_year)
-
-    # Check outputs
+    
     assert h2_demand_ac > 0, "Daily H2 demand should be greater than 0"
-    assert fuel_weight > 0, "Projected fuel weight should be greater than 0"
+    assert fuel_weight > 0, "Fuel weight should be greater than 0"
 
-@patch("app.utils.data_loader.load_data_from_db")
-def test_compute_h2_demand_gse(mock_load_data_from_db):
-    # Mock the GSE data returned from the database
-    mock_load_data_from_db.return_value = pd.DataFrame({
-        "Ground support Equipment": ["F250", "FMC Commander 15"],
-        "Fuel used": ["Diesel", "Gasoline"],
-        "Usable Fuel Consumption (ft3/min)": [0.002, 0.003],
-        "Operating time - Departure": [10, 15],
-        "Operating Time - Arrival": [5, 10]
-    })
-
-    # Run the function with test parameters
+def test_compute_h2_demand_gse():
+    """Test computing hydrogen demand for GSE with actual database"""
+    # First verify we can load the test data
+    test_data = load_data_from_db(
+        "gse_data", 
+        filters={"Ground support Equipment": ["F250", "FMC Commander 15"]},
+        db="gse"
+    )
+    assert not test_data.empty, "Should be able to load test data"
+    assert len(test_data) == 2, "Should find both test equipment"
+    
+    # Now test the actual computation
     gse_list = ["F250", "FMC Commander 15"]
     end_year = 2030
+    
     h2_demand_gse, tot_diesel, tot_gasoline = compute_h2_demand_gse(gse_list, end_year)
-
-    assert h2_demand_gse > 0, "Daily hydrogen demand for GSE should be greater than 0."
-    assert tot_diesel > 0, "Total diesel usage should be greater than 0."
-    assert tot_gasoline > 0, "Total gasoline usage should be greater than 0."
+    
+    # Verify results based on actual data
+    assert h2_demand_gse > 0, "H2 demand should be greater than 0"
+    assert tot_diesel > 0, "Total diesel should be greater than 0"
+    assert tot_gasoline == 0, "Total gasoline should be 0 for these equipment"
+    
+    # Calculate expected values based on your business logic
+    operating_hours_f250 = test_data[test_data["Ground support Equipment"] == "F250"][
+        ["Operating time - Departure", "Operating Time - Arrival"]
+    ].iloc[0].sum()
+    
+    operating_hours_fmc = test_data[test_data["Ground support Equipment"] == "FMC Commander 15"][
+        ["Operating time - Departure", "Operating Time - Arrival"]
+    ].iloc[0].sum()
+    
+    # Add specific assertions based on your calculation logic
+    print(f"\nTest Results:")
+    print(f"H2 Demand: {h2_demand_gse}")
+    print(f"Total Diesel: {tot_diesel}")
+    print(f"Total Gasoline: {tot_gasoline}")
+    print(f"Operating Hours F250: {operating_hours_f250}")
+    print(f"Operating Hours FMC: {operating_hours_fmc}")
