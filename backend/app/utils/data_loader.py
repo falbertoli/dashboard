@@ -3,9 +3,18 @@
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Set default data path
-DATA_PATH = os.getenv("DATA_PATH", "./data")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_PATH = os.getenv("DATA_PATH", os.path.join(BASE_DIR, "data"))
 
 # Database connection strings
 AC_DB_CONNECTION_STRING = os.getenv("AC_DB_CONNECTION_STRING", f"sqlite:///{DATA_PATH}/ac_data.db")
@@ -14,6 +23,29 @@ GSE_DB_CONNECTION_STRING = os.getenv("GSE_DB_CONNECTION_STRING", f"sqlite:///{DA
 # Initialize database engines
 ac_engine = create_engine(AC_DB_CONNECTION_STRING)
 gse_engine = create_engine(GSE_DB_CONNECTION_STRING)
+
+def init_db_engines(app):
+    """Initialize database engines with application config.
+    
+    Args:
+        app: Flask application instance with configuration
+        
+    Returns:
+        tuple: (ac_engine, gse_engine) database engines
+    """
+    global ac_engine, gse_engine
+    
+    # Update engine connections based on app config
+    ac_db_uri = app.config.get('AC_DB_URI', AC_DB_CONNECTION_STRING)
+    gse_db_uri = app.config.get('GSE_DB_URI', GSE_DB_CONNECTION_STRING)
+    
+    ac_engine = create_engine(ac_db_uri)
+    gse_engine = create_engine(gse_db_uri)
+    
+    logger.info(f"Initialized AC database engine with: {ac_db_uri}")
+    logger.info(f"Initialized GSE database engine with: {gse_db_uri}")
+    
+    return ac_engine, gse_engine
 
 def load_csv(file_name):
     """
@@ -25,9 +57,19 @@ def load_csv(file_name):
     Returns:
         pd.DataFrame: Loaded data as a Pandas DataFrame.
     """
-    file_path = os.path.join(DATA_PATH, file_name)
+    # Try to get data path from Flask app config if in app context
+    try:
+        from flask import current_app
+        data_path = current_app.config.get('DATA_DIR', DATA_PATH)
+    except RuntimeError:
+        # Not in Flask app context, use the default
+        data_path = DATA_PATH
+    
+    file_path = os.path.join(data_path, file_name)
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
+    
+    logger.info(f"Loading CSV file: {file_path}")
     return pd.read_csv(file_path)
 
 def populate_database(csv_file, engine, table_name):
@@ -39,23 +81,37 @@ def populate_database(csv_file, engine, table_name):
         engine (Engine): SQLAlchemy engine for the database.
         table_name (str): Name of the table to create/populate.
     """
-    # Check if the table exists and contains data
-    with engine.connect() as conn:
-        result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
-        count = result.scalar()
-
-    if count > 0:
-        print(f"Table '{table_name}' is already populated. Skipping.")
-        return
-
-    # Read the CSV file
-    print(f"Reading data from {csv_file}...")
-    df = pd.read_csv(os.path.join(DATA_PATH, csv_file))
-
-    # Write data to the database
-    print(f"Populating table '{table_name}'...")
-    df.to_sql(table_name, engine, if_exists="replace", index=False)
-    print(f"Table '{table_name}' populated successfully.")
+    try:
+        # Check if the table exists and contains data
+        with engine.connect() as conn:
+            # First check if the table exists
+            try:
+                result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+                count = result.scalar()
+                
+                if count > 0:
+                    logger.info(f"Table '{table_name}' is already populated. Skipping.")
+                    return
+            except Exception:
+                # Table doesn't exist, we'll create it
+                logger.info(f"Table '{table_name}' doesn't exist. Creating...")
+        
+        # Read the CSV file
+        logger.info(f"Reading data from {csv_file}...")
+        df = pd.read_csv(os.path.join(DATA_PATH, csv_file))
+        
+        # Clean data if needed (e.g., for GSE data)
+        if "Ground support Equipment" in df.columns:
+            df["Ground support Equipment"] = df["Ground support Equipment"].str.strip()
+        
+        # Write data to the database
+        logger.info(f"Populating table '{table_name}'...")
+        df.to_sql(table_name, engine, if_exists="replace", index=False)
+        logger.info(f"Table '{table_name}' populated successfully.")
+    
+    except Exception as e:
+        logger.error(f"Error populating database: {str(e)}")
+        raise
 
 def load_data_from_db(table_name, filters=None, db="ac"):
     """
@@ -69,35 +125,55 @@ def load_data_from_db(table_name, filters=None, db="ac"):
     Returns:
         pd.DataFrame: The resulting dataset as a Pandas DataFrame.
     """
-    # Select the appropriate engine
-    engine = ac_engine if db == "ac" else gse_engine
-
-    # Start with the base query
-    query = f"SELECT * FROM {table_name}"
-    params = {}
-
-    # Add optional filtering
-    if filters:
-        where_clauses = []
-        for key, value in filters.items():
-            if isinstance(value, list):
-                # Dynamically generate bind parameters for the IN clause
-                placeholders = ", ".join([f":{key}_{i}" for i in range(len(value))])
-                where_clauses.append(f'"{key}" IN ({placeholders})')
-                # Add each value in the list to the params dictionary with a unique key
-                for i, v in enumerate(value):
-                    params[f"{key}_{i}"] = v
-            else:
-                where_clauses.append(f'"{key}" = :{key}')
-                params[key] = value
-        query += f" WHERE {' AND '.join(where_clauses)}"
-
-    # Debugging: Print the query and parameters
-    print("Query:", query)
-    print("Params:", params)
-
-    # Execute the query and return the results as a DataFrame
-    return pd.read_sql(text(query), engine, params=params)
+    try:
+        # Select the appropriate engine
+        engine = ac_engine if db == "ac" else gse_engine
+        
+        # Ensure the table exists and has data
+        try:
+            with engine.connect() as conn:
+                result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+                count = result.scalar()
+                
+                # If table is empty, try to populate it
+                if count == 0:
+                    csv_file = f"{table_name}.csv"
+                    populate_database(csv_file, engine, table_name)
+        except Exception:
+            # Table doesn't exist, try to create and populate it
+            csv_file = f"{table_name}.csv"
+            populate_database(csv_file, engine, table_name)
+        
+        # Start with the base query
+        query = f"SELECT * FROM {table_name}"
+        params = {}
+        
+        # Add optional filtering
+        if filters:
+            where_clauses = []
+            for key, value in filters.items():
+                if isinstance(value, list):
+                    # Dynamically generate bind parameters for the IN clause
+                    placeholders = ", ".join([f":{key}_{i}" for i in range(len(value))])
+                    where_clauses.append(f'"{key}" IN ({placeholders})')
+                    # Add each value in the list to the params dictionary with a unique key
+                    for i, v in enumerate(value):
+                        params[f"{key}_{i}"] = v
+                else:
+                    where_clauses.append(f'"{key}" = :{key}')
+                    params[key] = value
+            query += f" WHERE {' AND '.join(where_clauses)}"
+        
+        # Debugging: Print the query and parameters
+        logger.debug(f"Query: {query}")
+        logger.debug(f"Params: {params}")
+        
+        # Execute the query and return the results as a DataFrame
+        return pd.read_sql(text(query), engine, params=params)
+    
+    except Exception as e:
+        logger.error(f"Error loading data from database: {str(e)}")
+        raise
 
 # Specific loaders for each dataset
 def load_ac_data():
