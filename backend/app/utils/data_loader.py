@@ -35,25 +35,20 @@ def load_csv(file_name):
 
 def populate_database(csv_file, engine, table_name):
     """
-    Populate an SQLite database table from a CSV file if it is empty.
+    Populate an SQLite database table from a CSV file, overwriting existing data.
     """
     try:
-        # Check if the table exists and contains data
-        with engine.connect() as conn:
-            result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
-            count = result.scalar()
-
-        if count > 0:
-            logger.info(f"Table '{table_name}' is already populated. Skipping.")
-            return
-
+        logger.info(f"Using database file: {AC_DB_CONNECTION_STRING}")
+        logger.info(f"Using database file: {GSE_DB_CONNECTION_STRING}")
         # Read the CSV file
         logger.info(f"Reading data from {csv_file}...")
         df = pd.read_csv(os.path.join(DATA_PATH, csv_file))
+        logger.info(f"First few rows of data from {csv_file}:\n{df.head()}")
 
-        # Write data to the database
+        # Write data to the database, overwriting if it exists
         logger.info(f"Populating table '{table_name}'...")
-        df.to_sql(table_name, engine, if_exists="replace", index=False)
+        with engine.connect() as conn:
+            df.to_sql(table_name, conn, if_exists="replace", index=False)
         logger.info(f"Table '{table_name}' populated successfully.")
 
     except Exception as e:
