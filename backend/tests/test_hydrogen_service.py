@@ -158,8 +158,9 @@ class TestEmissions:
 
     def test_emissions_zero_inputs(self):
         """Test emissions calculation with all zero inputs"""
-        with pytest.raises(ValidationError):
-            compute_emissions(0, 0, 0)
+        result = compute_emissions(0, 0, 0)
+        assert result == 0
+        assert isinstance(result, float)
 
     def test_emissions_negative_input(self):
         """Test emissions calculation with negative input"""

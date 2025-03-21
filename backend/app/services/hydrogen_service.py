@@ -164,6 +164,7 @@ def compute_storage_area(h2_demand_vol: float) -> float:
 
 
 def compute_emissions(tot_jetA: float, tot_diesel: float, tot_gasoline: float) -> float:
+    """Calculate CO2 emissions for Jet A, Diesel, and Gasoline usage."""
     """
     Calculate CO2 emissions for Jet A, Diesel, and Gasoline usage.
 
@@ -179,10 +180,6 @@ def compute_emissions(tot_jetA: float, tot_diesel: float, tot_gasoline: float) -
     validate_fuel_amount(tot_jetA, "Jet A")
     validate_fuel_amount(tot_diesel, "Diesel")
     validate_fuel_amount(tot_gasoline, "Gasoline")
-    
-    # Check if at least one fuel amount is greater than zero
-    if tot_jetA == 0 and tot_diesel == 0 and tot_gasoline == 0:
-        raise ValidationError("At least one fuel amount must be greater than 0")
     
     return float(
         tot_jetA * JET_A_EMISSION_FACTOR
