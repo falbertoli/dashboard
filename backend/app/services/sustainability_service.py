@@ -106,7 +106,8 @@ def validate_h2_weight(h2_weight_kg: float) -> None:
     """Validate hydrogen weight input."""
     if not isinstance(h2_weight_kg, (int, float)):
         raise SustainabilityCalculationError("Hydrogen weight must be a number")
-    # Allow zero weight (removed the positive check)
+    if h2_weight_kg < 0:
+        raise SustainabilityCalculationError("Hydrogen weight must be positive")
 
 def calculate_water_usage(h2_weight_kg: float) -> float:
     """Calculate water usage for hydrogen production."""
