@@ -3,9 +3,18 @@
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Set default data path
-DATA_PATH = os.getenv("DATA_PATH", "./data")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_PATH = os.path.join(BASE_DIR, "data")
 
 # Database connection strings
 AC_DB_CONNECTION_STRING = os.getenv("AC_DB_CONNECTION_STRING", f"sqlite:///{DATA_PATH}/ac_data.db")
@@ -18,12 +27,6 @@ gse_engine = create_engine(GSE_DB_CONNECTION_STRING)
 def load_csv(file_name):
     """
     Load a CSV file from the data directory.
-
-    Args:
-        file_name (str): Name of the CSV file.
-
-    Returns:
-        pd.DataFrame: Loaded data as a Pandas DataFrame.
     """
     file_path = os.path.join(DATA_PATH, file_name)
     if not os.path.exists(file_path):
@@ -33,71 +36,91 @@ def load_csv(file_name):
 def populate_database(csv_file, engine, table_name):
     """
     Populate an SQLite database table from a CSV file if it is empty.
-
-    Args:
-        csv_file (str): Path to the CSV file.
-        engine (Engine): SQLAlchemy engine for the database.
-        table_name (str): Name of the table to create/populate.
     """
-    # Check if the table exists and contains data
-    with engine.connect() as conn:
-        result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
-        count = result.scalar()
+    try:
+        # Check if the table exists and contains data
+        with engine.connect() as conn:
+            result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+            count = result.scalar()
 
-    if count > 0:
-        print(f"Table '{table_name}' is already populated. Skipping.")
-        return
+        if count > 0:
+            logger.info(f"Table '{table_name}' is already populated. Skipping.")
+            return
 
-    # Read the CSV file
-    print(f"Reading data from {csv_file}...")
-    df = pd.read_csv(os.path.join(DATA_PATH, csv_file))
+        # Read the CSV file
+        logger.info(f"Reading data from {csv_file}...")
+        df = pd.read_csv(os.path.join(DATA_PATH, csv_file))
 
-    # Write data to the database
-    print(f"Populating table '{table_name}'...")
-    df.to_sql(table_name, engine, if_exists="replace", index=False)
-    print(f"Table '{table_name}' populated successfully.")
+        # Write data to the database
+        logger.info(f"Populating table '{table_name}'...")
+        df.to_sql(table_name, engine, if_exists="replace", index=False)
+        logger.info(f"Table '{table_name}' populated successfully.")
+
+    except Exception as e:
+        logger.error(f"Error populating database: {str(e)}")
+        raise
+
+def ensure_database_exists(engine, table_name, csv_file):
+    """Ensure database table exists and is populated"""
+    try:
+        with engine.connect() as conn:
+            # Check if table exists and has data
+            result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar()
+            if result == 0:
+                # Table exists but is empty
+                df = pd.read_csv(csv_file)
+                if "Ground support Equipment" in df.columns:
+                    df["Ground support Equipment"] = df["Ground support Equipment"].str.strip()
+                df.to_sql(table_name, engine, if_exists="replace", index=False)
+    except Exception:
+        # Table doesn't exist, create it
+        if os.path.exists(csv_file):
+            df = pd.read_csv(csv_file)
+            if "Ground support Equipment" in df.columns:
+                df["Ground support Equipment"] = df["Ground support Equipment"].str.strip()
+            df.to_sql(table_name, engine, if_exists="replace", index=False)
+        else:
+            raise FileNotFoundError(f"No data found for table {table_name}")
 
 def load_data_from_db(table_name, filters=None, db="ac"):
-    """
-    Load data from a database table with optional filters.
+    """Load data from a database table with optional filters."""
+    try:
+        # Select the appropriate engine and CSV file
+        engine = ac_engine if db == "ac" else gse_engine
+        csv_file = os.path.join(DATA_PATH, f"{table_name}.csv")
+        
+        # Ensure database exists and is populated
+        ensure_database_exists(engine, table_name, csv_file)
+        
+        # Build query
+        query = f"SELECT * FROM {table_name}"
+        params = {}
 
-    Args:
-        table_name (str): The name of the database table.
-        filters (dict): Optional filters to apply (e.g., {"COLUMN_NAME": value} or {"COLUMN_NAME": [value1, value2]}).
-        db (str): The database to connect to ("ac" or "gse").
+        if filters:
+            where_clauses = []
+            for key, value in filters.items():
+                if isinstance(value, list):
+                    placeholders = []
+                    for i, val in enumerate(value):
+                        param_name = f"{key.replace(' ', '_')}_{i}"
+                        placeholders.append(f":{param_name}")
+                        params[param_name] = val.strip() if isinstance(val, str) else val
+                    where_clauses.append(f'"{key}" IN ({", ".join(placeholders)})')
+                else:
+                    param_name = key.replace(" ", "_")
+                    where_clauses.append(f'"{key}" = :{param_name}')
+                    params[param_name] = value.strip() if isinstance(value, str) else value
 
-    Returns:
-        pd.DataFrame: The resulting dataset as a Pandas DataFrame.
-    """
-    # Select the appropriate engine
-    engine = ac_engine if db == "ac" else gse_engine
+            query += " WHERE " + " AND ".join(where_clauses)
 
-    # Start with the base query
-    query = f"SELECT * FROM {table_name}"
-    params = {}
+        print("Query:", query)
+        print("Params:", params)
 
-    # Add optional filtering
-    if filters:
-        where_clauses = []
-        for key, value in filters.items():
-            if isinstance(value, list):
-                # Dynamically generate bind parameters for the IN clause
-                placeholders = ", ".join([f":{key}_{i}" for i in range(len(value))])
-                where_clauses.append(f'"{key}" IN ({placeholders})')
-                # Add each value in the list to the params dictionary with a unique key
-                for i, v in enumerate(value):
-                    params[f"{key}_{i}"] = v
-            else:
-                where_clauses.append(f'"{key}" = :{key}')
-                params[key] = value
-        query += f" WHERE {' AND '.join(where_clauses)}"
+        return pd.read_sql(text(query), engine, params=params)
 
-    # Debugging: Print the query and parameters
-    print("Query:", query)
-    print("Params:", params)
-
-    # Execute the query and return the results as a DataFrame
-    return pd.read_sql(text(query), engine, params=params)
+    except Exception as e:
+        logger.error(f"Error executing database query: {str(e)}")
+        raise
 
 # Specific loaders for each dataset
 def load_ac_data():
