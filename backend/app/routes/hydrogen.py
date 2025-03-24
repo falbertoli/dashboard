@@ -1,6 +1,8 @@
 # File: backend/app/routes/hydrogen.py
 
 from flask import Blueprint, request
+from app.utils.data_loader import load_data_from_db
+
 from app.services.hydrogen_service import (
     compute_h2_demand_ac, compute_h2_demand_gse,
     compute_storage_area, compute_emissions
@@ -13,6 +15,22 @@ from app.utils.validation import (
 from typing import Dict, Any
 
 hydrogen_bp = Blueprint('hydrogen', __name__)
+
+@hydrogen_bp.route('/gse_options', methods=['GET'])
+def get_gse_options():
+    """API to fetch available GSE types from the database."""
+    try:
+        # Load unique GSE names from the database
+        gse_data = load_data_from_db("gse_data")
+        gse_types = gse_data["Ground support Equipment"].unique().tolist()
+
+        return APIResponse.success(
+            data=gse_types,
+            message="Successfully fetched GSE options"
+        )
+    except Exception as e:
+        return APIResponse.error(f"Error fetching GSE options: {str(e)}", 500)
+
 
 def validate_h2_demand_ac_params(data: Dict[str, Any]) -> None:
     """Validate parameters for aircraft hydrogen demand calculation."""
@@ -73,12 +91,12 @@ def validate_h2_demand_gse_params(data: Dict[str, Any]) -> None:
         # Check required parameters
         validate_required_params(data, ["gse_list", "end_year"])
         
-        # Validate GSE list
-        validate_gse_list(data["gse_list"])
+        # Allow empty GSE list (skip validation)
+        if data["gse_list"]:
+            validate_gse_list(data["gse_list"])
         
         # Validate end year
         validate_year(data["end_year"])
-
     except ValidationError as e:
         raise ValidationError(f"Invalid parameters: {str(e)}")
 
@@ -90,15 +108,29 @@ def h2_demand_gse():
         if not data:
             return APIResponse.error("No data provided", 400)
 
+        # ✅ Allow empty GSE list and return zero demand
+        gse_list = data.get("gse_list", [])
+        end_year = data.get("end_year")
+
+        if not gse_list:
+            return APIResponse.success(
+                data={
+                    "daily_h2_demand_ft3": 0.0,
+                    "total_diesel_used_lb": 0.0,
+                    "total_gasoline_used_lb": 0.0
+                },
+                message="No GSE selected, returning zero hydrogen demand."
+            )
+
         # Validate input parameters
         validate_h2_demand_gse_params(data)
-        
-        # Compute hydrogen demand
+
+        # Compute hydrogen demand only if GSE list is not empty
         daily_h2_demand_gse, tot_diesel, tot_gasoline = compute_h2_demand_gse(
-            gse_list=data["gse_list"],
-            end_year=data["end_year"]
+            gse_list=gse_list,
+            end_year=end_year
         )
-        
+
         return APIResponse.success(
             data={
                 "daily_h2_demand_ft3": daily_h2_demand_gse,
@@ -107,15 +139,15 @@ def h2_demand_gse():
             },
             message="Successfully calculated GSE hydrogen demand"
         )
-    
+
     except ValidationError as e:
         return APIResponse.error(str(e), 400)
     except Exception as e:
-        # Log the error here if you have logging set up
         return APIResponse.error(
             "An error occurred while calculating GSE hydrogen demand", 
             500
         )
+
 
 def validate_storage_area_params(data: Dict[str, Any]) -> None:
     """Validate parameters for storage area calculation."""
