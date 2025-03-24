@@ -16,6 +16,7 @@ def create_app(config_name="default"):
     """
     # Create Flask app
     app = Flask(__name__)
+    CORS(app, resources={r"/*": {"origins": "*"}})
     
     # Load configuration based on config_name
     app.config.from_object(config[config_name])

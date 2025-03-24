@@ -37,7 +37,5 @@ def validate_gse_list(gse_list: List[str]) -> None:
     """Validate GSE list."""
     if not isinstance(gse_list, list):
         raise ValidationError("GSE list must be an array")
-    if not gse_list:
-        raise ValidationError("GSE list cannot be empty")
     if not all(isinstance(item, str) for item in gse_list):
         raise ValidationError("All GSE items must be strings")
