@@ -100,3 +100,31 @@ class TestEconomicService:
             with pytest.raises(EconomicCalculationError) as exc:
                 calculate_economic_impact()
             assert "Total departures cannot be zero" in str(exc.value)
+
+def test_calculate_economic_impact_integration():
+    """
+    Integration test for calculate_economic_impact using the actual CSV files.
+    This test uses the CSV files in the data folder (renamed to utilization_data.csv,
+    operations_data.csv, and income_data.csv) to run the complete calculation.
+    """
+    # Call the full end-to-end function
+    result = calculate_economic_impact()
+
+    # Expected keys
+    expected_keys = [
+        "hydrogen_utilization",
+        "revenue_drop",
+        "total_tax_credits",
+        "baseline_revenue",
+        "new_h2_revenue",
+        "percent_revenue_drop"
+    ]
+
+    # Check that all expected keys are present
+    for key in expected_keys:
+        assert key in result, f"Missing key: {key}"
+        # Check that the value is a float; optionally ensure non-negativity if it makes sense.
+        assert isinstance(result[key], float), f"Value for {key} is not float"
+
+    # Additional checks: for example, baseline revenue should be positive.
+    assert result["baseline_revenue"] > 0, "Baseline revenue should be positive"

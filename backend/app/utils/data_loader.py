@@ -195,11 +195,26 @@ def load_ac_data():
 def load_gse_data():
     return load_csv("gse_data.csv")
 
-def load_income_data():
-    return load_csv("t_f41schedule_p12.csv")
+def load_utilization_data() -> pd.DataFrame:
+    """Loads utilization_data.csv"""
+    return load_csv("utilization_data.csv")
 
-def load_operational_hours():
-    return load_csv("t_schedule_t1.csv")
+def load_operations_data() -> pd.DataFrame:
+    """Loads operations_data.csv"""
+    return load_csv("operations_data.csv")
 
-def load_carrier_operations():
-    return load_csv("t_t100d_segment_us_carrier_only.csv")
+def load_income_data() -> pd.DataFrame:
+    """Loads income_data.csv"""
+    return load_csv("income_data.csv")
+
+def load_regulations() -> pd.DataFrame:
+    """Loads regulations.csv"""
+    return load_csv("regulations.csv")
+
+def load_distances_requirements() -> pd.DataFrame:
+    """Loads distances_requirements.csv"""
+    return load_csv("distances_requirements.csv")
+
+# Create aliases for backward compatibility:
+load_operational_hours = load_utilization_data
+load_carrier_operations = load_operations_data

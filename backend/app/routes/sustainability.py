@@ -1,13 +1,14 @@
 # File: backend/app/routes/sustainability.py
+
 from flask import Blueprint, request, jsonify, current_app
-from app.services.sustainability_service import calculate_sustainability_metrics
+from app.services.sustainability_service import emissions
 
 # Define the Blueprint
 sustainability_bp = Blueprint("sustainability", __name__)
 
-@sustainability_bp.route("/metrics", methods=["POST"])
-def get_sustainability_metrics():
-    """Calculate sustainability metrics for hydrogen adoption."""
+@sustainability_bp.route("/emissions", methods=["POST"])
+def get_emissions():
+    """Calculate CO2 emissions for hydrogen-jetA and jetA-only fleets."""
     try:
         # Get JSON data from request
         data = request.get_json()
@@ -15,45 +16,37 @@ def get_sustainability_metrics():
             return jsonify({"error": "Missing request body"}), 400
         
         # Extract parameters from request
-        jet_fuel_lb = float(data.get("jet_fuel_lb", 0))
-        diesel_fuel_lb = float(data.get("diesel_fuel_lb", 0))
-        gasoline_fuel_lb = float(data.get("gasoline_fuel_lb", 0))
-        hydrogen_adoption_rate = float(data.get("hydrogen_adoption_rate", 0))
+        # Now we expect the three fuel weights (all in lbs)
+        jetA_weight = float(data.get("jetA_weight", 0))
+        H2_weight = float(data.get("H2_weight", 0))
+        Fuel_weight = float(data.get("Fuel_weight", 0))
         
-        # Validate hydrogen_adoption_rate range
-        if not 0 <= hydrogen_adoption_rate <= 1:
+        # Optionally validate that fuel weight values are not negative
+        if jetA_weight < 0 or H2_weight < 0 or Fuel_weight < 0:
             return jsonify({
                 "error": "Invalid parameter",
-                "message": "hydrogen_adoption_rate must be between 0 and 1"
+                "message": "Fuel weights must be non-negative"
             }), 400
         
-        # Calculate metrics
-        metrics = calculate_sustainability_metrics(
-            jet_fuel_lb,
-            diesel_fuel_lb,
-            gasoline_fuel_lb,
-            hydrogen_adoption_rate
-        )
+        # Calculate emissions using the new emissions function
+        jetA_co2, H2_co2, just_jetA_co2 = emissions(jetA_weight, H2_weight, Fuel_weight)
         
-        # Log successful request
-        current_app.logger.info(
-            f"Calculated sustainability metrics with {hydrogen_adoption_rate*100}% "
-            f"hydrogen adoption rate"
-        )
-        
-        return jsonify(metrics)
+        current_app.logger.info("Calculated emissions successfully")
+        return jsonify({
+            "jetA_co2": jetA_co2,
+            "H2_co2": H2_co2,
+            "just_jetA_co2": just_jetA_co2
+        })
     
     except ValueError as e:
-        # Handle type conversion errors
-        current_app.logger.warning(f"Validation error in sustainability metrics: {str(e)}")
+        current_app.logger.warning(f"Validation error in emissions endpoint: {str(e)}")
         return jsonify({
             "error": "Invalid parameter format", 
-            "message": "All fuel values and adoption rate must be numbers"
+            "message": "All fuel weights must be numbers"
         }), 400
     
     except Exception as e:
-        # Log unexpected errors
-        current_app.logger.error(f"Error calculating sustainability metrics: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Error calculating emissions: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
 @sustainability_bp.route("/sustainability", methods=["GET"])

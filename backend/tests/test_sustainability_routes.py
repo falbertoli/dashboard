@@ -2,74 +2,56 @@
 import json
 import pytest
 
-def test_sustainability_metrics_endpoint(client):
-    """Test the sustainability metrics endpoint."""
-    # Test data
+def test_emissions_endpoint(client):
+    """Test the emissions endpoint for calculating CO2 emissions."""
+    # Test data using the new expected parameters (all weights in lbs)
     test_data = {
-        "jet_fuel_lb": 100000,
-        "diesel_fuel_lb": 5000,
-        "gasoline_fuel_lb": 3000,
-        "hydrogen_adoption_rate": 0.3
+        "jetA_weight": 10000,   # lbs used in the hydrogen-jetA combination fleet (Jet A portion)
+        "H2_weight": 3000,      # lbs of hydrogen fuel used in the hydrogen-jetA combination fleet
+        "Fuel_weight": 15000    # lbs used in a Jet A-only fleet
     }
     
-    # Make request to the endpoint
+    # Make request to the new emissions endpoint
     response = client.post(
-        "/api/sustainability/metrics",
+        "/api/sustainability/emissions",
         data=json.dumps(test_data),
         content_type="application/json"
     )
     
     # Check response
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200 OK but got {response.status_code}"
     data = json.loads(response.data)
     
-    # Verify response contains expected keys
-    expected_keys = [
-        "baseline_emissions_kg", "remaining_emissions_kg", 
-        "h2_production_emissions_kg", "total_new_emissions_kg",
-        "emissions_reduction_kg", "percent_reduction",
-        "hydrogen_weight_kg", "water_usage_gallons",
-        "energy_required_kwh", "renewable_energy_land_acres"
-    ]
-    
+    # Verify that the response JSON contains the three expected keys: 
+    # jetA_co2, H2_co2, and just_jetA_co2.
+    expected_keys = ["jetA_co2", "H2_co2", "just_jetA_co2"]
     for key in expected_keys:
-        assert key in data
-    
-    # Test with invalid adoption rate
+        assert key in data, f"Missing expected key: {key}"
+
+    # Optionally, you could add additional tests to check that the values are numbers
+    for key in expected_keys:
+        assert isinstance(data[key], (int, float)), f"{key} should be numeric"
+
+def test_emissions_endpoint_invalid_values(client):
+    """Test the emissions endpoint with invalid (non-numeric) fuel input."""
     invalid_data = {
-        "jet_fuel_lb": 100000,
-        "diesel_fuel_lb": 5000,
-        "gasoline_fuel_lb": 3000,
-        "hydrogen_adoption_rate": 1.5  # Invalid - should be 0-1
+        "jetA_weight": "not-a-number",
+        "H2_weight": 3000,
+        "Fuel_weight": 15000
     }
     
     response = client.post(
-        "/api/sustainability/metrics",
+        "/api/sustainability/emissions",
         data=json.dumps(invalid_data),
         content_type="application/json"
     )
     
-    assert response.status_code == 400
-    
-    # Test with non-numeric values
-    invalid_type_data = {
-        "jet_fuel_lb": "not-a-number",
-        "diesel_fuel_lb": 5000,
-        "gasoline_fuel_lb": 3000,
-        "hydrogen_adoption_rate": 0.3
-    }
-    
-    response = client.post(
-        "/api/sustainability/metrics",
-        data=json.dumps(invalid_type_data),
-        content_type="application/json"
-    )
-    
+    # As the conversion to float should fail, we expect a 400 response.
     assert response.status_code == 400
 
 def test_sustainability_get_endpoint(client):
-    """Test the basic sustainability GET endpoint."""
+    """Test the basic legacy sustainability GET endpoint for backward compatibility."""
     response = client.get("/api/sustainability/sustainability")
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200 OK but got {response.status_code}"
     data = json.loads(response.data)
     assert "message" in data

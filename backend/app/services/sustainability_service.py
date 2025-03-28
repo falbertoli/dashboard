@@ -1,190 +1,76 @@
-# File: backend/app/services/sustainability_service.py
+# File: sustainability_service.py
 
-from typing import Dict, Union
-from app.services.hydrogen_service import compute_emissions
-from app.utils.validation import ValidationError
-from app.constants import (
-    JET_A_EMISSION_FACTOR, DIESEL_EMISSION_FACTOR, GASOLINE_EMISSION_FACTOR,
-    CONVERSION_FACTOR_JET_TO_H2
-)
+import matplotlib.pyplot as plt
+import numpy as np
 
-class SustainabilityCalculationError(ValidationError):
-    """Custom exception for sustainability calculation errors."""
-    pass
+def emissions(jetA_weight, H2_weight, Fuel_weight):
+    """
+    Calculate and plot CO2 emissions (in metric tons) for two fleet scenarios:
+      1. A hydrogen-jetA combination fleet (combining emissions from the jetA and the hydrogen fuel component).
+      2. A pure jetA-only fleet.
+      
+    Inputs:
+      - jetA_weight: Weight of Jet A fuel (in lbs) that is used in a hydrogen-jetA combination fleet.
+      - H2_weight:   Weight of hydrogen fuel (in lbs) that is used in a hydrogen-jetA combination fleet.
+      - Fuel_weight: Weight of Jet A fuel (in lbs) that is used in a jetA-only fleet.
 
-def validate_fuel_inputs(
-    jet_fuel_lb: float,
-    diesel_fuel_lb: float,
-    gasoline_fuel_lb: float,
-    hydrogen_adoption_rate: float
-) -> None:
-    """Validate fuel and adoption rate inputs."""
-    # Validate types
-    for name, value in [
-        ("Jet fuel", jet_fuel_lb),
-        ("Diesel fuel", diesel_fuel_lb),
-        ("Gasoline fuel", gasoline_fuel_lb)
-    ]:
-        if not isinstance(value, (int, float)):
-            raise SustainabilityCalculationError(f"{name} amount must be a number")
-        if value < 0:
-            raise SustainabilityCalculationError(f"{name} amount cannot be negative")
+    Returns:
+      A tuple (jetA_co2, H2_co2, just_jetA_co2) representing:
+        - jetA_co2: CO2 emissions (metric tons) for the jetA portion in the hydrogen-combination fleet.
+        - H2_co2:   CO2 emissions (metric tons) for the H2-derived portion in the hydrogen-combination fleet.
+        - just_jetA_co2: CO2 emissions (metric tons) for the pure jetA-only fleet.
+    """
+    # Constants
+    lbstokgconversionfactor = 2.02  # lbs -> kg conversion factor
+    jetAco2EI = 3.16                # kg CO2 per kg Jet A
+    h2co2EI   = 1.5                 # kg CO2 per kg Hydrogen
 
-    if not isinstance(hydrogen_adoption_rate, (int, float)):
-        raise SustainabilityCalculationError("Hydrogen adoption rate must be a number")
-    if not 0 <= hydrogen_adoption_rate <= 1:
-        raise SustainabilityCalculationError("Hydrogen adoption rate must be between 0 and 1")
+    # Convert input weights from lbs to kg
+    jetA_weight = jetA_weight / lbstokgconversionfactor
+    H2_weight = H2_weight / lbstokgconversionfactor
+    Fuel_weight = Fuel_weight / lbstokgconversionfactor
 
-def calculate_emissions_reduction(
-    jet_fuel_lb: float,
-    diesel_fuel_lb: float,
-    gasoline_fuel_lb: float,
-    hydrogen_adoption_rate: float
-) -> Dict[str, float]:
-    """Calculate the emissions reduction from switching to hydrogen fuel."""
-    try:
-        validate_fuel_inputs(
-            jet_fuel_lb,
-            diesel_fuel_lb,
-            gasoline_fuel_lb,
-            hydrogen_adoption_rate
-        )
-        
-        # Handle zero fuel case
-        if jet_fuel_lb == 0 and diesel_fuel_lb == 0 and gasoline_fuel_lb == 0:
-            return {
-                "baseline_emissions_kg": 0.0,
-                "remaining_emissions_kg": 0.0,
-                "h2_production_emissions_kg": 0.0,
-                "total_new_emissions_kg": 0.0,
-                "emissions_reduction_kg": 0.0,
-                "percent_reduction": 0.0
-            }
+    # Compute CO2 emissions in metric tons
+    jetA_co2 = (jetA_weight * jetAco2EI) / 1000
+    H2_co2 = (H2_weight * h2co2EI) / 1000
+    just_jetA_co2 = (Fuel_weight * jetAco2EI) / 1000
 
-        
-        # Calculate baseline emissions
-        baseline_emissions = compute_emissions(
-            jet_fuel_lb, 
-            diesel_fuel_lb, 
-            gasoline_fuel_lb
-        )
-        
-        # Calculate remaining emissions
-        remaining_jet_fuel = jet_fuel_lb * (1 - hydrogen_adoption_rate)
-        remaining_emissions = compute_emissions(
-            remaining_jet_fuel,
-            diesel_fuel_lb * (1 - hydrogen_adoption_rate),
-            gasoline_fuel_lb * (1 - hydrogen_adoption_rate)
-        )
-        
-        # Calculate H2 production emissions
-        h2_weight = (jet_fuel_lb * hydrogen_adoption_rate) / CONVERSION_FACTOR_JET_TO_H2
-        h2_production_emissions = float(h2_weight * 0.4)
-        
-        # Calculate totals
-        total_new_emissions = remaining_emissions + h2_production_emissions
-        emissions_reduction = baseline_emissions - total_new_emissions
-        percent_reduction = float(
-            (emissions_reduction / baseline_emissions) * 100 if baseline_emissions > 0 else 0
-        )
-        
-        return {
-            "baseline_emissions_kg": float(baseline_emissions),
-            "remaining_emissions_kg": float(remaining_emissions),
-            "h2_production_emissions_kg": h2_production_emissions,
-            "total_new_emissions_kg": float(total_new_emissions),
-            "emissions_reduction_kg": float(emissions_reduction),
-            "percent_reduction": percent_reduction
-        }
-    
-    except SustainabilityCalculationError:
-        raise
-    except Exception as e:
-        raise SustainabilityCalculationError(f"Error calculating emissions reduction: {str(e)}")
+    # Plotting the emissions breakdown
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-def validate_h2_weight(h2_weight_kg: float) -> None:
-    """Validate hydrogen weight input."""
-    if not isinstance(h2_weight_kg, (int, float)):
-        raise SustainabilityCalculationError("Hydrogen weight must be a number")
-    if h2_weight_kg < 0:
-        raise SustainabilityCalculationError("Hydrogen weight must be positive")
+    # Plot bars for the Hydrogen-combination fleet: Jet A is shown first, then H2 stacked above it.
+    ax.bar(0.5, jetA_co2, label='JetA CO2', color='lightcoral')
+    ax.bar(0.5, H2_co2, label='H2 CO2', color='cornflowerblue', bottom=jetA_co2)
 
-def calculate_water_usage(h2_weight_kg: float) -> float:
-    """Calculate water usage for hydrogen production."""
-    try:
-        validate_h2_weight(h2_weight_kg)
-        
-        # Zero hydrogen means zero water usage
-        if h2_weight_kg == 0:
-            return 0.0
-            
-        water_kg = h2_weight_kg * 9
-        return float(water_kg * 0.264172)
-    except SustainabilityCalculationError:
-        raise
-    except Exception as e:
-        raise SustainabilityCalculationError(f"Error calculating water usage: {str(e)}")
+    # Plot bar for the JetA-only fleet
+    ax.bar(2, just_jetA_co2, label='Just JetA CO2', color='goldenrod')
 
-def calculate_sustainability_metrics(
-    jet_fuel_lb: float,
-    diesel_fuel_lb: float,
-    gasoline_fuel_lb: float,
-    hydrogen_adoption_rate: float
-) -> Dict[str, float]:
-    """Calculate comprehensive sustainability metrics."""
-    try:
-        # Validate inputs
-        validate_fuel_inputs(
-            jet_fuel_lb,
-            diesel_fuel_lb,
-            gasoline_fuel_lb,
-            hydrogen_adoption_rate
-        )
-        
-        # Handle zero fuel case
-        if jet_fuel_lb == 0 and diesel_fuel_lb == 0 and gasoline_fuel_lb == 0:
-            return {
-                "baseline_emissions_kg": 0.0,
-                "remaining_emissions_kg": 0.0,
-                "h2_production_emissions_kg": 0.0,
-                "total_new_emissions_kg": 0.0,
-                "emissions_reduction_kg": 0.0,
-                "percent_reduction": 0.0,
-                "hydrogen_weight_kg": 0.0,
-                "water_usage_gallons": 0.0,
-                "energy_required_kwh": 0.0,
-                "renewable_energy_land_acres": 0.0
-            }
-        # Get emissions data
-        emissions_data = calculate_emissions_reduction(
-            jet_fuel_lb, 
-            diesel_fuel_lb, 
-            gasoline_fuel_lb, 
-            hydrogen_adoption_rate
-        )
-        
-        # Calculate hydrogen weight
-        h2_weight_kg = float(
-            (jet_fuel_lb * hydrogen_adoption_rate) / CONVERSION_FACTOR_JET_TO_H2
-        )
-        
-        # Calculate metrics
-        water_usage = calculate_water_usage(h2_weight_kg)
-        energy_required_kwh = float(h2_weight_kg * 55)
-        avg_power_kw = float(energy_required_kwh / (365 * 24))
-        solar_land_acres = float((avg_power_kw / 1000) * 8)
-        
-        return {
-            **emissions_data,
-            "hydrogen_weight_kg": h2_weight_kg,
-            "water_usage_gallons": water_usage,
-            "energy_required_kwh": energy_required_kwh,
-            "renewable_energy_land_acres": solar_land_acres
-        }
-    
-    except SustainabilityCalculationError:
-        raise
-    except Exception as e:
-        raise SustainabilityCalculationError(
-            f"Error calculating sustainability metrics: {str(e)}"
-        )
+    # Formatting
+    ax.set_title('Mass of Emissions with and without Hydrogen Influence', color='white')
+    ax.set_xlabel('Scenario Index', color='white')
+    ax.set_ylabel('Emissions (Metric Tons)', color='white')
+    ax.legend()
+    plt.xticks([0.5, 2], ["Hydrogen + JetA Fleet", "Only JetA Fleet"], color='white')
+    plt.yticks(color='white')
+
+    # Set background and spine colors for improved aesthetics
+    ax.set_facecolor("#003057")
+    fig.patch.set_facecolor('#003057')
+    for spine in ax.spines.values():
+        spine.set_color('white')
+
+    plt.show()
+
+    return jetA_co2, H2_co2, just_jetA_co2
+
+# Example usage
+if __name__ == "__main__":
+    # Example input weights (lbs) from your hydrogen demand tool outputs:
+    jetA_weight_example = 10000  # lbs used in a hydrogen-jetA combination fleet
+    H2_weight_example = 3000     # lbs used in a hydrogen-jetA combination fleet
+    Fuel_weight_example = 15000  # lbs used in a pure jetA-only fleet
+
+    jetA_co2, H2_co2, just_jetA_co2 = emissions(jetA_weight_example, H2_weight_example, Fuel_weight_example)
+    print("Emissions for Hydrogen+JetA Fleet (JetA part):", jetA_co2, "metric tons")
+    print("Emissions for Hydrogen+JetA Fleet (H2 part):", H2_co2, "metric tons")
+    print("Emissions for JetA-Only Fleet:", just_jetA_co2, "metric tons")

@@ -19,6 +19,5 @@ def get_economic_impact():
         return APIResponse.error(str(e), 400)
     except Exception as e:
         return APIResponse.error(
-            "An error occurred while calculating economic impact",
-            500
+            "An error occurred while calculating economic impact", 500
         )
