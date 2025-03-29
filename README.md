@@ -1,100 +1,103 @@
-# Hydrogen Infrastructure Dashboard
-
-## Overview
-
-The **Hydrogen Infrastructure Dashboard** is a full-stack application designed to analyze and visualize hydrogen infrastructure needs at airports. The project evaluates storage requirements, operational feasibility, cost impact, and compliance with safety regulations. The dashboard provides decision-makers with a tool to assess various hydrogen demand scenarios and their impact on infrastructure and costs.
-
-## Features
-
-- **Hydrogen Demand Calculation**: Estimates hydrogen fuel needs based on fleet percentage and operational requirements.
-- **Storage Capacity Analysis**: Determines space and regulatory constraints for hydrogen storage at airports.
-- **Cost Impact Assessment**: Evaluates financial implications, including turnaround time effects and infrastructure costs.
-- **Geospatial Visualization**: Uses **Leaflet** to display hydrogen storage locations and land use requirements.
-- **Economic Analysis**: Assesses financial feasibility, revenue impact, and tax incentives related to hydrogen adoption.
-- **Sustainability Analysis**: Evaluates environmental benefits, regulatory alignment, and long-term sustainability goals.
-- **Interactive Dashboard**: Developed using **Vue 3** and **Vite** for a dynamic user experience.
-
-## Tech Stack
-
-- **Frontend**: Vue 3, Vite, Leaflet
-- **Backend**: Flask (Python)
-- **Data Processing**: Python (Pandas, NumPy)
-- **Mapping & Visualization**: Leaflet.js, Chart.js
-
-## Installation
-
-### Prerequisites
-
-Ensure you have the following installed:
-
-- Node.js & npm
-- Python 3.8+
-- pip (Python package manager)
-
-### Clone Repository
-
-```sh
-git clone https://github.com/falbertoli/dashboard.git
-cd dashboard
-```
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-   ```sh
-   cd backend
-   ```
-2. Create a virtual environment:
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. Start the Flask server:
-   ```sh
-   flask run
-   ```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```sh
-   cd frontend
-   ```
-2. Install dependencies:
-   ```sh
-   npm install
-   ```
-3. Start the development server:
-   ```sh
-   npm run dev
-   ```
-
-## Usage
-
-- Open `http://localhost:5173/` in your browser to access the dashboard.
-- Use the dashboard to input demand parameters, visualize storage locations, and analyze cost impacts.
-- Adjust parameters dynamically to evaluate different scenarios.
-
-## Hydrogen Demand Analysis
-
-- **Fleet Utilization**: Calculates hydrogen demand based on the percentage of aircraft transitioning to hydrogen fuel.
-- **List of Ground Fleet Equipment**: Includes hydrogen-powered ground support vehicles such as baggage tugs, fuel trucks, pushback tractors, and maintenance vehicles.
-- **Operational Scenarios**: Evaluates hydrogen demand for a full year to accommodate seasonal variations and peak operational loads.
-- **Storage Requirements**: Determines the amount of hydrogen required and the infrastructure needed for refueling operations.
-- **Safety and Compliance**: Ensures hydrogen demand meets regulatory safety requirements for airport operations.
-
-## Economic Impact
-
-- **Cost Analysis**: Assesses the cost of hydrogen adoption, including infrastructure, storage, handling, and operational changes.
-- **Revenue Impact**: Evaluates the effect of hydrogen transition on airline revenue due to turnaround time variations.
-- **Tax Incentives**: Incorporates available government incentives and tax credits to offset hydrogen infrastructure costs.
-
-## Sustainability Impact
-
-- **Environmental Benefits**: Hydrogen adoption reduces carbon emissions, contributing to cleaner air travel.
-- **Regulatory Compliance**: Aligns with the **Paris Agreement** and other international sustainability mandates.
-- **Long-term Feasibility**: Supports a transition towards net-zero aviation by promoting green energy solutions.
+FLIGHT Future Logistics in Green Hydrogen Transport
+• Comprehensive Hydrogen Storage Analysis Use Case
+• Demand, Storage, Regulatory Compliance, Sustainability, and Economic Impact
+Introduction
+• Presentation Topic: Integrated H2 Infrastructure Analysis for the Atlanta Airport
+• H2 airport adoption Problem statement:
+• Uncertain H2 demand (flights/GSE ops)
+• Storage constraints (land, safety distances).
+• Regulatory maze (OSHA, DOT, NFPA, SAE).
+• Economic viability (costs, incentives, Return On Investment).
+• Purpose:
+• Enable stakeholders to analyze hydrogen storage requirements comprehensively.
+• Evaluate demand, storage needs, regulatory compliance, sustainability impacts, and economic feasibility of hydrogen infrastructure.
+• Stakeholders:
+• Airport developers
+• Airline stakeholders
+Comprehensive Use Case Overview
+• Goal of Analysis:
+• Accurately estimate hydrogen demand for aircraft and ground support equipment (GSE).
+• Evaluate hydrogen storage infrastructure requirements.
+• Ensure regulatory compliance with safety standards.
+• Analyze sustainability impacts.
+• Provide detailed economic feasibility assessments.
+Key Steps
+Scenario & Fleet Selection
+Hydrogen Consumption Data Input
+Hydrogen Demand and Storage Calculation
+Infrastructure Requirements & Land Area
+Regulatory Compliance Evaluation
+Sustainability Assessment
+Economic Impact Analysis
+Step 1 – Scenario and Fleet Selection
+• Scenarios Considered:
+• Aircraft only
+• Ground Support Equipment (GSE) only
+• Combined Scenario (Aircraft + GSE)
+• Inputs:
+• Aircraft transition percentage: Proportion of aircraft adopting hydrogen technology
+• Types of GSE vehicles (e.g., buses, forklifts, …): GSE transitioning to H2
+• Projection year: Selected year for forecasting H2 transition impacts
+Example Screenshot - UI Mockup
+Step 2 – Hydrogen Consumption Data sources
+• Fleet Data Required:
+• Growth rate
+• Aircraft type and frequency of operations
+• GSE types, quantities and operating patterns
+• Aircraft data (aircraft_data.csv)
+• GSE data (gse_data.csv)
+Step 3 – Hydrogen Demand Calculation – Aircraft
+Step 3 – Hydrogen Demand Calculation – GSE
+• Hydrogen Demand Output
+• Aircraft H2 volume
+• GSE H2 volume
+• Total H2 demand
+• GSE chosen information
+• Charts
+Example Screenshot
+Step 4: Storage Capacity & Land Calculation
+• total_storage_volume = aircraft_H2_volume + GSE_H2_Volume
+• usable_volume_of_LH2 = water_volume _ (1-ullage)_(1-evaporation_rate)
+• #\_of_tanks = H2_demand_volume_per_day/usable_volume_of_LH2
+• tank_footprint = width _ length
+• H2_stockage_area = tank_footprint _ #\_of_tanks
+• Storage Capacity & Land Calculation Output
+• # of tanks
+• Storage area required
+• Charts
+Example Screenshot
+• Step 5: Regulatory Compliance – Distance
+• Checking Compliance
+• Convert storage volume (ft^3) à gallons
+• Compare capacity to regulations
+• Verify Safety distance and tank requirements
+Step 5: Regulatory Compliance - Requirement
+• Output – Regulatory Compliance
+• Map
+• Color Schemes
+• Applicable regulations
+Example Screenshot
+Step 6: Sustainability Analysis
+• Emission Reductions:
+• Calculate CO₂ emissions reductions from replacing Jet A, Diesel, and Gasoline with Hydrogen
+• total_emissions = jetA_emissions + diesel_emissions + gasoline_emissions
+• Emission Factors:
+• Jet A: 9.57 kg CO₂/lb
+• Diesel: 22.38 kg CO₂/lb
+• Gasoline: 19.64 kg CO₂/lb
+• Environmental Benefits:
+• Improved air quality
+• Lower operational carbon footprint
+• Output - Sustainability Analysis
+• Charts
+• Time series
+Step 7:
+• Costs Calculated:
+• Initial Capital Investment: Tanks, infrastructure setup
+• Operational Expenses: Maintenance, hydrogen procurement
+• Incentives/Subsidies: Inflation Reduction Act and other financial incentives
+Key Takeaways
+• Clear hydrogen infrastructure planning guidance
+• Regulatory compliance requirements
+• Sustainability benefits
+• Economic feasibility and incentives
