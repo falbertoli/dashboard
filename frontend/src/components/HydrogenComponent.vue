@@ -1,3 +1,5 @@
+<!-- File: frontend/src/components/HydrogenComponent.vue -->
+
 <template>
   <div>
     <h2>Hydrogen Demand Estimation</h2>

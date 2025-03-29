@@ -40,7 +40,7 @@ TANK_WIDTH_FT = 10.1667
 TANK_LENGTH_FT = 56.5
 WATER_CAPACITY_GAL = 18014
 TANK_ULLAGE = 0.05  # % of volume taken by gas form of H2
-EVAPORATION_LOSS = 0.9925  # % of LH2 lost per day
+EVAPORATION_LOSS = 99.25  # % of LH2 lost per day
 
 # Conversions
 GALLON_TO_CUBIC_FEET = 0.1337  # Conversion factor from gallons to cubic feet

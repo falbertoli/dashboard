@@ -1,3 +1,5 @@
+<!-- File: frontend/src/components/Dropdown.vue -->
+
 <template>
   <div class="dropdown-container">
     <label :for="id" class="dropdown-label">{{ label }}</label>

@@ -1,3 +1,5 @@
+<!-- File: frontend/src/components/ChartComponent.vue -->
+
 <template>
   <div class="chart-container">
     <canvas :id="chartId" ref="chartCanvas"></canvas>

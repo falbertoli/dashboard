@@ -1,3 +1,5 @@
+<!-- File: frontend/src/components/CheckboxGroup.vue -->
+
 <template>
   <div class="checkbox-group-container">
     <label class="checkbox-group-label">{{ label }}</label>
