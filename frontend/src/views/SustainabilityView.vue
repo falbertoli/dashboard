@@ -51,7 +51,4 @@ import EmissionsAnalysis from '@/components/Sustainability/EmissionsAnalysis.vue
   padding: 25px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
-/* Add Font Awesome for icons */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 </style>
