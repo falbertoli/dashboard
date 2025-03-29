@@ -34,7 +34,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-# tell Git to not ignore the data/ directory.
+# tell Git to not ignore the data directory.
 !data/
 MANIFEST
 
