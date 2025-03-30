@@ -1,8 +1,15 @@
+# File: backend/app/routes/distances_requirements.py
+
 import os
 import csv
 import json
 from flask import Blueprint, jsonify, request
 from app.utils.data_loader import load_geojson_areas
+from app.services.distances_requirements_services import (
+    load_hazard_coordinates,
+    calculate_min_distance,
+    calculate_area_centroid
+)
 
 distances_requirements_bp = Blueprint("distances_requirements", __name__)
 
@@ -73,20 +80,38 @@ def check_area_compliance():
         if area is None:
             return jsonify({"error": "Area not found"}), 404
 
-        actual_distance = area["properties"]["min_distance_to_buildings"]
         area_sqft = area["properties"]["area_sqft"]
 
-        # Check compliance clearly
+        # ❗️Dynamic Calculation Starts Here❗️
+        # Load hazard coordinates clearly
+        hazard_coords = load_hazard_coordinates()
+
+        # Calculate centroid explicitly
+        area_polygon_coords = area["geometry"]["coordinates"]
+        area_centroid = calculate_area_centroid(area_polygon_coords)
+
+        # Prepare hazard coordinates lists
+        building_coords = [tuple(b["coordinates"]) for b in hazard_coords["buildings"]]
+        flammable_liquid_coords = [tuple(f["coordinates"]) for f in hazard_coords["flammable_liquids"]]
+
+        # Calculate dynamic actual distances
+        actual_distance_buildings = calculate_min_distance(area_centroid, building_coords)
+        actual_distance_flammable = calculate_min_distance(area_centroid, flammable_liquid_coords)
+
+        # Take the minimum actual distance
+        actual_distance = min(filter(None, [actual_distance_buildings, actual_distance_flammable]))
+
+        # Check compliance dynamically
         is_compliant_distance = actual_distance >= required_distance
         reason = ("Fully compliant" if is_compliant_distance 
-                  else f"Distance insufficient (required: {required_distance} ft, actual: {actual_distance} ft)")
+                  else f"Distance insufficient (required: {required_distance} ft, actual: {actual_distance:.1f} ft)")
 
         # Final clearly structured response
         return jsonify({
             "area_id": area_id,
             "storage_volume_gal": storage_volume_gal,
             "required_safety_distance_ft": required_distance,
-            "actual_distance_ft": actual_distance,
+            "actual_distance_ft": round(actual_distance, 1),
             "area_sqft": area_sqft,
             "is_compliant": is_compliant_distance,
             "reason": reason

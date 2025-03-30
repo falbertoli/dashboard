@@ -3,6 +3,7 @@ import os
 import csv
 from flask import Blueprint, jsonify, request
 from app.services.regulations_service import is_compliant_distance, check_other_regulations
+from geopy.distance import geodesic
 
 regulations_bp = Blueprint("regulations", __name__)
 
