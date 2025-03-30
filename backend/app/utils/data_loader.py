@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 import logging
+import json
 
 # Set up logging
 logging.basicConfig(
@@ -46,6 +47,15 @@ def init_db_engines(app):
     logger.info(f"Initialized GSE database engine with: {gse_db_uri}")
     
     return ac_engine, gse_engine
+
+def load_geojson_areas():
+    file_path = os.path.join(os.path.dirname(__file__), "../../data/geojson/atl_areas.geojson")
+    try:
+        with open(file_path, encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print("Error loading GeoJSON areas:", e)
+        return None
 
 def load_csv(file_name):
     """

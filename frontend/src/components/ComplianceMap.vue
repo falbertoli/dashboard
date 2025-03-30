@@ -30,27 +30,41 @@ export default {
       }
     };
 
-    const evaluateCompliance = (feature) => {
+    const evaluateCompliance = async (feature) => {
       const area = feature.properties.area_sqft;
       const footprintNeeded = storageStore.totalFootprint;
       const enoughSpace = area >= footprintNeeded;
 
-      const distancesCompliance =
-        feature.properties.distance_to_flammable_liquids_compliant &&
-        feature.properties.distance_to_people_compliant &&
-        feature.properties.distance_to_open_fire_compliant;
+      let complianceData;
+      try {
+        complianceData = await api.distancesRequirements.checkAreaCompliance(
+          storageStore.totalH2VolumeGallons,
+          feature.properties.id
+        );
+      } catch (error) {
+        console.error("Error fetching compliance data:", error);
+        complianceData = { is_compliant: false, reason: 'Compliance check failed' };
+      }
+
+      feature.properties.compliance_reason = complianceData.reason;
+      feature.properties.required_safety_distance_ft = complianceData.required_safety_distance_ft;
+      feature.properties.actual_distance_ft = complianceData.actual_distance_ft;
+
+      const distancesCompliance = complianceData.is_compliant;
 
       if (!enoughSpace) return "non-compliant";
       if (enoughSpace && distancesCompliance) return "compliant";
       return "partially-compliant";
     };
 
-    const processGeoJSON = () => {
+    const processGeoJSON = async () => {
       if (!geojsonData.value) return;
 
-      geojsonData.value.features.forEach(feature => {
-        feature.properties.compliance_status = evaluateCompliance(feature);
+      const compliancePromises = geojsonData.value.features.map(async feature => {
+        feature.properties.compliance_status = await evaluateCompliance(feature);
       });
+
+      await Promise.all(compliancePromises);
     };
 
     const renderGeoJSONLayer = () => {
@@ -78,41 +92,22 @@ export default {
           const props = feature.properties;
           const compliance = props.compliance_status;
 
-          let reasons = [];
-
-          const enoughSpace = props.area_sqft >= storageStore.totalFootprint;
-          if (!enoughSpace) {
-            reasons.push("Insufficient space");
-          }
-
-          if (!props.distance_to_flammable_liquids_compliant) {
-            reasons.push("Flammable liquids distance issue");
-          }
-
-          if (!props.distance_to_people_compliant) {
-            reasons.push("People distance issue");
-          }
-
-          if (!props.distance_to_open_fire_compliant) {
-            reasons.push("Open fire distance issue");
-          }
-
-          const reasonText = reasons.length > 0 ? reasons.join(", ") : "Fully compliant";
-
           layer.bindPopup(`
-    <b>${props.name}</b><br>
-    Available Area: ${props.area_sqft} sqft<br>
-    Required Footprint: ${storageStore.totalFootprint} sqft<br>
-    <strong>Status: ${compliance}</strong><br>
-    Reason: ${reasonText}
-  `);
+            <b>${props.name}</b><br>
+            Available Area: ${props.area_sqft} sqft<br>
+            Required Footprint: ${storageStore.totalFootprint} sqft<br>
+            Required Distance: ${props.required_safety_distance_ft || 'N/A'} ft<br>
+            Actual Distance: ${props.actual_distance_ft || 'N/A'} ft<br>
+            <strong>Status: ${compliance}</strong><br>
+            Reason: ${props.compliance_reason || 'N/A'}
+          `);
         }
       }).addTo(map.value);
     };
 
     onMounted(async () => {
       await loadGeoJSON();
-      processGeoJSON();
+      await processGeoJSON();
 
       map.value = L.map('map').setView([33.6407, -84.4277], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -127,8 +122,8 @@ export default {
       });
     });
 
-    watch(() => storageStore.totalFootprint, () => {
-      processGeoJSON();
+    watch(() => storageStore.totalFootprint, async () => {
+      await processGeoJSON();
       renderGeoJSONLayer();
     });
 

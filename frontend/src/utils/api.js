@@ -1,4 +1,5 @@
-// src/utils/api.js
+// frontend/src/utils/api.js
+
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api";
@@ -142,6 +143,20 @@ export const api = {
         return response.data;
       } catch (error) {
         console.error("Error fetching distances requirements:", error);
+        throw error;
+      }
+    },
+    checkAreaCompliance: async (storage_volume_gal, area_id) => {
+      try {
+        const response = await apiClient.get(
+          "/distances_requirements/check_area_compliance",
+          {
+            params: { storage_volume_gal, area_id },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Error checking area compliance:", error);
         throw error;
       }
     },
