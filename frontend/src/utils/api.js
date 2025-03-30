@@ -110,7 +110,15 @@ export const api = {
   },
 
   economics: {
-    // Placeholder for economics API calls
+    calculateEconomicImpact: async (params) => {
+      try {
+        const response = await apiClient.post("/economic/impact", params);
+        return response.data.data; // Return the calculated results
+      } catch (error) {
+        console.error("Error fetching economic impact analysis:", error);
+        throw error;
+      }
+    },
   },
 
   regulations: {

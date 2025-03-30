@@ -108,66 +108,114 @@ def hydrogen_uti_rev(
         pct_drop
     )
 
-def calculate_economic_impact() -> Dict[str, float]:
-    """Compute revenue changes due to hydrogen fleet transition using the revised logic."""
+from datetime import datetime
+
+def calculate_economic_impact(
+    total_h2_demand: float,
+    fleet_percentage: float,
+    start_year: int,
+    end_year: int,
+    growth_rate: float,
+    extra_turn_time: int,
+    turn_time_decrease_rates: list,
+) -> Dict[str, pd.DataFrame]:
+    """
+    Compute revenue changes for hydrogen fleet transition across multiple years and scenarios.
+
+    Parameters:
+    ----------
+    total_h2_demand         : Annual hydrogen demand in gallons for the current year.
+    fleet_percentage        : Percentage of flights using hydrogen in the current year.
+    start_year              : Current year (set dynamically if not provided).
+    end_year                : Final year for hydrogen adoption.
+    growth_rate             : Annual growth rate for scaling demand, revenue, and utilization.
+    extra_turn_time         : Initial extra turnaround time in minutes for hydrogen flights.
+    turn_time_decrease_rates: List of annual reduction rates for turnaround time (in minutes/year).
+
+    Returns:
+    -------
+    Dict[str, pd.DataFrame]: Results for each turnaround time scenario.
+    """
     try:
         data = load_data()
 
         # Filter Delta operations data
         total_delta_oper = data["operations_data"][data["operations_data"]["UNIQUE_CARRIER_NAME"] == "Delta Air Lines Inc."]
-        if total_delta_oper.empty:
-            raise EconomicCalculationError("No Delta Airlines operations data found")
-
         atl_delta_oper = total_delta_oper[total_delta_oper["ORIGIN"] == "ATL"]
-        if atl_delta_oper.empty:
-            raise EconomicCalculationError("No Delta Airlines ATL operations data found")
+        tot_delta_flights_atl = float(total_delta_oper["DEPARTURES_PERFORMED"].sum())
+        flights_atl_to_dome = float(atl_delta_oper["DEPARTURES_PERFORMED"].sum() / tot_delta_flights_atl)
 
-        # Aggregate key metrics from the data
-        total_departures = float(total_delta_oper["DEPARTURES_PERFORMED"].sum())
-        if total_departures == 0:
-            raise EconomicCalculationError("Total departures cannot be zero")
-
-        # Calculate the domestic portion from ATL
-        domestic_ratio = float(atl_delta_oper["DEPARTURES_PERFORMED"].sum() / total_departures)
-        # Revenue in millions USD
         total_rev = float(data["income_data"]["OP_REVENUES"].sum() / 1_000_000)
-        # Baseline Jet-A utilization is scaled by the constant fraction and domestic ratio
         baseline_jetA_util = float(
-            HYDROGEN_FLIGHT_FRACTION * domestic_ratio * data["uti_data"]["REV_ACRFT_HRS_AIRBORNE_610"].sum()
-        )
-        if baseline_jetA_util == 0:
-            raise EconomicCalculationError("Baseline Jet-A utilization cannot be zero")
-
-        # For demonstration, define an annual hydrogen demand in gallons.
-        # (In practice, this would come from an external demand model.)
-        h2_demand_annual_gal = 250000 * 7.48052 * 12  # example conversion factor: month demand * 12
-
-        # Use the extra turnaround time constant from app.constants.
-        extra_turn_time = EXTRA_TURNAROUND_TIME
-
-        # Use the constant HYDROGEN_FLIGHT_FRACTION as a proxy of the fraction of flights using hydrogen.
-        fraction_flights_year = HYDROGEN_FLIGHT_FRACTION
-
-        (utilization_h2, revenue_drop_m, required_tax_crd_per_gal, baseline_revenue_m, new_h2_revenue_m, pct_drop) = hydrogen_uti_rev(
-            fraction_flights_year,
-            total_departures,
-            domestic_ratio,
-            h2_demand_annual_gal,
-            extra_turn_time,
-            total_rev,
-            baseline_jetA_util
+            fleet_percentage
+            * flights_atl_to_dome
+            * data["uti_data"]["REV_ACRFT_HRS_AIRBORNE_610"].sum()
         )
 
-        return {
-            "hydrogen_utilization": float(utilization_h2),
-            "revenue_drop": float(revenue_drop_m),
-            "total_tax_credits": float(required_tax_crd_per_gal),
-            "baseline_revenue": float(baseline_revenue_m),
-            "new_h2_revenue": float(new_h2_revenue_m),
-            "percent_revenue_drop": float(pct_drop)
-        }
+        # Load growth rate data
+        growth_rate_data = pd.DataFrame({
+            "Year": list(range(2023, 2051)),
+            "Projected Operations": [
+                755856, 784123, 815016, 834644, 853350, 872286, 890251, 
+                907846, 925298, 942989, 960976, 979187, 997398, 1016764, 
+                1036063, 1055234, 1074792, 1094786, 1114237, 1134615, 1155514, 
+                1176625, 1197973, 1219542, 1241334, 1263264, 1285643, 1308659
+            ]
+        })
 
-    except EconomicCalculationError:
+        # Get baseline operations for the start year
+        baseline_operations = growth_rate_data.loc[growth_rate_data["Year"] == start_year, "Projected Operations"].values[0]
+
+        years = range(start_year, end_year + 1)
+        slope = (1 - fleet_percentage) / (end_year - start_year)  # Linear growth slope for hydrogen adoption.
+
+        # Store results for each scenario
+        scenario_results = {}
+
+        for rate in turn_time_decrease_rates:
+            all_results = []
+            for year in years:
+                years_elapsed = year - start_year
+                fraction_flights_year = fleet_percentage + slope * years_elapsed
+                this_year_turn_time = max(0, extra_turn_time - (rate * years_elapsed))
+
+                # Scale up using the growth rate data
+                projected_operations = growth_rate_data.loc[growth_rate_data["Year"] == year, "Projected Operations"].values[0]
+                factor = projected_operations / baseline_operations
+
+                h2_demand_annual_scaled_gal = total_h2_demand * factor
+                total_rev_scaled_m = total_rev * factor
+                baseline_jetA_util_scaled = baseline_jetA_util * factor
+
+                (
+                    utilization_h2,
+                    revenue_drop_m,
+                    required_tax_crd_per_gal,
+                    baseline_revenue_m,
+                    new_h2_revenue_m,
+                    pct_drop,
+                ) = hydrogen_uti_rev(
+                    fraction_flights_year,
+                    tot_delta_flights_atl,
+                    flights_atl_to_dome,
+                    h2_demand_annual_scaled_gal,
+                    this_year_turn_time,
+                    total_rev_scaled_m,
+                    baseline_jetA_util_scaled,
+                )
+
+                all_results.append({
+                    "Year": year,
+                    "Turn Time (min)": this_year_turn_time,
+                    "Pct Drop": pct_drop,
+                    "Req. Tax Credit ($/gal)": required_tax_crd_per_gal,
+                })
+
+            scenario_results[rate] = pd.DataFrame(all_results)
+
+        return scenario_results
+
+    except EconomicCalculationError as e:
         raise
     except Exception as e:
         raise EconomicCalculationError(f"Error calculating economic impact: {str(e)}")
