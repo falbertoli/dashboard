@@ -32,6 +32,13 @@
               </button>
             </div>
           </div>
+
+          <!-- Add the visualization component here, below the configuration card -->
+          <div v-if="storageStore.results && storageStore.totalH2Volume > 0" class="card visualization-card">
+            <StorageVisualization :diameter="storageStore.tankDiameter" :length="storageStore.tankLength"
+              :count="storageStore.recommendedTankCount" :lastTankFill="storageStore.lastTankFillPercentage"
+              :usableVolumePerTank="storageStore.usableVolumePerTank" />
+          </div>
         </div>
 
         <!-- Right column: Results -->
@@ -63,6 +70,7 @@ import { useHydrogenStore } from '@/store/hydrogenStore';
 import { useStorageStore } from '@/store/storageStore';
 import StorageInputs from '@/components/Storage/StorageInputs.vue';
 import StorageResults from '@/components/Storage/StorageResults.vue';
+import StorageVisualization from '@/components/Storage/StorageVisualization.vue';
 
 const hydrogenStore = useHydrogenStore();
 const storageStore = useStorageStore();
@@ -146,6 +154,10 @@ h1 {
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.visualization-card {
+  margin-top: 20px;
 }
 
 .actions {

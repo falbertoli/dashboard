@@ -12,9 +12,8 @@
 export const STORAGE = {
   TANK: {
     DIMENSIONS: {
-      WIDTH_FT: 10.1667,
+      DIAMETER_FT: 10.1667,
       LENGTH_FT: 56.5,
-      DIAMETER_FT: 10,
       WATER_CAPACITY_GAL: 18014,
     },
     EFFICIENCY: {
@@ -28,7 +27,10 @@ export const STORAGE = {
   },
   CONVERSIONS: {
     GALLON_TO_FT3: 7.48052,
-    FT3_TO_GALLON: 0.1337,
+    // Define FT3_TO_GALLON as the exact inverse of GALLON_TO_FT3
+    get FT3_TO_GALLON() {
+      return 1 / this.GALLON_TO_FT3;
+    }, // Approximately 0.13368
   },
 };
 

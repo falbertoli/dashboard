@@ -28,6 +28,18 @@
         </div>
       </div>
       <div class="field-value">{{ recommendedTankCount }}</div>
+      <div class="field-detail" v-if="rawTankCount > 0">
+        <span>Raw calculation: {{ rawTankCount.toFixed(2) }} tanks</span>
+      </div>
+    </div>
+
+    <!-- Add Last Tank Fill Information -->
+    <div class="tank-fill-info" v-if="lastTankFillPercentage > 0">
+      <div class="fill-label">Last Tank Fill Level:</div>
+      <div class="fill-bar">
+        <div class="fill-progress" :style="{ width: `${Math.min(lastTankFillPercentage, 100)}%` }"></div>
+      </div>
+      <div class="fill-percentage">{{ lastTankFillPercentage.toFixed(2) }}%</div>
     </div>
 
     <div class="calculated-value">
@@ -53,7 +65,9 @@ const {
   tankLength,
   recommendedTankCount,
   usableVolumePerTank,
-  totalH2Volume // Add this to the destructured properties
+  totalH2Volume,
+  rawTankCount,
+  lastTankFillPercentage
 } = storeToRefs(store)
 </script>
 
@@ -120,6 +134,13 @@ const {
   margin-bottom: 5px;
 }
 
+.field-detail {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #aaa;
+  font-style: italic;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -158,6 +179,40 @@ const {
   font-size: 1.2rem;
   font-weight: 600;
   color: #64ffda;
+}
+
+/* Tank Fill Styles */
+.tank-fill-info {
+  background-color: rgba(255, 159, 67, 0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #ff9f43;
+}
+
+.fill-label {
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.fill-bar {
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.fill-progress {
+  height: 100%;
+  background-color: #ff9f43;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.fill-percentage {
+  text-align: right;
+  color: #ff9f43;
+  font-weight: 600;
 }
 
 .calculated-value {
