@@ -80,6 +80,10 @@ const resetStorage = () => {
 </script>
 
 <style scoped>
+h1 {
+  color: #282C34;
+}
+
 .storage-view {
   padding: 20px;
   max-width: 1400px;

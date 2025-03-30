@@ -35,31 +35,31 @@ def emissions(jetA_weight, H2_weight, Fuel_weight):
     H2_co2 = (H2_weight * h2co2EI) / 1000
     just_jetA_co2 = (Fuel_weight * jetAco2EI) / 1000
 
-    # Plotting the emissions breakdown
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # # Plotting the emissions breakdown
+    # fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Plot bars for the Hydrogen-combination fleet: Jet A is shown first, then H2 stacked above it.
-    ax.bar(0.5, jetA_co2, label='JetA CO2', color='lightcoral')
-    ax.bar(0.5, H2_co2, label='H2 CO2', color='cornflowerblue', bottom=jetA_co2)
+    # # Plot bars for the Hydrogen-combination fleet: Jet A is shown first, then H2 stacked above it.
+    # ax.bar(0.5, jetA_co2, label='JetA CO2', color='lightcoral')
+    # ax.bar(0.5, H2_co2, label='H2 CO2', color='cornflowerblue', bottom=jetA_co2)
 
-    # Plot bar for the JetA-only fleet
-    ax.bar(2, just_jetA_co2, label='Just JetA CO2', color='goldenrod')
+    # # Plot bar for the JetA-only fleet
+    # ax.bar(2, just_jetA_co2, label='Just JetA CO2', color='goldenrod')
 
-    # Formatting
-    ax.set_title('Mass of Emissions with and without Hydrogen Influence', color='white')
-    ax.set_xlabel('Scenario Index', color='white')
-    ax.set_ylabel('Emissions (Metric Tons)', color='white')
-    ax.legend()
-    plt.xticks([0.5, 2], ["Hydrogen + JetA Fleet", "Only JetA Fleet"], color='white')
-    plt.yticks(color='white')
+    # # Formatting
+    # ax.set_title('Mass of Emissions with and without Hydrogen Influence', color='white')
+    # ax.set_xlabel('Scenario Index', color='white')
+    # ax.set_ylabel('Emissions (Metric Tons)', color='white')
+    # ax.legend()
+    # plt.xticks([0.5, 2], ["Hydrogen + JetA Fleet", "Only JetA Fleet"], color='white')
+    # plt.yticks(color='white')
 
-    # Set background and spine colors for improved aesthetics
-    ax.set_facecolor("#003057")
-    fig.patch.set_facecolor('#003057')
-    for spine in ax.spines.values():
-        spine.set_color('white')
+    # # Set background and spine colors for improved aesthetics
+    # ax.set_facecolor("#003057")
+    # fig.patch.set_facecolor('#003057')
+    # for spine in ax.spines.values():
+    #     spine.set_color('white')
 
-    plt.show()
+    # plt.show()
 
     return jetA_co2, H2_co2, just_jetA_co2
 

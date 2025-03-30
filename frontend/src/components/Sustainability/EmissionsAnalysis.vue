@@ -4,29 +4,61 @@
   <div class="emissions-analysis">
     <h2>Emissions Analysis</h2>
 
-    <div v-if="!hydrogenStore.totalH2Demand" class="info-message">
+    <!-- Alert shown when no hydrogen data is available -->
+    <div v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand" class="alert info">
       <i class="fas fa-info-circle"></i>
-      <p>Please configure hydrogen demand in the Hydrogen section first.</p>
+      <span>Please configure hydrogen demand in the Hydrogen section first.</span>
     </div>
 
+    <!-- Loading state -->
     <div v-else-if="isLoading" class="loading">
       <div class="spinner"></div>
       <p>Calculating emissions impact...</p>
     </div>
 
+    <!-- Error state -->
     <div v-else-if="error" class="error-message">
       <i class="fas fa-exclamation-triangle"></i>
       <p>{{ error }}</p>
     </div>
 
+    <!-- No results state with hydrogen demand info -->
     <div v-else-if="!emissionsResults" class="no-results">
+      <!-- Hydrogen Demand Information -->
+      <div class="hydrogen-demand-info">
+        <h3>Hydrogen Demand</h3>
+        <div class="info-row">
+          <span>Total Daily Hydrogen Demand:</span>
+          <strong>{{ formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }} ft³</strong>
+        </div>
+        <div class="breakdown-row">
+          <div class="breakdown-item">
+            <span>Aircraft:</span>
+            <strong>{{ formatNumber(hydrogenStore.aircraftH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+          </div>
+          <div class="breakdown-item">
+            <span>GSE:</span>
+            <strong>{{ formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+          </div>
+        </div>
+      </div>
+
       <p>Click the button below to calculate the emissions impact of hydrogen adoption.</p>
       <button class="calculate-btn" @click="calculateEmissions">
         <i class="fas fa-calculator"></i> Calculate Emissions
       </button>
     </div>
 
+    <!-- Results container with hydrogen demand pill -->
     <div v-else class="results-container">
+      <!-- Hydrogen demand summary pill -->
+      <div class="hydrogen-demand-summary">
+        <div class="info-pill">
+          <i class="fas fa-atom"></i>
+          <span>Daily H₂ Demand: <strong>{{ formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }} ft³</strong></span>
+        </div>
+      </div>
+
       <!-- Summary Cards -->
       <div class="summary-grid">
         <div class="summary-card reduction">
@@ -322,6 +354,10 @@ const emissionsReductionChartOptions = computed(() => {
   margin-bottom: 30px;
 }
 
+h1 {
+  color: #282C34;
+}
+
 h2 {
   margin-top: 0;
   margin-bottom: 20px;
@@ -335,21 +371,6 @@ h3 {
   font-size: 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 0.5rem;
-}
-
-.info-message,
-.no-results,
-.error-message {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.info-message {
-  border-left: 4px solid #3498db;
-  color: #aaa;
 }
 
 .error-message {
@@ -622,5 +643,131 @@ h3 {
   .table-row {
     grid-template-columns: 2fr 1fr 1fr;
   }
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+}
+
+.alert.info {
+  background-color: rgba(54, 162, 235, 0.1);
+  border-left: 4px solid rgba(54, 162, 235, 0.8);
+  color: #ddd;
+}
+
+.alert i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Hydrogen Demand Info styles */
+.hydrogen-demand-info {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.hydrogen-demand-info h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  text-align: left;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.info-row span {
+  color: #aaa;
+}
+
+.info-row strong {
+  color: #64ffda;
+  font-size: 1.2rem;
+}
+
+.breakdown-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.breakdown-item {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 10px 15px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breakdown-item span {
+  color: #aaa;
+}
+
+.breakdown-item strong {
+  color: #ddd;
+}
+
+/* Hydrogen demand pill in results */
+.hydrogen-demand-summary {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(54, 162, 235, 0.1);
+  border-radius: 20px;
+  padding: 6px 12px;
+  gap: 8px;
+}
+
+.info-pill i {
+  color: #36a2eb;
+  font-size: 0.9rem;
+}
+
+.info-pill span {
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.info-pill strong {
+  color: #36a2eb;
+}
+
+.no-results {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #aaa;
+}
+
+.error-message {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
 }
 </style>

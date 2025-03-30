@@ -30,6 +30,9 @@ def get_emissions():
         
         # Calculate emissions using the new emissions function
         jetA_co2, H2_co2, just_jetA_co2 = emissions(jetA_weight, H2_weight, Fuel_weight)
+
+        # Add logging to verify data
+        print(f"Calculated emissions: jetA_co2={jetA_co2}, H2_co2={H2_co2}, just_jetA_co2={just_jetA_co2}")
         
         current_app.logger.info("Calculated emissions successfully")
         return jsonify({
