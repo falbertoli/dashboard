@@ -34,18 +34,19 @@ export const useEconomicsStore = defineStore("economics", {
         const year = hydrogenStore.year || 2036;
         const currentYear = new Date().getFullYear();
 
-        // Define default parameters
+        // Define default parameters. Note the added finalH2Year parameter.
         const defaultParams = {
           totalH2Demand,
           fleetPercentage,
           startYear: currentYear,
           endYear: year,
+          finalH2Year: year, // <-- Added new parameter; defaulting to 'year'
           growthRate: 0.02,
           extraTurnTime: 30,
           turnTimeDecreaseRates: [0, 1, 2, 3, 4, 5],
         };
 
-        // Merge parameters
+        // Merge parameters (overrides from UI, for example)
         const params = { ...defaultParams, ...paramsOverride };
 
         // Store the parameters for reference

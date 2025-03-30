@@ -29,6 +29,8 @@ def get_economic_impact():
             growth_rate = float(data.get("growthRate", 0.02))
             extra_turn_time = int(data.get("extraTurnTime", 30))
             turn_time_decrease_rates = data.get("turnTimeDecreaseRates", [0, 1, 2, 3, 4, 5])
+            # Extract final_h2_year from request, defaulting to end_year if not provided.
+            final_h2_year = int(data.get("finalH2Year", end_year))
                 
         except (ValueError, TypeError) as e:
             return APIResponse.error(f"Invalid parameter format: {str(e)}", 400)
@@ -45,6 +47,7 @@ def get_economic_impact():
             growth_rate=growth_rate,
             extra_turn_time=extra_turn_time,
             turn_time_decrease_rates=turn_time_decrease_rates,
+            final_h2_year=final_h2_year
         )
 
         return APIResponse.success(

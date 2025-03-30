@@ -4,7 +4,6 @@ from typing import Dict, Any
 import pandas as pd
 from app.utils.validation import ValidationError
 from app.utils.data_loader import load_operational_hours, load_carrier_operations, load_income_data
-from typing import Dict, Any
 from datetime import datetime
 from app.constants import HYDROGEN_FLIGHT_FRACTION, EXTRA_TURNAROUND_TIME, TAX_CREDIT_PER_GALLON
 
@@ -81,13 +80,13 @@ def hydrogen_uti_rev(
     
     # Calculate utilization for hydrogen flights, accounting for extra turnaround time
     utilization_h2 = baseline_jetA_util - 2 * (
-        fraction_flights_year
-        * tot_delta_flights_atl
-        * flights_atl_to_dome
-        * (extra_turn_time / 60.0)
+        fraction_flights_year *
+        tot_delta_flights_atl *
+        flights_atl_to_dome *
+        (extra_turn_time / 60.0)
     )
 
-    # Baseline revenue (if all flights at fraction_flights_year had no extra turn time)
+    # Baseline revenue (if all flights at fraction_flights_year had no extra turnaround delay)
     baseline_revenue_m = fraction_flights_year * flights_atl_to_dome * total_rev
 
     # New H2 revenue after losing some utilization
@@ -96,11 +95,11 @@ def hydrogen_uti_rev(
     else:
         new_h2_revenue_m = 0.0
 
-    # Revenue drop
+    # Revenue drop and percentage drop
     revenue_drop_m = baseline_revenue_m - new_h2_revenue_m
     pct_drop = 0.0 if baseline_revenue_m == 0.0 else 100.0 * (revenue_drop_m / baseline_revenue_m)
 
-    # Required tax credit per gallon
+    # Required tax credit per gallon (convert revenue drop from million dollars to dollars)
     if h2_demand_annual_gal > 0:
         required_tax_crd_per_gal = (revenue_drop_m * 1_000_000) / h2_demand_annual_gal
     else:
@@ -127,6 +126,7 @@ def calculate_economic_impact(
     growth_rate: float,
     extra_turn_time: int,
     turn_time_decrease_rates: list,
+    final_h2_year: int  # New parameter: the year by which hydrogen flights reach target adoption
 ) -> Dict[str, Any]:
     """
     Compute revenue changes for hydrogen fleet transition across multiple years and scenarios.
@@ -135,67 +135,83 @@ def calculate_economic_impact(
     Parameters:
     ----------
     total_h2_demand         : Annual hydrogen demand in gallons for the current year.
-    fleet_percentage        : Percentage of flights using hydrogen in the current year.
-    start_year              : Current year (set dynamically if not provided).
-    end_year                : Final year for hydrogen adoption.
+    fleet_percentage        : Target percentage of flights using hydrogen in the current year.
+    start_year              : Current year (e.g., 2023).
+    end_year                : Final year for projection.
     growth_rate             : Annual growth rate for scaling demand, revenue, and utilization.
     extra_turn_time         : Initial extra turnaround time in minutes for hydrogen flights.
     turn_time_decrease_rates: List of annual reduction rates for turnaround time (in minutes/year).
+    final_h2_year           : The final year by which hydrogen flight adoption reaches its target.
 
     Returns:
     -------
     Dict[str, Any]: Dictionary containing scenario results and summary metrics.
     """
     try:
-        print(f"Economic calculation parameters: {total_h2_demand=}, {fleet_percentage=}, {start_year=}, {end_year=}, {growth_rate=}, {extra_turn_time=}, {turn_time_decrease_rates=}")
+        print(f"Economic calculation parameters: total_h2_demand={total_h2_demand}, fleet_percentage={fleet_percentage}, start_year={start_year}, end_year={end_year}, growth_rate={growth_rate}, extra_turn_time={extra_turn_time}, turn_time_decrease_rates={turn_time_decrease_rates}, final_h2_year={final_h2_year}")
         data = load_data()
 
-        # Filter Delta operations data
-        total_delta_oper = data["operations_data"][data["operations_data"]["UNIQUE_CARRIER_NAME"] == "Delta Air Lines Inc."]
-        atl_delta_oper = total_delta_oper[total_delta_oper["ORIGIN"] == "ATL"]
+        # -------- Filter and compute baseline inputs --------
+        total_delta_oper = data["operations_data"][
+            data["operations_data"]["UNIQUE_CARRIER_NAME"] == "Delta Air Lines Inc."
+        ]
+        atl_delta_oper = total_delta_oper[
+            total_delta_oper["ORIGIN"] == "ATL"
+        ]
         tot_delta_flights_atl = float(total_delta_oper["DEPARTURES_PERFORMED"].sum())
         flights_atl_to_dome = float(atl_delta_oper["DEPARTURES_PERFORMED"].sum() / tot_delta_flights_atl)
 
         total_rev = float(data["income_data"]["OP_REVENUES"].sum() / 1_000_000)
         baseline_jetA_util = float(
-            fleet_percentage
-            * flights_atl_to_dome
-            * data["uti_data"]["REV_ACRFT_HRS_AIRBORNE_610"].sum()
+            fleet_percentage * flights_atl_to_dome * data["uti_data"]["REV_ACRFT_HRS_AIRBORNE_610"].sum()
         )
 
-        # Define the years range
+        # -------- Define initial and target H2 fractions --------
+        # Option 1: Use the user-supplied fleet_percentage as the initial fraction.
+        fraction_flights_2023 = fleet_percentage
+        # For linear growth, if you want a nonzero slope, you likely need a different target.
+        # For now, we assume the target fraction is also the same; if you intend for growth,
+        # then modify this to be a separate parameter.
+        target_fraction = fleet_percentage  
+        slope = (target_fraction - fraction_flights_2023) / (final_h2_year - start_year)
+
+        # Define the years range for projection.
         years = range(start_year, end_year + 1)
-        
-        # Store results for each scenario
+
+        # -------- Projection Loop --------
         scenario_results = {}
 
         for rate in turn_time_decrease_rates:
             all_results = []
             for year in years:
                 years_elapsed = year - start_year
-                
-                # Keep fraction_flights_year constant at fleet_percentage
-                fraction_flights_year = fleet_percentage
-                
-                # Calculate turn time for this year
+
+                # 1) H2 fraction grows linearly until final_h2_year.
+                if year <= final_h2_year:
+                    fraction_flights_year = fraction_flights_2023 + slope * years_elapsed
+                else:
+                    fraction_flights_year = target_fraction
+
+                # 2) Calculate turnaround time for the current year.
                 this_year_turn_time = max(0, extra_turn_time - (rate * years_elapsed))
 
-                # Use simple compound growth rate as in the original code
-                # This ensures consistency with the demand model
+                # 3) Compute a compound growth factor.
                 factor = (1 + growth_rate) ** years_elapsed
-                print(f"Year {year}: Using growth factor {factor:.4f} from compound growth rate {growth_rate}")
+                print(f"Year {year}: Using growth factor {factor:.4f} (growth_rate={growth_rate})")
 
+                # Scale up key variables using the growth factor.
                 h2_demand_annual_scaled_gal = total_h2_demand * factor
                 total_rev_scaled_m = total_rev * factor
                 baseline_jetA_util_scaled = baseline_jetA_util * factor
 
+                # 4) Compute the economic metrics for the current year.
                 (
                     utilization_h2,
                     revenue_drop_m,
                     required_tax_crd_per_gal,
                     baseline_revenue_m,
                     new_h2_revenue_m,
-                    pct_drop,
+                    pct_drop
                 ) = hydrogen_uti_rev(
                     fraction_flights_year,
                     tot_delta_flights_atl,
@@ -203,7 +219,7 @@ def calculate_economic_impact(
                     h2_demand_annual_scaled_gal,
                     this_year_turn_time,
                     total_rev_scaled_m,
-                    baseline_jetA_util_scaled,
+                    baseline_jetA_util_scaled
                 )
 
                 all_results.append({
@@ -222,7 +238,7 @@ def calculate_economic_impact(
 
             scenario_results[rate] = pd.DataFrame(all_results)
 
-        # Calculate summary metrics for each scenario
+        # -------- Compute Summary Metrics --------
         summary_metrics = {}
         for rate, df in scenario_results.items():
             summary_metrics[rate] = {
@@ -233,7 +249,7 @@ def calculate_economic_impact(
                 "final_year_revenue_drop": float(df.iloc[-1]["Pct_Drop"])
             }
 
-        # Return both scenario data and summary metrics
+        # Return results
         return {
             "scenarios": {k: v.to_dict(orient="records") for k, v in scenario_results.items()},
             "summary": summary_metrics
