@@ -9,24 +9,35 @@ economic_bp = Blueprint("economic", __name__)
 
 @economic_bp.route("/impact", methods=["POST"])
 def get_economic_impact():
-    """API endpoint to calculate hydrogen economic impact."""
+    """API endpoint to calculate hydrogen economic impact with user-defined parameters."""
     try:
         data = request.json
+        print(f"Received economic impact request data: {data}")
 
-        # Dynamically determine the current year as the start year
+        # Get the current year for validation
         current_year = datetime.now().year
-        start_year = int(data.get("startYear", current_year))  # Default to current year
-        end_year = int(data.get("endYear", 2040))
-        total_h2_demand = float(data.get("totalH2Demand", 0))
-        fleet_percentage = float(data.get("fleetPercentage", 0))
-        growth_rate = float(data.get("growthRate", 0.02))
-        extra_turn_time = int(data.get("extraTurnTime", 30))
-        turn_time_decrease_rates = data.get("turnTimeDecreaseRates", [0, 1, 2, 3, 4, 5])
+        
+        # Extract and validate parameters
+        try:
+            # Year validation
+            start_year = int(data.get("startYear", current_year))
+            end_year = int(data.get("endYear", 2040))
+            
+            # Other parameters
+            total_h2_demand = float(data.get("totalH2Demand", 0))
+            fleet_percentage = float(data.get("fleetPercentage", 0))
+            growth_rate = float(data.get("growthRate", 0.02))
+            extra_turn_time = int(data.get("extraTurnTime", 30))
+            turn_time_decrease_rates = data.get("turnTimeDecreaseRates", [0, 1, 2, 3, 4, 5])
+                
+        except (ValueError, TypeError) as e:
+            return APIResponse.error(f"Invalid parameter format: {str(e)}", 400)
 
-        print(f"Received Parameters: Start Year: {start_year}, End Year: {end_year}, Current Year: {current_year}")
+        print(f"Validated Parameters: Start Year: {start_year}, End Year: {end_year}, Growth Rate: {growth_rate}")
+        print(f"Turn Time Parameters: Initial: {extra_turn_time} min, Decrease Rates: {turn_time_decrease_rates}")
 
         # Call the economic calculation service
-        scenario_results = calculate_economic_impact(
+        result = calculate_economic_impact(
             total_h2_demand=total_h2_demand,
             fleet_percentage=fleet_percentage,
             start_year=start_year,
@@ -36,18 +47,14 @@ def get_economic_impact():
             turn_time_decrease_rates=turn_time_decrease_rates,
         )
 
-        # Serialize the results for the frontend
-        serialized_results = {
-            rate: df.to_dict(orient="records") for rate, df in scenario_results.items()
-        }
-
         return APIResponse.success(
-            data=serialized_results,
+            data=result,  # Pass the entire result object
             message="Successfully calculated economic impact"
         )
     except EconomicCalculationError as e:
         return APIResponse.error(str(e), 400)
     except Exception as e:
+        print(f"Error in economic impact calculation: {str(e)}")  # Add debugging
         return APIResponse.error(
-            "An error occurred while calculating economic impact", 500
+            f"An error occurred while calculating economic impact: {str(e)}", 500
         )

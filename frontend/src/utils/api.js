@@ -112,10 +112,15 @@ export const api = {
   economics: {
     calculateEconomicImpact: async (params) => {
       try {
+        console.log(
+          "Sending economic impact calculation request with params:",
+          params
+        );
+        // Use apiClient instead of axios directly
         const response = await apiClient.post("/economic/impact", params);
-        return response.data.data; // Return the calculated results
+        return response.data;
       } catch (error) {
-        console.error("Error fetching economic impact analysis:", error);
+        console.error("Error calculating economic impact:", error);
         throw error;
       }
     },

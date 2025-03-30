@@ -4,6 +4,8 @@ from typing import Dict, Any
 import pandas as pd
 from app.utils.validation import ValidationError
 from app.utils.data_loader import load_operational_hours, load_carrier_operations, load_income_data
+from typing import Dict, Any
+from datetime import datetime
 from app.constants import HYDROGEN_FLIGHT_FRACTION, EXTRA_TURNAROUND_TIME, TAX_CREDIT_PER_GALLON
 
 class EconomicCalculationError(ValidationError):
@@ -44,9 +46,6 @@ def load_data() -> Dict[str, pd.DataFrame]:
     except Exception as e:
         raise EconomicCalculationError(f"Error loading data: {str(e)}")
 
-# ------------------------------------------------------------------------
-# New Function: hydrogen_uti_rev
-# ------------------------------------------------------------------------
 def hydrogen_uti_rev(
     fraction_flights_year: float,
     tot_delta_flights_atl: float,
@@ -108,8 +107,6 @@ def hydrogen_uti_rev(
         pct_drop
     )
 
-from datetime import datetime
-
 def calculate_economic_impact(
     total_h2_demand: float,
     fleet_percentage: float,
@@ -118,7 +115,7 @@ def calculate_economic_impact(
     growth_rate: float,
     extra_turn_time: int,
     turn_time_decrease_rates: list,
-) -> Dict[str, pd.DataFrame]:
+) -> Dict[str, Any]:
     """
     Compute revenue changes for hydrogen fleet transition across multiple years and scenarios.
 
@@ -134,9 +131,10 @@ def calculate_economic_impact(
 
     Returns:
     -------
-    Dict[str, pd.DataFrame]: Results for each turnaround time scenario.
+    Dict[str, Any]: Dictionary containing scenario results and summary metrics.
     """
     try:
+        print(f"Economic calculation parameters: {total_h2_demand=}, {fleet_percentage=}, {start_year=}, {end_year=}, {growth_rate=}, {extra_turn_time=}, {turn_time_decrease_rates=}")
         data = load_data()
 
         # Filter Delta operations data
@@ -206,14 +204,36 @@ def calculate_economic_impact(
 
                 all_results.append({
                     "Year": year,
-                    "Turn Time (min)": this_year_turn_time,
-                    "Pct Drop": pct_drop,
-                    "Req. Tax Credit ($/gal)": required_tax_crd_per_gal,
+                    "Growth_Factor": factor,
+                    "Turn_Time_min": this_year_turn_time,
+                    "Fraction_Flights_H2": fraction_flights_year,
+                    "H2_Demand_annual_gal": h2_demand_annual_scaled_gal,
+                    "Hydrogen_Utilization": utilization_h2,
+                    "Baseline_Revenue_M": baseline_revenue_m,
+                    "Hydrogen_Revenue_M": new_h2_revenue_m,
+                    "Revenue_Drop_M": revenue_drop_m,
+                    "Pct_Drop": pct_drop,
+                    "Req_Tax_Credit_per_gal": required_tax_crd_per_gal
                 })
 
             scenario_results[rate] = pd.DataFrame(all_results)
 
-        return scenario_results
+        # Calculate summary metrics for each scenario
+        summary_metrics = {}
+        for rate, df in scenario_results.items():
+            summary_metrics[rate] = {
+                "max_tax_credit": float(df["Req_Tax_Credit_per_gal"].max()),
+                "max_revenue_drop_pct": float(df["Pct_Drop"].max()),
+                "avg_revenue_drop_pct": float(df["Pct_Drop"].mean()),
+                "final_year_tax_credit": float(df.iloc[-1]["Req_Tax_Credit_per_gal"]),
+                "final_year_revenue_drop": float(df.iloc[-1]["Pct_Drop"])
+            }
+
+        # Return both scenario data and summary metrics
+        return {
+            "scenarios": {k: v.to_dict(orient="records") for k, v in scenario_results.items()},
+            "summary": summary_metrics
+        }
 
     except EconomicCalculationError as e:
         raise

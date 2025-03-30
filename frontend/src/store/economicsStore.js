@@ -1,15 +1,26 @@
-// File: frontend/src/useEconomicsStore.js
+// File: frontend/src/store/economicsStore.js
 
 import { defineStore } from "pinia";
 import { api } from "@/utils/api";
-import { useHydrogenStore } from "@/store/hydrogenStore"; // Import the Hydrogen Store
+import { useHydrogenStore } from "@/store/hydrogenStore";
 
 export const useEconomicsStore = defineStore("economics", {
   state: () => ({
-    results: null, // Store results for each scenario
-    isLoading: false, // Loading state
-    error: null, // Error state
+    results: null, // Will store both scenarios and summary
+    isLoading: false,
+    error: null,
+    // Store the last used parameters for reference
+    lastParams: null,
   }),
+
+  getters: {
+    // Get scenario summary metrics
+    scenarioSummary() {
+      if (!this.results || !this.results.summary) return {};
+      return this.results.summary;
+    },
+  },
+
   actions: {
     async fetchEconomicImpact(paramsOverride = {}) {
       this.isLoading = true;
@@ -19,34 +30,34 @@ export const useEconomicsStore = defineStore("economics", {
         // Access hydrogen phase values from the Hydrogen Store
         const hydrogenStore = useHydrogenStore();
         const totalH2Demand = parseFloat(hydrogenStore.totalH2Demand || 0);
-        const fleetPercentage = hydrogenStore.fleetPercentage || 0.1; // Default to 10%
-        const year = hydrogenStore.year || 2036; // Default to 2036
+        const fleetPercentage = hydrogenStore.fleetPercentage / 100 || 0.1; // Convert from percentage to decimal
+        const year = hydrogenStore.year || 2036;
+        const currentYear = new Date().getFullYear();
 
-        console.log("Hydrogen Phase Values:", {
+        // Define default parameters
+        const defaultParams = {
           totalH2Demand,
           fleetPercentage,
-          year,
-        });
-
-        // Define default parameters for the economic impact calculation
-        const defaultParams = {
-          totalH2Demand, // Hydrogen demand
-          fleetPercentage, // Hydrogen fleet percentage
-          startYear: 2023, // Current year
-          endYear: year, // Target year for hydrogen adoption
-          growthRate: 0.02, // 2% annual growth rate
-          extraTurnTime: 30, // Initial extra turnaround time (minutes)
-          turnTimeDecreaseRates: [0, 1, 2, 3, 4, 5], // Turnaround time reduction scenarios
+          startYear: currentYear,
+          endYear: year,
+          growthRate: 0.02,
+          extraTurnTime: 30,
+          turnTimeDecreaseRates: [0, 1, 2, 3, 4, 5],
         };
 
-        // Merge default parameters with any overrides provided by the caller
+        // Merge parameters
         const params = { ...defaultParams, ...paramsOverride };
 
-        // Call the API to calculate economic impact
+        // Store the parameters for reference
+        this.lastParams = { ...params };
+
+        console.log("Economic calculation parameters:", params);
+
+        // Call the API
         const response = await api.economics.calculateEconomicImpact(params);
 
-        // Store results for visualization
-        this.results = response;
+        // Store the updated response format
+        this.results = response.data;
         console.log("Economic Impact Results:", this.results);
       } catch (err) {
         console.error("Error fetching economic impact data:", err);
