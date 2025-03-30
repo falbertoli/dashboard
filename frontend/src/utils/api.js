@@ -1,4 +1,4 @@
-// File: frontend/src/utils/api.js
+// src/utils/api.js
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api";
@@ -113,6 +113,48 @@ export const api = {
   },
 
   regulations: {
-    // Placeholder for regulations API calls
+    getAll: async () => {
+      try {
+        const response = await apiClient.get("/regulations/all");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching regulations:", error);
+        throw error;
+      }
+    },
+    getCompliantDistance: async (params) => {
+      try {
+        const response = await apiClient.get(
+          "/regulations/compliant_distance",
+          { params }
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Error checking compliant distance:", error);
+        throw error;
+      }
+    },
+  },
+  distancesRequirements: {
+    getAll: async () => {
+      try {
+        const response = await apiClient.get("/distances_requirements/all");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching distances requirements:", error);
+        throw error;
+      }
+    },
+  },
+  map: {
+    getAvailableAreas: async () => {
+      try {
+        const response = await apiClient.get("/map/available-areas");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching map data:", error);
+        throw error;
+      }
+    },
   },
 };

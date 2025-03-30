@@ -218,3 +218,7 @@ def load_distances_requirements() -> pd.DataFrame:
 # Create aliases for backward compatibility:
 load_operational_hours = load_utilization_data
 load_carrier_operations = load_operations_data
+
+def load_distances_requirements() -> pd.DataFrame:
+    """Loads distances_requirements.csv"""
+    return load_csv("distances_requirements.csv")
