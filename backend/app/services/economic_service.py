@@ -77,26 +77,38 @@ def hydrogen_uti_rev(
     new_h2_revenue_m        : Revised revenue after H2 adoption (in millions USD).
     pct_drop                : Percentage drop in revenue.
     """
-    # Adjusted utilization considering the extra turnaround (applied for both departure and arrival)
+    print(f"Input parameters: fraction_flights_year={fraction_flights_year}, extra_turn_time={extra_turn_time}")
+    
+    # Calculate utilization for hydrogen flights, accounting for extra turnaround time
     utilization_h2 = baseline_jetA_util - 2 * (
-        fraction_flights_year * tot_delta_flights_atl * flights_atl_to_dome * (extra_turn_time / 60.0)
+        fraction_flights_year
+        * tot_delta_flights_atl
+        * flights_atl_to_dome
+        * (extra_turn_time / 60.0)
     )
 
-    # Baseline revenue assumes no lost utilization; scaled by the fraction and domestic ratio.
+    # Baseline revenue (if all flights at fraction_flights_year had no extra turn time)
     baseline_revenue_m = fraction_flights_year * flights_atl_to_dome * total_rev
 
-    # New revenue is scaled by how much of baseline utilization remains.
-    new_h2_revenue_m = baseline_revenue_m * (utilization_h2 / baseline_jetA_util) if baseline_jetA_util != 0 else 0.0
+    # New H2 revenue after losing some utilization
+    if baseline_jetA_util != 0.0:
+        new_h2_revenue_m = baseline_revenue_m * (utilization_h2 / baseline_jetA_util)
+    else:
+        new_h2_revenue_m = 0.0
 
-    # Revenue drop and its percentage
+    # Revenue drop
     revenue_drop_m = baseline_revenue_m - new_h2_revenue_m
-    pct_drop = 0.0 if baseline_revenue_m == 0 else 100.0 * (revenue_drop_m / baseline_revenue_m)
+    pct_drop = 0.0 if baseline_revenue_m == 0.0 else 100.0 * (revenue_drop_m / baseline_revenue_m)
 
-    # Required tax credit per gallon. Convert revenue drop from millions to dollars.
+    # Required tax credit per gallon
     if h2_demand_annual_gal > 0:
         required_tax_crd_per_gal = (revenue_drop_m * 1_000_000) / h2_demand_annual_gal
     else:
         required_tax_crd_per_gal = 0.0
+
+    print(f"utilization_h2={utilization_h2}, baseline_jetA_util={baseline_jetA_util}")
+    print(f"baseline_revenue_m={baseline_revenue_m}, new_h2_revenue_m={new_h2_revenue_m}")
+    print(f"revenue_drop_m={revenue_drop_m}, pct_drop={pct_drop}")
 
     return (
         utilization_h2,
@@ -118,6 +130,7 @@ def calculate_economic_impact(
 ) -> Dict[str, Any]:
     """
     Compute revenue changes for hydrogen fleet transition across multiple years and scenarios.
+    Uses a simple compound growth rate model consistent with the original implementation.
 
     Parameters:
     ----------
@@ -150,23 +163,9 @@ def calculate_economic_impact(
             * data["uti_data"]["REV_ACRFT_HRS_AIRBORNE_610"].sum()
         )
 
-        # Load growth rate data
-        growth_rate_data = pd.DataFrame({
-            "Year": list(range(2023, 2051)),
-            "Projected Operations": [
-                755856, 784123, 815016, 834644, 853350, 872286, 890251, 
-                907846, 925298, 942989, 960976, 979187, 997398, 1016764, 
-                1036063, 1055234, 1074792, 1094786, 1114237, 1134615, 1155514, 
-                1176625, 1197973, 1219542, 1241334, 1263264, 1285643, 1308659
-            ]
-        })
-
-        # Get baseline operations for the start year
-        baseline_operations = growth_rate_data.loc[growth_rate_data["Year"] == start_year, "Projected Operations"].values[0]
-
+        # Define the years range
         years = range(start_year, end_year + 1)
-        slope = (1 - fleet_percentage) / (end_year - start_year)  # Linear growth slope for hydrogen adoption.
-
+        
         # Store results for each scenario
         scenario_results = {}
 
@@ -174,12 +173,17 @@ def calculate_economic_impact(
             all_results = []
             for year in years:
                 years_elapsed = year - start_year
-                fraction_flights_year = fleet_percentage + slope * years_elapsed
+                
+                # Keep fraction_flights_year constant at fleet_percentage
+                fraction_flights_year = fleet_percentage
+                
+                # Calculate turn time for this year
                 this_year_turn_time = max(0, extra_turn_time - (rate * years_elapsed))
 
-                # Scale up using the growth rate data
-                projected_operations = growth_rate_data.loc[growth_rate_data["Year"] == year, "Projected Operations"].values[0]
-                factor = projected_operations / baseline_operations
+                # Use simple compound growth rate as in the original code
+                # This ensures consistency with the demand model
+                factor = (1 + growth_rate) ** years_elapsed
+                print(f"Year {year}: Using growth factor {factor:.4f} from compound growth rate {growth_rate}")
 
                 h2_demand_annual_scaled_gal = total_h2_demand * factor
                 total_rev_scaled_m = total_rev * factor

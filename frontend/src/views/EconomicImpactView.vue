@@ -17,9 +17,37 @@
       <button @click="calculateEconomicImpact" class="btn primary">Calculate Economic Impact</button>
     </div>
 
+    <div class="form-group">
+      <label for="fleetPercentage">
+        Hydrogen Fleet Percentage (%)
+        <span class="info-icon" title="This percentage remains constant throughout the projection period">ⓘ</span>
+      </label>
+      <input type="number" id="fleetPercentage" v-model.number="fleetPercentage" min="0" max="100" step="1" />
+    </div>
+
+    <div class="parameters-description" v-if="!economicsStore.results">
+      <p>
+        <strong>Economic Model Parameters:</strong> This model calculates the economic impact of hydrogen adoption
+        with a constant fleet percentage over time. The key variable across scenarios is how quickly the
+        extra turnaround time decreases each year.
+      </p>
+      <p>
+        <strong>Growth Model:</strong> A simple compound growth rate is applied to demand, revenue, and utilization
+        each year, consistent with the approach used in the hydrogen demand model.
+      </p>
+    </div>
+
     <div class="parameters-section" v-if="!economicsStore.results">
       <h2>Economic Projection Parameters</h2>
       <div class="form-grid">
+        <div class="form-group">
+          <label for="fleetPercentage">
+            Hydrogen Fleet Percentage (%)
+            <span class="info-icon" title="This percentage remains constant throughout the projection period">ⓘ</span>
+          </label>
+          <input type="number" id="fleetPercentage" v-model.number="fleetPercentage" min="0" max="100" step="1" />
+        </div>
+
         <div class="form-group">
           <label for="startYear">Start Year:</label>
           <input type="number" id="startYear" v-model.number="startYear" min="2023" max="2050" />
@@ -32,8 +60,13 @@
         </div>
 
         <div class="form-group">
-          <label for="growthRate">Annual Growth Rate (%):</label>
+          <label for="growthRate">
+            Annual Compound Growth Rate (%)
+            <span class="info-icon"
+              title="Simple compound growth rate applied to demand, revenue, and utilization each year">ⓘ</span>
+          </label>
           <input type="number" id="growthRate" v-model.number="growthRate" min="0" max="10" step="0.1" />
+          <small>Default value (2%) matches the demand model assumptions</small>
         </div>
 
         <div class="form-group">
@@ -100,6 +133,18 @@
         <button @click="resetCalculation" class="btn secondary">Adjust Parameters</button>
       </div>
 
+      <!-- calculation parameters section here -->
+      <div class="calculation-params">
+        <p>
+          <strong>Calculation Parameters:</strong>
+          Fleet Percentage: {{ fleetPercentage }}%,
+          Growth Rate: {{ growthRate }}%/year,
+          Initial Turn Time: {{ extraTurnTime }} minutes,
+          Years: {{ startYear }} - {{ endYear }}
+        </p>
+      </div>
+
+
       <!-- Charts Section -->
       <section class="charts-section">
         <h2>Economic Impact Visualization</h2>
@@ -134,6 +179,7 @@
             <thead>
               <tr>
                 <th>Year</th>
+                <th>Growth Factor</th> <!-- New column -->
                 <th>Turn Time (min)</th>
                 <th>H2 Flights (%)</th>
                 <th>Baseline Revenue ($M)</th>
@@ -145,6 +191,7 @@
             <tbody>
               <tr v-for="item in selectedScenarioData" :key="item.Year">
                 <td>{{ item.Year }}</td>
+                <td>{{ item.Growth_Factor.toFixed(3) }}</td> <!-- New column -->
                 <td>{{ item.Turn_Time_min }}</td>
                 <td>{{ (item.Fraction_Flights_H2 * 100).toFixed(1) }}%</td>
                 <td>${{ item.Baseline_Revenue_M.toFixed(2) }}M</td>
@@ -183,6 +230,7 @@ export default {
     const endYear = ref(hydrogenStore.year || 2036);
     const growthRate = ref(2.0); // 2% default, displayed as percentage
     const extraTurnTime = ref(30); // 30 minutes default
+    const fleetPercentage = ref(hydrogenStore.fleetPercentage || 10); // Default to 10%
     const turnTimeDecreaseRates = ref([0, 1, 2, 3, 4, 5]); // Default scenarios
 
     // Form validation
@@ -383,7 +431,8 @@ export default {
         endYear: endYear.value,
         growthRate: growthRate.value / 100, // Convert from percentage to decimal
         extraTurnTime: extraTurnTime.value,
-        turnTimeDecreaseRates: turnTimeDecreaseRates.value
+        turnTimeDecreaseRates: turnTimeDecreaseRates.value,
+        fleetPercentage: fleetPercentage.value / 100 // Convert from percentage to decimal
       });
     };
 
@@ -426,6 +475,7 @@ export default {
       endYear,
       growthRate,
       extraTurnTime,
+      fleetPercentage, // Add this
       turnTimeDecreaseRates,
       isFormValid,
       addScenario,
@@ -649,5 +699,34 @@ h3 {
 .recalculate-container {
   text-align: right;
   margin-bottom: 1rem;
+}
+
+.info-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #6c757d;
+  color: white;
+  font-size: 12px;
+  margin-left: 4px;
+  cursor: help;
+}
+
+.calculation-params {
+  background-color: #f0f8ff;
+  /* Light blue background */
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #4caf50;
+  /* Green left border */
+}
+
+.calculation-params p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 </style>
