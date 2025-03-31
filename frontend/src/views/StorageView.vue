@@ -1,5 +1,3 @@
-<!-- File: frontend/src/views/StorageView.vue -->
-
 <template>
   <div class="storage-view">
     <div class="page-header">
@@ -24,16 +22,15 @@
             <StorageInputs />
 
             <div class="actions">
-              <button class="primary-button" @click="calculateStorage" :disabled="isLoading">
+              <button class="primary-button" @click="calculateStorage" :disabled="!hydrogenStore.totalH2Demand">
                 <i class="fas fa-calculator"></i> Calculate
               </button>
-              <button class="secondary-button" @click="resetStorage" :disabled="isLoading">
+              <button class="secondary-button" @click="resetStorage" :disabled="!hydrogenStore.totalH2Demand">
                 <i class="fas fa-undo"></i> Reset
               </button>
             </div>
           </div>
 
-          <!-- Add the visualization component here, below the configuration card -->
           <div v-if="storageStore.results && storageStore.totalH2Volume > 0" class="card visualization-card">
             <StorageVisualization :diameter="storageStore.tankDiameter" :length="storageStore.tankLength"
               :count="storageStore.recommendedTankCount" :lastTankFill="storageStore.lastTankFillPercentage"
@@ -43,7 +40,7 @@
 
         <!-- Right column: Results -->
         <div class="results-column">
-          <div v-if="isLoading" class="loading-overlay">
+          <div v-if="isLoading" class="loading-message">
             <div class="spinner"></div>
             <p>Calculating storage requirements...</p>
           </div>
@@ -88,10 +85,6 @@ const resetStorage = () => {
 </script>
 
 <style scoped>
-h1 {
-  color: #282C34;
-}
-
 .storage-view {
   padding: 20px;
   max-width: 1400px;
@@ -104,7 +97,7 @@ h1 {
 
 .page-header h1 {
   font-size: 2.2rem;
-  color: #fff;
+  color: #282C34;
   margin-bottom: 10px;
 }
 
@@ -177,6 +170,7 @@ h1 {
   align-items: center;
   gap: 8px;
   transition: all 0.2s;
+  position: relative;
 }
 
 .primary-button {
@@ -224,19 +218,11 @@ h1 {
   color: rgba(100, 255, 218, 0.3);
 }
 
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(40, 44, 52, 0.8);
+.loading-message {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
-  z-index: 10;
 }
 
 .spinner {

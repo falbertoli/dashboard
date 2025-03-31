@@ -4,135 +4,153 @@
   <div class="economic-impact-view">
     <h1>Economic Impact Analysis</h1>
 
-    <div v-if="economicsStore.isLoading" class="loading-container">
+    <!-- Alert shown when no hydrogen data is available -->
+    <div v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand" class="alert info">
+      <i class="fas fa-info-circle"></i>
+      <span>Please configure hydrogen demand in the Hydrogen section first.</span>
+    </div>
+
+    <div v-else-if="economicsStore.isLoading" class="loading-container">
+      <div class="spinner"></div>
       <p>Loading economic data...</p>
     </div>
 
     <div v-else-if="economicsStore.error" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
       <p>{{ economicsStore.error }}</p>
     </div>
 
     <div v-else-if="!hydrogenStore.totalH2Demand" class="no-data-container">
+      <i class="fas fa-info-circle"></i>
       <p>No hydrogen demand data available. Please calculate hydrogen demand first.</p>
-      <router-link to="/hydrogen" class="btn primary">Go to Hydrogen Demand</router-link>
+      <router-link to="/hydrogen" class="btn primary">
+        <i class="fas fa-arrow-right"></i> Go to Hydrogen Demand
+      </router-link>
     </div>
 
-    <div class="parameters-description" v-if="!economicsStore.results">
-      <p>
-        <strong>Economic Model Parameters:</strong> This model calculates the economic impact of hydrogen adoption
-        based on the hydrogen demand you calculated. The key variable is the extra turnaround time required for
-        hydrogen aircraft and how quickly this time decreases as the technology matures.
-      </p>
-      <p>
-        <strong>Fixed Parameters:</strong> Fleet percentage ({{ hydrogenStore.fleetPercentage }}%),
-        projection year ({{ hydrogenStore.year }}), and growth rate (2%) are derived from your hydrogen demand
-        calculation.
-      </p>
-    </div>
-
-    <div class="parameters-section" v-if="!economicsStore.results">
-      <h2>Turnaround Time Parameters</h2>
-
-      <div class="form-group">
-        <label for="extraTurnTime">Initial Extra Turnaround Time for H₂ Aircraft (minutes):</label>
-        <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
-        <small>Additional turnaround time required for hydrogen aircraft compared to conventional aircraft</small>
+    <div v-else>
+      <div class="parameters-description" v-if="!economicsStore.results">
+        <p>
+          <strong>Economic Model Parameters:</strong> This model calculates the economic impact of hydrogen adoption
+          based on the hydrogen demand you calculated. The key variable is the extra turnaround time required for
+          hydrogen aircraft and how quickly this time decreases as the technology matures.
+        </p>
+        <p>
+          <strong>Fixed Parameters:</strong> Fleet percentage ({{ hydrogenStore.fleetPercentage }}%),
+          projection year ({{ hydrogenStore.year }}), and growth rate (2%) are derived from your hydrogen demand
+          calculation.
+        </p>
       </div>
 
-      <div class="scenario-config">
-        <h3>Turnaround Time Reduction Scenarios</h3>
-        <p>Define different annual reduction rates (minutes/year) as hydrogen refueling technology matures:</p>
+      <div class="parameters-section" v-if="!economicsStore.results">
+        <h2>Turnaround Time Parameters</h2>
 
-        <div class="scenarios-grid">
-          <div v-for="(rate, index) in turnTimeDecreaseRates" :key="index" class="scenario-input">
-            <label :for="`scenario${index}`">Scenario {{ index + 1 }}:</label>
-            <input :id="`scenario${index}`" type="number" v-model.number="turnTimeDecreaseRates[index]" min="0" max="10"
-              step="1" />
-            <span>min/year</span>
-            <button v-if="index > 0" @click="removeScenario(index)" class="btn remove" title="Remove scenario">
-              ✕
+        <div class="form-group">
+          <label for="extraTurnTime">Initial Extra Turnaround Time for H₂ Aircraft (minutes):</label>
+          <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
+          <small>Additional turnaround time required for hydrogen aircraft compared to conventional aircraft</small>
+        </div>
+
+        <div class="scenario-config">
+          <h3>Turnaround Time Reduction Scenarios</h3>
+          <p>Define different annual reduction rates (minutes/year) as hydrogen refueling technology matures:</p>
+
+          <div class="scenarios-grid">
+            <div v-for="(rate, index) in turnTimeDecreaseRates" :key="index" class="scenario-input">
+              <label :for="`scenario${index}`">Scenario {{ index + 1 }}:</label>
+              <input :id="`scenario${index}`" type="number" v-model.number="turnTimeDecreaseRates[index]" min="0"
+                max="10" step="1" />
+              <span>min/year</span>
+              <button v-if="index > 0" @click="removeScenario(index)" class="btn remove" title="Remove scenario">
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div class="scenario-actions">
+            <button @click="addScenario" class="btn secondary">
+              <i class="fas fa-plus"></i> Add Scenario
             </button>
           </div>
         </div>
 
-        <div class="scenario-actions">
-          <button @click="addScenario" class="btn secondary">Add Scenario</button>
+        <div class="form-actions">
+          <button @click="calculateEconomicImpact" class="btn primary" :disabled="!isFormValid">
+            <i class="fas fa-calculator"></i> Calculate Economic Impact
+          </button>
         </div>
       </div>
 
-      <div class="form-actions">
-        <button @click="calculateEconomicImpact" class="btn primary" :disabled="!isFormValid">
-          Calculate Economic Impact
-        </button>
-      </div>
-    </div>
-
-    <div v-else class="results-container">
-      <div v-if="economicsStore.results" class="recalculate-container">
-        <button @click="resetCalculation" class="btn secondary">Adjust Turnaround Parameters</button>
-      </div>
-
-      <!-- Calculation Parameters Section -->
-      <div class="calculation-params">
-        <p>
-          <strong>Calculation Parameters:</strong>
-          Fleet Percentage: {{ hydrogenStore.fleetPercentage }}% (from Hydrogen Demand),
-          Growth Rate: 2.0% per year (fixed),
-          Initial Turn Time: {{ extraTurnTime }} minutes (user input),
-          Years: {{ currentYear }} - {{ hydrogenStore.year }}
-        </p>
-      </div>
-
-      <!-- Dropdown for Scenario Selection -->
-      <div class="scenario-selection">
-        <label for="scenarioSelect">Select Scenario:</label>
-        <select id="scenarioSelect" v-model="selectedScenario">
-          <option v-for="rate in turnTimeDecreaseRates" :key="rate" :value="rate">{{ rate }} min/year reduction</option>
-        </select>
-      </div>
-
-      <!-- Detailed Results Table -->
-      <section class="details-section">
-        <h2>Detailed Results for {{ selectedScenario }} min/year Scenario</h2>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Year</th>
-                <th>Growth Factor</th>
-                <th>Turn Time (min)</th>
-                <th>H2 Flights (%)</th>
-                <th>Baseline Revenue ($M)</th>
-                <th>H2 Revenue ($M)</th>
-                <th>Revenue Drop (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in selectedScenarioData" :key="item.Year">
-                <td>{{ item.Year }}</td>
-                <td>{{ item.Growth_Factor.toFixed(3) }}</td>
-                <td>{{ item.Turn_Time_min }}</td>
-                <td>{{ (item.Fraction_Flights_H2 * 100).toFixed(1) }}%</td>
-                <td>${{ item.Baseline_Revenue_M.toFixed(2) }}M</td>
-                <td>${{ item.Hydrogen_Revenue_M.toFixed(2) }}M</td>
-                <td>{{ item.Pct_Drop.toFixed(2) }}%</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="results-container" v-else>
+        <div v-if="economicsStore.results" class="recalculate-container">
+          <button @click="resetCalculation" class="btn secondary">
+            <i class="fas fa-adjust"></i> Adjust Turnaround Parameters
+          </button>
         </div>
-      </section>
 
-      <!-- Charts Section -->
-      <section class="charts-section">
-        <h2>Economic Impact Visualization</h2>
-
-        <!-- Revenue Drop Chart -->
-        <div class="chart-wrapper">
-          <h3>Revenue Drop by Scenario</h3>
-          <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
-            :chartOptions="revenueChartOptions" />
+        <!-- Calculation Parameters Section -->
+        <div class="calculation-params">
+          <p>
+            <strong>Calculation Parameters:</strong>
+            Fleet Percentage: {{ hydrogenStore.fleetPercentage }}% (from Hydrogen Demand),
+            Growth Rate: 2.0% per year (fixed),
+            Initial Turn Time: {{ extraTurnTime }} minutes (user input),
+            Years: {{ currentYear }} - {{ hydrogenStore.year }}
+          </p>
         </div>
-      </section>
+
+        <!-- Dropdown for Scenario Selection -->
+        <div class="scenario-selection">
+          <label for="scenarioSelect">Select Scenario:</label>
+          <select id="scenarioSelect" v-model="selectedScenario">
+            <option v-for="rate in turnTimeDecreaseRates" :key="rate" :value="rate">{{ rate }} min/year reduction
+            </option>
+          </select>
+        </div>
+
+        <!-- Detailed Results Table -->
+        <section class="details-section">
+          <h2>Detailed Results for {{ selectedScenario }} min/year Scenario</h2>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Year</th>
+                  <th>Growth Factor</th>
+                  <th>Turn Time (min)</th>
+                  <th>H2 Flights (%)</th>
+                  <th>Baseline Revenue ($M)</th>
+                  <th>H2 Revenue ($M)</th>
+                  <th>Revenue Drop (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in selectedScenarioData" :key="item.Year">
+                  <td>{{ item.Year }}</td>
+                  <td>{{ item.Growth_Factor.toFixed(3) }}</td>
+                  <td>{{ item.Turn_Time_min }}</td>
+                  <td>{{ (item.Fraction_Flights_H2 * 100).toFixed(1) }}%</td>
+                  <td>${{ item.Baseline_Revenue_M.toFixed(2) }}M</td>
+                  <td>${{ item.Hydrogen_Revenue_M.toFixed(2) }}M</td>
+                  <td>{{ item.Pct_Drop.toFixed(2) }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+          <h2>Economic Impact Visualization</h2>
+
+          <!-- Revenue Drop Chart -->
+          <div class="chart-wrapper">
+            <h3>Revenue Drop by Scenario</h3>
+            <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
+              :chartOptions="revenueChartOptions" />
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -314,7 +332,7 @@ export default {
   margin: 0 auto;
   font-family: 'Roboto', sans-serif;
   color: #e0e0e0;
-  background-color: #1e1e1e;
+  background-color: #1a1e24;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -322,7 +340,7 @@ export default {
 h1,
 h2,
 h3 {
-  color: #00e676;
+  color: #64ffda;
   margin-bottom: 1rem;
 }
 
@@ -339,6 +357,8 @@ h2 {
 h3 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
 }
 
 .loading-container,
@@ -352,18 +372,41 @@ h3 {
 
 .loading-container {
   background-color: #333;
-  color: #00e676;
+  color: #64ffda;
 }
 
 .error-container {
-  background-color: #ff5252;
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .no-data-container {
-  background-color: #333;
-  color: #00e676;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert.info {
+  background-color: rgba(54, 162, 235, 0.1);
+  border-left: 4px solid rgba(54, 162, 235, 0.8);
+  color: #ddd;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+}
+
+.alert i {
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
 .btn {
@@ -373,20 +416,23 @@ h3 {
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn.primary {
-  background-color: #00e676;
-  color: #1e1e1e;
+  background-color: #64ffda;
+  color: #1a1e24;
 }
 
 .btn.primary:hover {
-  background-color: #00c853;
+  background-color: #73ffde;
 }
 
 .btn.secondary {
   background-color: #333;
-  color: #00e676;
+  color: #64ffda;
 }
 
 .btn.secondary:hover {
@@ -399,7 +445,7 @@ h3 {
   padding: 1rem;
   border: 1px solid #444;
   border-radius: 4px;
-  background-color: #2e2e2e;
+  background-color: rgba(255, 255, 255, 0.05);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -423,13 +469,13 @@ h3 {
 }
 
 .data-table th {
-  background-color: #333;
+  background-color: rgba(255, 255, 255, 0.05);
   font-weight: bold;
-  color: #00e676;
+  color: #64ffda;
 }
 
 .data-table tr:nth-child(even) {
-  background-color: #2e2e2e;
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .data-table tr:hover {
@@ -437,7 +483,7 @@ h3 {
 }
 
 .parameters-section {
-  background-color: #2e2e2e;
+  background-color: rgba(255, 255, 255, 0.05);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -459,7 +505,7 @@ h3 {
 .form-group label {
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #00e676;
+  color: #64ffda;
 }
 
 .form-group input {
@@ -471,7 +517,7 @@ h3 {
 }
 
 .form-group input:focus {
-  border-color: #00e676;
+  border-color: #64ffda;
   outline: none;
 }
 
@@ -508,7 +554,7 @@ h3 {
 }
 
 .scenario-input input:focus {
-  border-color: #00e676;
+  border-color: #64ffda;
   outline: none;
 }
 
@@ -543,11 +589,11 @@ h3 {
 }
 
 .calculation-params {
-  background-color: #2e2e2e;
+  background-color: rgba(255, 255, 255, 0.05);
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #00e676;
+  border-left: 4px solid #64ffda;
   font-size: 0.9rem;
   color: #e0e0e0;
 }
@@ -574,7 +620,7 @@ h3 {
 
 .scenario-selection label {
   font-weight: bold;
-  color: #00e676;
+  color: #64ffda;
 }
 
 .scenario-selection select {
@@ -588,8 +634,28 @@ h3 {
 }
 
 .scenario-selection select:focus {
-  border-color: #00e676;
+  border-color: #64ffda;
   outline: none;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #64ffda;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

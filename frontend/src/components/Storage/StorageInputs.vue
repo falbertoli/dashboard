@@ -15,41 +15,39 @@
       </div>
     </div>
 
-    <Slider label="Tank Diameter (ft)" id="tank-diameter" v-model="tankDiameter" :min="5" :max="20" :step="0.1"
-      unit="ft" />
-    <Slider label="Tank Length (ft)" id="tank-length" v-model="tankLength" :min="10" :max="100" :step="0.1" unit="ft" />
-
-    <div class="auto-calculated-field">
-      <div class="field-label">
-        <span>Recommended Number of Tanks</span>
-        <div class="tooltip">
-          <i class="fas fa-info-circle"></i>
-          <span class="tooltip-text">Automatically calculated based on hydrogen demand and tank dimensions</span>
+    <div v-if="totalH2Volume > 0">
+      <div class="auto-calculated-field">
+        <div class="field-label">
+          <span>Recommended Number of Tanks</span>
+          <div class="tooltip">
+            <i class="fas fa-info-circle"></i>
+            <span class="tooltip-text">Automatically calculated based on hydrogen demand and tank dimensions</span>
+          </div>
+        </div>
+        <div class="field-value">{{ recommendedTankCount }}</div>
+        <div class="field-detail" v-if="rawTankCount > 0">
+          <span>Raw calculation: {{ rawTankCount.toFixed(2) }} tanks</span>
         </div>
       </div>
-      <div class="field-value">{{ recommendedTankCount }}</div>
-      <div class="field-detail" v-if="rawTankCount > 0">
-        <span>Raw calculation: {{ rawTankCount.toFixed(2) }} tanks</span>
+
+      <!-- Add Last Tank Fill Information -->
+      <div class="tank-fill-info" v-if="lastTankFillPercentage > 0">
+        <div class="fill-label">Last Tank Fill Level:</div>
+        <div class="fill-bar">
+          <div class="fill-progress" :style="{ width: `${Math.min(lastTankFillPercentage, 100)}%` }"></div>
+        </div>
+        <div class="fill-percentage">{{ lastTankFillPercentage.toFixed(2) }}%</div>
       </div>
-    </div>
 
-    <!-- Add Last Tank Fill Information -->
-    <div class="tank-fill-info" v-if="lastTankFillPercentage > 0">
-      <div class="fill-label">Last Tank Fill Level:</div>
-      <div class="fill-bar">
-        <div class="fill-progress" :style="{ width: `${Math.min(lastTankFillPercentage, 100)}%` }"></div>
+      <div class="calculated-value">
+        <span>Usable Volume per Tank:</span>
+        <strong>{{ usableVolumePerTank.toFixed(2) }} ft³</strong>
       </div>
-      <div class="fill-percentage">{{ lastTankFillPercentage.toFixed(2) }}%</div>
-    </div>
 
-    <div class="calculated-value">
-      <span>Usable Volume per Tank:</span>
-      <strong>{{ usableVolumePerTank.toFixed(2) }} ft³</strong>
-    </div>
-
-    <div class="calculated-value">
-      <span>Total Storage Capacity:</span>
-      <strong>{{ (usableVolumePerTank * recommendedTankCount).toFixed(2) }} ft³</strong>
+      <div class="calculated-value">
+        <span>Total Storage Capacity:</span>
+        <strong>{{ (usableVolumePerTank * recommendedTankCount).toFixed(2) }} ft³</strong>
+      </div>
     </div>
   </div>
 </template>
@@ -57,12 +55,9 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { useStorageStore } from '@/store/storageStore'
-import Slider from '@/components/Slider.vue'
 
 const store = useStorageStore()
 const {
-  tankDiameter,
-  tankLength,
   recommendedTankCount,
   usableVolumePerTank,
   totalH2Volume,
@@ -122,6 +117,7 @@ const {
 .auto-calculated-field {
   background-color: rgba(100, 255, 218, 0.1);
   padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 6px;
   border-left: 3px solid #64ffda;
 }
@@ -185,6 +181,7 @@ const {
 .tank-fill-info {
   background-color: rgba(255, 159, 67, 0.1);
   padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 6px;
   border-left: 3px solid #ff9f43;
 }
@@ -218,6 +215,7 @@ const {
 .calculated-value {
   background-color: rgba(255, 255, 255, 0.05);
   padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 6px;
   display: flex;
   justify-content: space-between;
