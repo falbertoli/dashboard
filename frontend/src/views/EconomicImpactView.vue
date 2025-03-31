@@ -12,72 +12,36 @@
       <p>{{ economicsStore.error }}</p>
     </div>
 
-    <div v-else-if="!economicsStore.results" class="no-data-container">
-      <p>No economic data available. Please calculate hydrogen demand first.</p>
-      <button @click="calculateEconomicImpact" class="btn primary">Calculate Economic Impact</button>
-    </div>
-
-    <div class="form-group">
-      <label for="fleetPercentage">
-        Hydrogen Fleet Percentage (%)
-        <span class="info-icon" title="This percentage remains constant throughout the projection period">ⓘ</span>
-      </label>
-      <input type="number" id="fleetPercentage" v-model.number="fleetPercentage" min="0" max="100" step="1" />
+    <div v-else-if="!hydrogenStore.totalH2Demand" class="no-data-container">
+      <p>No hydrogen demand data available. Please calculate hydrogen demand first.</p>
+      <router-link to="/hydrogen" class="btn primary">Go to Hydrogen Demand</router-link>
     </div>
 
     <div class="parameters-description" v-if="!economicsStore.results">
       <p>
         <strong>Economic Model Parameters:</strong> This model calculates the economic impact of hydrogen adoption
-        with a constant fleet percentage over time. The key variable across scenarios is how quickly the
-        extra turnaround time decreases each year.
+        based on the hydrogen demand you calculated. The key variable is the extra turnaround time required for
+        hydrogen aircraft and how quickly this time decreases as the technology matures.
       </p>
       <p>
-        <strong>Growth Model:</strong> A simple compound growth rate is applied to demand, revenue, and utilization
-        each year, consistent with the approach used in the hydrogen demand model.
+        <strong>Fixed Parameters:</strong> Fleet percentage ({{ hydrogenStore.fleetPercentage }}%),
+        projection year ({{ hydrogenStore.year }}), and growth rate (2%) are derived from your hydrogen demand
+        calculation.
       </p>
     </div>
 
     <div class="parameters-section" v-if="!economicsStore.results">
-      <h2>Economic Projection Parameters</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="fleetPercentage">
-            Hydrogen Fleet Percentage (%)
-            <span class="info-icon" title="This percentage remains constant throughout the projection period">ⓘ</span>
-          </label>
-          <input type="number" id="fleetPercentage" v-model.number="fleetPercentage" min="0" max="100" step="1" />
-        </div>
+      <h2>Turnaround Time Parameters</h2>
 
-        <div class="form-group">
-          <label for="startYear">Start Year:</label>
-          <input type="number" id="startYear" v-model.number="startYear" min="2023" max="2050" />
-        </div>
-
-        <div class="form-group">
-          <label for="endYear">End Year:</label>
-          <input type="number" id="endYear" v-model.number="endYear" min="2023" max="2050" />
-          <small>Must be after start year</small>
-        </div>
-
-        <div class="form-group">
-          <label for="growthRate">
-            Annual Compound Growth Rate (%)
-            <span class="info-icon"
-              title="Simple compound growth rate applied to demand, revenue, and utilization each year">ⓘ</span>
-          </label>
-          <input type="number" id="growthRate" v-model.number="growthRate" min="0" max="10" step="0.1" />
-          <small>Default value (2%) matches the demand model assumptions</small>
-        </div>
-
-        <div class="form-group">
-          <label for="extraTurnTime">Initial Extra Turn Time (minutes):</label>
-          <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
-        </div>
+      <div class="form-group">
+        <label for="extraTurnTime">Initial Extra Turnaround Time for H₂ Aircraft (minutes):</label>
+        <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
+        <small>Additional turnaround time required for hydrogen aircraft compared to conventional aircraft</small>
       </div>
 
       <div class="scenario-config">
         <h3>Turnaround Time Reduction Scenarios</h3>
-        <p>Define different annual reduction rates (minutes/year) for turnaround time:</p>
+        <p>Define different annual reduction rates (minutes/year) as hydrogen refueling technology matures:</p>
 
         <div class="scenarios-grid">
           <div v-for="(rate, index) in turnTimeDecreaseRates" :key="index" class="scenario-input">
@@ -130,20 +94,19 @@
       </section>
 
       <div v-if="economicsStore.results" class="recalculate-container">
-        <button @click="resetCalculation" class="btn secondary">Adjust Parameters</button>
+        <button @click="resetCalculation" class="btn secondary">Adjust Turnaround Parameters</button>
       </div>
 
       <!-- calculation parameters section here -->
       <div class="calculation-params">
         <p>
           <strong>Calculation Parameters:</strong>
-          Fleet Percentage: {{ fleetPercentage }}%,
-          Growth Rate: {{ growthRate }}%/year,
-          Initial Turn Time: {{ extraTurnTime }} minutes,
-          Years: {{ startYear }} - {{ endYear }}
+          Fleet Percentage: {{ hydrogenStore.fleetPercentage }}% (from Hydrogen Demand),
+          Growth Rate: 2.0% per year (fixed),
+          Initial Turn Time: {{ extraTurnTime }} minutes (user input),
+          Years: {{ currentYear }} - {{ hydrogenStore.year }}
         </p>
       </div>
-
 
       <!-- Charts Section -->
       <section class="charts-section">
@@ -179,7 +142,7 @@
             <thead>
               <tr>
                 <th>Year</th>
-                <th>Growth Factor</th> <!-- New column -->
+                <th>Growth Factor</th>
                 <th>Turn Time (min)</th>
                 <th>H2 Flights (%)</th>
                 <th>Baseline Revenue ($M)</th>
@@ -191,7 +154,7 @@
             <tbody>
               <tr v-for="item in selectedScenarioData" :key="item.Year">
                 <td>{{ item.Year }}</td>
-                <td>{{ item.Growth_Factor.toFixed(3) }}</td> <!-- New column -->
+                <td>{{ item.Growth_Factor.toFixed(3) }}</td>
                 <td>{{ item.Turn_Time_min }}</td>
                 <td>{{ (item.Fraction_Flights_H2 * 100).toFixed(1) }}%</td>
                 <td>${{ item.Baseline_Revenue_M.toFixed(2) }}M</td>
@@ -224,20 +187,15 @@ export default {
     const economicsStore = useEconomicsStore();
     const hydrogenStore = useHydrogenStore();
     const selectedScenario = ref(3); // Default to 3 min/year reduction
+    const currentYear = ref(new Date().getFullYear());
 
-    // Form inputs with defaults
-    const startYear = ref(new Date().getFullYear());
-    const endYear = ref(hydrogenStore.year || 2036);
-    const growthRate = ref(2.0); // 2% default, displayed as percentage
+    // Only allow user to modify turnaround time parameters
     const extraTurnTime = ref(30); // 30 minutes default
-    const fleetPercentage = ref(hydrogenStore.fleetPercentage || 10); // Default to 10%
     const turnTimeDecreaseRates = ref([0, 1, 2, 3, 4, 5]); // Default scenarios
 
     // Form validation
     const isFormValid = computed(() => {
-      return startYear.value < endYear.value &&
-        growthRate.value >= 0 &&
-        extraTurnTime.value >= 0 &&
+      return extraTurnTime.value >= 0 &&
         turnTimeDecreaseRates.value.length > 0 &&
         turnTimeDecreaseRates.value.every(rate => rate >= 0);
     });
@@ -422,17 +380,18 @@ export default {
       selectedScenario.value = rate;
     };
 
-    // Enhanced calculation function with user parameters
+    // Simplified calculation function with only turnaround parameters
     const calculateEconomicImpact = async () => {
       if (!isFormValid.value) return;
 
       await economicsStore.fetchEconomicImpact({
-        startYear: startYear.value,
-        endYear: endYear.value,
-        growthRate: growthRate.value / 100, // Convert from percentage to decimal
         extraTurnTime: extraTurnTime.value,
         turnTimeDecreaseRates: turnTimeDecreaseRates.value,
-        fleetPercentage: fleetPercentage.value / 100 // Convert from percentage to decimal
+        // Use hydrogen store values for other parameters
+        fleetPercentage: hydrogenStore.fleetPercentage / 100, // Convert from percentage to decimal
+        startYear: currentYear.value,
+        endYear: hydrogenStore.year,
+        finalH2Year: hydrogenStore.year
       });
     };
 
@@ -470,13 +429,11 @@ export default {
       revenueComparisonOptions,
       selectScenario,
       calculateEconomicImpact,
-      // Add the new properties
-      startYear,
-      endYear,
-      growthRate,
+      // Only turnaround time parameters
       extraTurnTime,
-      fleetPercentage, // Add this
       turnTimeDecreaseRates,
+      // Other required properties
+      currentYear,
       isFormValid,
       addScenario,
       removeScenario,
