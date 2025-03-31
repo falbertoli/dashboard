@@ -77,16 +77,8 @@
             <h3>{{ rate }} min/year reduction</h3>
             <div class="metrics">
               <div class="metric">
-                <span class="label">Max Tax Credit:</span>
-                <span class="value">${{ metrics.max_tax_credit.toFixed(2) }}/gal</span>
-              </div>
-              <div class="metric">
                 <span class="label">Max Revenue Drop:</span>
                 <span class="value">{{ metrics.max_revenue_drop_pct.toFixed(2) }}%</span>
-              </div>
-              <div class="metric">
-                <span class="label">Final Year Tax Credit:</span>
-                <span class="value">${{ metrics.final_year_tax_credit.toFixed(2) }}/gal</span>
               </div>
             </div>
           </div>
@@ -118,20 +110,6 @@
           <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
             :chartOptions="revenueChartOptions" />
         </div>
-
-        <!-- Tax Credit Chart -->
-        <div class="chart-wrapper">
-          <h3>Required Tax Credit by Scenario</h3>
-          <ChartComponent chartId="taxCreditChart" chartType="line" :chartData="taxCreditChartData"
-            :chartOptions="taxCreditChartOptions" />
-        </div>
-
-        <!-- Revenue Comparison Chart -->
-        <div class="chart-wrapper">
-          <h3>Revenue Comparison for {{ selectedScenario }} min/year Scenario</h3>
-          <ChartComponent chartId="revenueComparisonChart" chartType="bar" :chartData="revenueComparisonChartData"
-            :chartOptions="revenueComparisonOptions" />
-        </div>
       </section>
 
       <!-- Detailed Results Table -->
@@ -148,7 +126,6 @@
                 <th>Baseline Revenue ($M)</th>
                 <th>H2 Revenue ($M)</th>
                 <th>Revenue Drop (%)</th>
-                <th>Tax Credit ($/gal)</th>
               </tr>
             </thead>
             <tbody>
@@ -160,7 +137,6 @@
                 <td>${{ item.Baseline_Revenue_M.toFixed(2) }}M</td>
                 <td>${{ item.Hydrogen_Revenue_M.toFixed(2) }}M</td>
                 <td>{{ item.Pct_Drop.toFixed(2) }}%</td>
-                <td>${{ item.Req_Tax_Credit_per_gal.toFixed(2) }}</td>
               </tr>
             </tbody>
           </table>
@@ -243,47 +219,6 @@ export default {
       return { labels, datasets };
     });
 
-    // Tax Credit Chart Data
-    const taxCreditChartData = computed(() => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
-
-      const scenarios = economicsStore.results.scenarios;
-      const firstScenario = Object.values(scenarios)[0];
-      const labels = firstScenario.map(item => item.Year);
-
-      const datasets = Object.entries(scenarios).map(([rate, data]) => ({
-        label: `${rate} min/year reduction`,
-        data: data.map(item => item.Req_Tax_Credit_per_gal),
-        borderColor: getColorForRate(parseInt(rate)),
-        backgroundColor: getColorForRate(parseInt(rate), 0.2),
-        borderWidth: parseInt(rate) === selectedScenario.value ? 3 : 1,
-      }));
-
-      return { labels, datasets };
-    });
-
-    // Revenue Comparison Chart Data
-    const revenueComparisonChartData = computed(() => {
-      if (!selectedScenarioData.value.length) return { labels: [], datasets: [] };
-
-      const labels = selectedScenarioData.value.map(item => item.Year);
-
-      const datasets = [
-        {
-          label: 'Baseline Revenue',
-          data: selectedScenarioData.value.map(item => item.Baseline_Revenue_M),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-        },
-        {
-          label: 'Hydrogen Revenue',
-          data: selectedScenarioData.value.map(item => item.Hydrogen_Revenue_M),
-          backgroundColor: 'rgba(255, 159, 64, 0.5)',
-        }
-      ];
-
-      return { labels, datasets };
-    });
-
     // Chart Options
     const revenueChartOptions = {
       responsive: true,
@@ -304,66 +239,6 @@ export default {
           title: {
             display: true,
             text: '% Revenue Drop'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Year'
-          }
-        }
-      }
-    };
-
-    const taxCreditChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Required Tax Credit vs. Year for Different Turn-Time Reduction Rates'
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.dataset.label}: $${context.raw.toFixed(2)}/gal`
-          }
-        }
-      },
-      scales: {
-        y: {
-          title: {
-            display: true,
-            text: 'Required Tax Credit ($/gal)'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Year'
-          }
-        }
-      }
-    };
-
-    const revenueComparisonOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Revenue Comparison for Selected Scenario'
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.dataset.label}: $${context.raw.toFixed(2)}M`
-          }
-        }
-      },
-      scales: {
-        y: {
-          title: {
-            display: true,
-            text: 'Revenue (Millions $)'
           }
         },
         x: {
@@ -422,11 +297,7 @@ export default {
       selectedScenario,
       selectedScenarioData,
       revenueDropChartData,
-      taxCreditChartData,
-      revenueComparisonChartData,
       revenueChartOptions,
-      taxCreditChartOptions,
-      revenueComparisonOptions,
       selectScenario,
       calculateEconomicImpact,
       // Only turnaround time parameters
@@ -446,6 +317,8 @@ export default {
 <style scoped>
 .economic-impact-view {
   padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 h1,
@@ -453,6 +326,21 @@ h2,
 h3 {
   color: #333;
   margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .loading-container,
@@ -466,15 +354,18 @@ h3 {
 
 .loading-container {
   background-color: #f5f5f5;
+  color: #666;
 }
 
 .error-container {
   background-color: #ffeeee;
   color: #cc0000;
+  font-weight: bold;
 }
 
 .no-data-container {
   background-color: #f5f5f5;
+  color: #666;
 }
 
 .btn {
@@ -483,11 +374,25 @@ h3 {
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.2s ease;
 }
 
 .btn.primary {
   background-color: #4caf50;
   color: white;
+}
+
+.btn.primary:hover {
+  background-color: #45a049;
+}
+
+.btn.secondary {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.btn.secondary:hover {
+  background-color: #dee2e6;
 }
 
 .summary-cards {
@@ -510,6 +415,7 @@ h3 {
 
 .summary-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .summary-card.selected {
@@ -523,16 +429,29 @@ h3 {
   margin-bottom: 0.5rem;
 }
 
+.metric .label {
+  font-weight: bold;
+  color: #666;
+}
+
+.metric .value {
+  color: #333;
+  font-size: 1.2rem;
+}
+
 .chart-wrapper {
   height: 400px;
   margin-bottom: 2rem;
   padding: 1rem;
   border: 1px solid #eee;
   border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .table-container {
   overflow-x: auto;
+  margin-bottom: 2rem;
 }
 
 .data-table {
@@ -551,6 +470,7 @@ h3 {
 .data-table th {
   background-color: #f5f5f5;
   font-weight: bold;
+  color: #333;
 }
 
 .data-table tr:nth-child(even) {
@@ -566,6 +486,7 @@ h3 {
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .form-grid {
@@ -583,6 +504,7 @@ h3 {
 .form-group label {
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: #333;
 }
 
 .form-group input {
@@ -590,6 +512,12 @@ h3 {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #4caf50;
+  outline: none;
 }
 
 .form-group small {
@@ -621,6 +549,12 @@ h3 {
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.scenario-input input:focus {
+  border-color: #4caf50;
+  outline: none;
 }
 
 .btn.remove {
@@ -636,16 +570,11 @@ h3 {
   cursor: pointer;
   font-size: 10px;
   padding: 0;
+  transition: background-color 0.2s ease;
 }
 
-.btn.secondary {
-  background-color: #e9ecef;
-  color: #495057;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
+.btn.remove:hover {
+  background-color: #f5c6cb;
 }
 
 .form-actions {
@@ -658,32 +587,45 @@ h3 {
   margin-bottom: 1rem;
 }
 
-.info-icon {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  line-height: 16px;
-  text-align: center;
-  border-radius: 50%;
-  background-color: #6c757d;
-  color: white;
-  font-size: 12px;
-  margin-left: 4px;
-  cursor: help;
-}
-
 .calculation-params {
   background-color: #f0f8ff;
-  /* Light blue background */
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1.5rem;
   border-left: 4px solid #4caf50;
-  /* Green left border */
+  font-size: 0.9rem;
+  color: #333;
 }
 
 .calculation-params p {
   margin: 0;
-  font-size: 0.9rem;
+}
+
+.results-container {
+  margin-top: 2rem;
+}
+
+.charts-section {
+  margin-bottom: 2rem;
+}
+
+.details-section {
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .summary-cards {
+    flex-direction: column;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.25rem;
+    font-size: 0.9rem;
+  }
 }
 </style>
