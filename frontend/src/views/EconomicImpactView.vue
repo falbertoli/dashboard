@@ -68,28 +68,11 @@
     </div>
 
     <div v-else class="results-container">
-      <!-- Summary Cards -->
-      <section class="summary-section">
-        <h2>Scenario Comparison</h2>
-        <div class="summary-cards">
-          <div v-for="(metrics, rate) in economicsStore.scenarioSummary" :key="rate" class="summary-card"
-            :class="{ 'selected': selectedScenario === parseInt(rate) }" @click="selectScenario(parseInt(rate))">
-            <h3>{{ rate }} min/year reduction</h3>
-            <div class="metrics">
-              <div class="metric">
-                <span class="label">Max Revenue Drop:</span>
-                <span class="value">{{ metrics.max_revenue_drop_pct.toFixed(2) }}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div v-if="economicsStore.results" class="recalculate-container">
         <button @click="resetCalculation" class="btn secondary">Adjust Turnaround Parameters</button>
       </div>
 
-      <!-- calculation parameters section here -->
+      <!-- Calculation Parameters Section -->
       <div class="calculation-params">
         <p>
           <strong>Calculation Parameters:</strong>
@@ -100,17 +83,13 @@
         </p>
       </div>
 
-      <!-- Charts Section -->
-      <section class="charts-section">
-        <h2>Economic Impact Visualization</h2>
-
-        <!-- Revenue Drop Chart -->
-        <div class="chart-wrapper">
-          <h3>Revenue Drop by Scenario</h3>
-          <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
-            :chartOptions="revenueChartOptions" />
-        </div>
-      </section>
+      <!-- Dropdown for Scenario Selection -->
+      <div class="scenario-selection">
+        <label for="scenarioSelect">Select Scenario:</label>
+        <select id="scenarioSelect" v-model="selectedScenario">
+          <option v-for="rate in turnTimeDecreaseRates" :key="rate" :value="rate">{{ rate }} min/year reduction</option>
+        </select>
+      </div>
 
       <!-- Detailed Results Table -->
       <section class="details-section">
@@ -140,6 +119,18 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="charts-section">
+        <h2>Economic Impact Visualization</h2>
+
+        <!-- Revenue Drop Chart -->
+        <div class="chart-wrapper">
+          <h3>Revenue Drop by Scenario</h3>
+          <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
+            :chartOptions="revenueChartOptions" />
         </div>
       </section>
     </div>
@@ -315,16 +306,23 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 .economic-impact-view {
   padding: 1rem;
   max-width: 1200px;
   margin: 0 auto;
+  font-family: 'Roboto', sans-serif;
+  color: #e0e0e0;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 h1,
 h2,
 h3 {
-  color: #333;
+  color: #00e676;
   margin-bottom: 1rem;
 }
 
@@ -353,19 +351,19 @@ h3 {
 }
 
 .loading-container {
-  background-color: #f5f5f5;
-  color: #666;
+  background-color: #333;
+  color: #00e676;
 }
 
 .error-container {
-  background-color: #ffeeee;
-  color: #cc0000;
+  background-color: #ff5252;
+  color: #fff;
   font-weight: bold;
 }
 
 .no-data-container {
-  background-color: #f5f5f5;
-  color: #666;
+  background-color: #333;
+  color: #00e676;
 }
 
 .btn {
@@ -378,74 +376,30 @@ h3 {
 }
 
 .btn.primary {
-  background-color: #4caf50;
-  color: white;
+  background-color: #00e676;
+  color: #1e1e1e;
 }
 
 .btn.primary:hover {
-  background-color: #45a049;
+  background-color: #00c853;
 }
 
 .btn.secondary {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: #333;
+  color: #00e676;
 }
 
 .btn.secondary:hover {
-  background-color: #dee2e6;
-}
-
-.summary-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.summary-card {
-  flex: 1;
-  min-width: 200px;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.summary-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.summary-card.selected {
-  border-color: #4caf50;
-  background-color: #e8f5e9;
-}
-
-.metric {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.metric .label {
-  font-weight: bold;
-  color: #666;
-}
-
-.metric .value {
-  color: #333;
-  font-size: 1.2rem;
+  background-color: #444;
 }
 
 .chart-wrapper {
   height: 400px;
   margin-bottom: 2rem;
   padding: 1rem;
-  border: 1px solid #eee;
+  border: 1px solid #444;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #2e2e2e;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -458,31 +412,32 @@ h3 {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 2rem;
+  color: #e0e0e0;
 }
 
 .data-table th,
 .data-table td {
-  border: 1px solid #ddd;
+  border: 1px solid #444;
   padding: 0.5rem;
   text-align: right;
 }
 
 .data-table th {
-  background-color: #f5f5f5;
+  background-color: #333;
   font-weight: bold;
-  color: #333;
+  color: #00e676;
 }
 
 .data-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #2e2e2e;
 }
 
 .data-table tr:hover {
-  background-color: #f0f0f0;
+  background-color: #444;
 }
 
 .parameters-section {
-  background-color: #f8f9fa;
+  background-color: #2e2e2e;
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -504,19 +459,19 @@ h3 {
 .form-group label {
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #00e676;
 }
 
 .form-group input {
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #444;
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
 }
 
 .form-group input:focus {
-  border-color: #4caf50;
+  border-color: #00e676;
   outline: none;
 }
 
@@ -546,20 +501,20 @@ h3 {
 .scenario-input input {
   width: 60px;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #444;
   border-radius: 4px;
   text-align: center;
   transition: border-color 0.2s ease;
 }
 
 .scenario-input input:focus {
-  border-color: #4caf50;
+  border-color: #00e676;
   outline: none;
 }
 
 .btn.remove {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #ff5252;
+  color: #fff;
   border: none;
   border-radius: 50%;
   width: 24px;
@@ -574,7 +529,7 @@ h3 {
 }
 
 .btn.remove:hover {
-  background-color: #f5c6cb;
+  background-color: #ff1744;
 }
 
 .form-actions {
@@ -588,13 +543,13 @@ h3 {
 }
 
 .calculation-params {
-  background-color: #f0f8ff;
+  background-color: #2e2e2e;
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid #00e676;
   font-size: 0.9rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .calculation-params p {
@@ -613,11 +568,31 @@ h3 {
   margin-bottom: 2rem;
 }
 
-@media (max-width: 768px) {
-  .summary-cards {
-    flex-direction: column;
-  }
+.scenario-selection {
+  margin-bottom: 1.5rem;
+}
 
+.scenario-selection label {
+  font-weight: bold;
+  color: #00e676;
+}
+
+.scenario-selection select {
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #e0e0e0;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.scenario-selection select:focus {
+  border-color: #00e676;
+  outline: none;
+}
+
+@media (max-width: 768px) {
   .chart-wrapper {
     height: 300px;
   }
