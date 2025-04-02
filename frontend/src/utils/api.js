@@ -180,7 +180,21 @@ export const api = {
         const response = await apiClient.get("/map/available-areas");
         return response.data;
       } catch (error) {
-        console.error("Error fetching map data:", error);
+        console.error("Error fetching map data:", error.message || error);
+        throw error;
+      }
+    },
+    getFacilities: async () => {
+      try {
+        console.log("🚀 Fetching facilities data...");
+        const response = await apiClient.get("/map/facilities");
+        console.log("✅ Facilities data fetched:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "❌ Error fetching facilities data:",
+          error.message || error
+        );
         throw error;
       }
     },

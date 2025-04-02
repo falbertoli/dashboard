@@ -39,6 +39,9 @@ const error = ref(null);
 const geoJsonLayer = ref(null);
 const isLoading = ref(false);
 
+const facilitiesGeoJsonData = ref(null);
+const facilitiesGeoJsonLayer = ref(null);
+
 const loadGeoJSON = async () => {
   isLoading.value = true;
   try {
@@ -49,6 +52,18 @@ const loadGeoJSON = async () => {
     console.error('❌ Error fetching map data:', err);
   } finally {
     isLoading.value = false;
+  }
+};
+
+const loadFacilitiesGeoJSON = async () => {
+  try {
+    console.log("🚀 Fetching facilities.geojson...");
+    facilitiesGeoJsonData.value = await api.map.getFacilities();
+    console.log("✅ Facilities data loaded:", facilitiesGeoJsonData.value);
+    renderFacilitiesGeoJSONLayer();
+  } catch (err) {
+    console.error("❌ Error loading facilities.geojson:", err.message || err);
+    error.value = `Failed to load facilities data: ${err.message || err}`;
   }
 };
 
@@ -127,10 +142,46 @@ const renderGeoJSONLayer = () => {
   }).addTo(map.value);
 };
 
+const renderFacilitiesGeoJSONLayer = () => {
+  if (!map.value || !facilitiesGeoJsonData.value) {
+    console.error("❌ Map or facilities data is not available.");
+    return;
+  }
+
+  console.log("🚀 Rendering facilities layer with data:", facilitiesGeoJsonData.value);
+
+  if (facilitiesGeoJsonLayer.value) {
+    facilitiesGeoJsonLayer.value.remove();
+    console.log("✅ Removed existing facilities layer.");
+  }
+
+  facilitiesGeoJsonLayer.value = L.geoJSON(facilitiesGeoJsonData.value, {
+    style: {
+      color: "blue",
+      fillColor: "blue",
+      fillOpacity: 0.5,
+      weight: 1,
+    },
+    onEachFeature: (feature, layer) => {
+      const props = feature.properties;
+      console.log("📍 Adding facility to map:", props.name);
+      layer.bindPopup(`
+        <b>${props.name}</b><br>
+        Function: ${props.function}<br>
+        Area: ${props.sq_ft} sqft<br>
+        Address: ${props.address}
+      `);
+    },
+  }).addTo(map.value);
+
+  console.log("✅ Facilities layer added to the map.");
+};
+
 onMounted(async () => {
   if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
 
   await loadGeoJSON();
+  await loadFacilitiesGeoJSON();
 
   map.value = L.map('map').setView([33.6407, -84.4277], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -139,6 +190,7 @@ onMounted(async () => {
   }).addTo(map.value);
 
   renderGeoJSONLayer();
+  renderFacilitiesGeoJSONLayer();
 
   nextTick(() => {
     map.value.invalidateSize();
