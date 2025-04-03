@@ -104,7 +104,7 @@
 
     <!-- Compliance Map -->
     <div v-else>
-      <div id="map"></div>
+      <div id="map" style="height: 400px; width: 100%;"></div>
 
 
       <!-- Legend -->
@@ -489,19 +489,24 @@ const handleMapClick = async (event) => {
 
 
 onMounted(async () => {
+  console.log("🚀 Initializing map...");
+  if (!map.value) {
+    map.value = L.map('map').setView([33.6407, -84.4277], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map.value);
+    console.log("✅ Map initialized successfully.");
+  } else {
+    console.warn("⚠️ Map is already initialized.");
+  }
+
   if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
 
 
   // Commenting out the loading and rendering of atl_areas.geojson
   // await loadGeoJSON();
   await loadFacilitiesGeoJSON();
-
-
-  map.value = L.map('map').setView([33.6407, -84.4277], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map.value);
 
 
   // renderGeoJSONLayer();
@@ -531,253 +536,84 @@ watch(
 
 <style scoped>
 .compliance-map {
-  background-color: #f9fafb;
-  /* Light background for consistency */
+  background-color: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: #333;
-  /* Darker text for readability */
+  color: #ddd;
 }
-
 
 h2 {
-  margin-bottom: 20px;
-  color: #1f2937;
-  /* Darker heading color */
+  color: #64ffda;
   font-size: 1.5rem;
   font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 10px;
-}
-
-
-.filter-container {
   margin-bottom: 20px;
 }
 
-
-.filter-container label {
-  font-weight: 500;
-  margin-right: 10px;
-  color: #4b5563;
-  /* Subtle label color */
-}
-
-
-#map {
-  width: 100%;
-  height: 400px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-
-.alert {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  border-radius: 8px;
-  background-color: #fef3c7;
-  /* Light yellow background */
-  border-left: 4px solid #f59e0b;
-  /* Yellow border */
-  color: #92400e;
-  /* Darker yellow text */
-}
-
-
-.alert i {
-  margin-right: 10px;
-  font-size: 1.2rem;
-}
-
-
-.loading,
-.error-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: #1f2937;
-  /* Neutral dark text */
-}
-
-
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 4px solid #3b82f6;
-  /* Blue spinner */
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
-
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-
-.error-message {
-  color: #b91c1c;
-  /* Red for errors */
-  border-left: 4px solid #ef4444;
-  /* Red border */
-  background-color: #fee2e2;
-  /* Light red background */
-  border-radius: 8px;
-}
-
-
-.results-section {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f3f4f6;
-  /* Light gray background */
-  border-radius: 8px;
-  border-left: 4px solid #3b82f6;
-  /* Blue border */
-}
-
-
-.result-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  color: #1f2937;
-  /* Neutral dark text */
-}
-
-
-.result-item span {
-  font-size: 0.9rem;
-  color: #6b7280;
-  /* Subtle text color */
-}
-
-
-.result-item strong {
-  font-size: 1.1rem;
-  color: #3b82f6;
-  /* Blue text */
-}
-
-
-.space-check-section {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f9fafb;
-  /* Light background */
-  border-radius: 8px;
-  border-left: 4px solid #10b981;
-  /* Green border */
-}
-
-
-.space-check-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  color: #1f2937;
-  /* Neutral dark text */
-}
-
-
-.space-check-item span {
-  font-size: 0.9rem;
-  color: #6b7280;
-  /* Subtle text color */
-}
-
-
-.space-check-item strong {
-  font-size: 1.1rem;
-  color: #10b981;
-  /* Green text */
-}
-
-
+.results-section,
+.space-check-section,
 .compliance-table-section {
-  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
 }
 
+.results-section .result-item,
+.space-check-section .space-check-item {
+  margin-bottom: 10px;
+  color: #aaa;
+}
+
+.results-section .result-item strong,
+.space-check-section .space-check-item strong {
+  color: #64ffda;
+  font-weight: 600;
+}
 
 .compliance-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  background-color: #ffffff;
-  /* White background */
+  background-color: #282c34;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
 }
-
 
 .compliance-table th,
 .compliance-table td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-  color: #1f2937;
-  /* Neutral dark text */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ddd;
 }
 
-
 .compliance-table th {
-  background-color: #f3f4f6;
-  /* Light gray background */
+  background-color: rgba(255, 255, 255, 0.05);
   font-weight: 600;
 }
 
-
 .compliance-table tr:nth-child(even) {
-  background-color: #f9fafb;
-  /* Slightly lighter background for even rows */
+  background-color: rgba(255, 255, 255, 0.03);
 }
-
 
 .compliance-table tr:hover {
-  background-color: #e5e7eb;
-  /* Highlight on hover */
+  background-color: rgba(255, 255, 255, 0.1);
 }
-
 
 .legend {
   margin-top: 20px;
   padding: 15px;
-  background-color: #f9fafb;
-  /* Light background */
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  color: #1f2937;
-  /* Neutral dark text */
+  color: #ddd;
 }
-
 
 .legend h4 {
   margin-bottom: 10px;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #1f2937;
-  /* Neutral dark text */
+  color: #64ffda;
 }
-
 
 .legend ul {
   list-style: none;
@@ -785,13 +621,11 @@ h2 {
   margin: 0;
 }
 
-
 .legend li {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
 }
-
 
 .legend .color-box {
   width: 20px;
@@ -800,11 +634,9 @@ h2 {
   border-radius: 3px;
 }
 
-
-/* Style for tank markers */
-.tank-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#map {
+  height: 400px;
+  width: 100%;
+  border: 1px solid #ddd;
 }
 </style>

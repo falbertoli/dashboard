@@ -346,22 +346,16 @@ const emissionsReductionChartOptions = computed(() => {
 </script>
 
 <style scoped>
-/* Same styles as before */
-</style>
-
-<style scoped>
 .emissions-analysis {
   margin-bottom: 30px;
-}
-
-h1 {
-  color: #282C34;
 }
 
 h2 {
   margin-top: 0;
   margin-bottom: 20px;
-  color: #fff;
+  color: #64ffda;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 h3 {
@@ -376,10 +370,17 @@ h3 {
 .error-message {
   border-left: 4px solid #e74c3c;
   color: #e74c3c;
+  background-color: rgba(255, 99, 132, 0.1);
+  padding: 15px;
+  border-radius: 6px;
 }
 
 .no-results {
   color: #aaa;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .loading {
@@ -405,7 +406,6 @@ h3 {
   0% {
     transform: rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg);
   }
@@ -633,7 +633,6 @@ h3 {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-
   .summary-grid,
   .equivalents-grid {
     grid-template-columns: 1fr;
@@ -662,112 +661,5 @@ h3 {
 .alert i {
   margin-right: 10px;
   font-size: 1.2rem;
-}
-
-/* Hydrogen Demand Info styles */
-.hydrogen-demand-info {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 25px;
-  text-align: left;
-}
-
-.hydrogen-demand-info h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 10px;
-  text-align: left;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.info-row span {
-  color: #aaa;
-}
-
-.info-row strong {
-  color: #64ffda;
-  font-size: 1.2rem;
-}
-
-.breakdown-row {
-  display: flex;
-  gap: 20px;
-  margin-top: 15px;
-  margin-bottom: 20px;
-}
-
-.breakdown-item {
-  flex: 1;
-  background-color: rgba(255, 255, 255, 0.03);
-  padding: 10px 15px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.breakdown-item span {
-  color: #aaa;
-}
-
-.breakdown-item strong {
-  color: #ddd;
-}
-
-/* Hydrogen demand pill in results */
-.hydrogen-demand-summary {
-  margin-bottom: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.info-pill {
-  display: inline-flex;
-  align-items: center;
-  background-color: rgba(54, 162, 235, 0.1);
-  border-radius: 20px;
-  padding: 6px 12px;
-  gap: 8px;
-}
-
-.info-pill i {
-  color: #36a2eb;
-  font-size: 0.9rem;
-}
-
-.info-pill span {
-  color: #ddd;
-  font-size: 0.9rem;
-}
-
-.info-pill strong {
-  color: #36a2eb;
-}
-
-.no-results {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #aaa;
-}
-
-.error-message {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-  border-left: 4px solid #e74c3c;
-  color: #e74c3c;
 }
 </style>

@@ -97,7 +97,7 @@ const resetStorage = () => {
 
 .page-header h1 {
   font-size: 2.2rem;
-  color: #282C34;
+  color: #64ffda;
   margin-bottom: 10px;
 }
 

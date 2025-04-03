@@ -3,61 +3,83 @@
   <div class="regulations-view">
     <h1>Regulatory Compliance</h1>
 
-    <h2>Applicable Regulations</h2>
-    <DataTable :headers="regulationHeaders" :items="regulationsStore.regulations" />
+    <section>
+      <h2>Regulations Overview</h2>
+      <RegulationsTable :items="formattedRegulations"
+        caption="List of regulations and their minimum storage requirements." />
+    </section>
 
-    <h2>Distances requirements</h2>
-    <DataTable :headers="distancesRequirementsHeaders" :items="regulationsStore.distancesRequirements" />
+    <section>
+      <h2>Distance Requirements</h2>
+      <RegulationsTable :items="formattedDistancesRequirements"
+        caption="Distance requirements for various storage scenarios." />
+    </section>
 
-    <h2>Compliance Map</h2>
-    <ComplianceMap :storageVolume="storageStore.totalH2VolumeFromHydrogenStore" />
+    <section>
+      <h2>Compliance Map</h2>
+      <ComplianceMap :storageVolume="storageStore.totalH2VolumeFromHydrogenStore" />
+      <!-- <p v-if="!isStorageVolumeValid" class="error">
+        Warning: Hydrogen storage volume is not defined. Please configure it.
+      </p> -->
+    </section>
   </div>
 </template>
 
 <script>
 import { ref, onMounted, computed } from "vue";
-import DataTable from "../components/DataTable.vue";
-import ComplianceMap from "../components/ComplianceMap.vue"; // Import ComplianceMap
+import RegulationsTable from "../components/RegulationsTable.vue";
+import ComplianceMap from "../components/ComplianceMap.vue";
 import { useStorageStore } from "../store/storageStore";
-import { useRegulationsStore } from "../store/regulationsStore"; // Import the new store
+import { useRegulationsStore } from "../store/regulationsStore";
 
 export default {
   components: {
-    DataTable,
-    ComplianceMap, // Register ComplianceMap
+    RegulationsTable,
+    ComplianceMap,
   },
   setup() {
     const storageStore = useStorageStore();
-    const regulationsStore = useRegulationsStore(); // Use the regulations store
+    const regulationsStore = useRegulationsStore();
 
-    const regulationColumns = ref([
-      { key: "regulation_id", label: "ID" },
-      { key: "regulation_name", label: "Name" },
-      { key: "regulation_info", label: "Info" },
-      { key: "storage_gal_min", label: "Min Storage (Gal)" },
-    ]);
-    const distancesRequirementsColumns = ref([
-      { key: "regulation_id", label: "ID" },
-      { key: "regulation_name", label: "Name" },
-      { key: "regulation_info" },
-      { key: "storage_gal_min", label: "Min Storage (Gal)" },
-      { key: "storage_gal_max", label: "Max Storage (Gal)" },
-      { key: "safety_distance_ft", label: "Safety Distance (ft)" },
-    ]);
+    // Debug log for storage volume
+    console.log("Hydrogen Storage Volume:", storageStore.totalH2VolumeFromHydrogenStore);
 
-    const regulationHeaders = ref(regulationColumns.value.map(col => col.key));
-    const distancesRequirementsHeaders = ref(distancesRequirementsColumns.value.map(col => col.key));
+    // Computed property to validate storage volume
+    const isStorageVolumeValid = computed(() => {
+      const volume = storageStore.totalH2VolumeFromHydrogenStore;
+      return volume !== null && volume !== undefined && volume > 0;
+    });
 
+    // Format data to ensure proper mapping
+    const formattedRegulations = computed(() =>
+      regulationsStore.regulations.map(item => ({
+        regulation_name: item.regulation_name || item["﻿regulation_name"], // Handle BOM issue
+        regulation_info: item.regulation_info || "N/A",
+        storage_gal_min: item.storage_gal_min || "N/A",
+      }))
+    );
+
+    const formattedDistancesRequirements = computed(() =>
+      regulationsStore.distancesRequirements.map(item => ({
+        regulation_name: item.regulation_name || item["﻿regulation_name"], // Handle BOM issue
+        regulation_info: item.regulation_info || "N/A",
+        storage_gal_min: item.storage_gal_min || "N/A",
+        storage_gal_max: item.storage_gal_max || "N/A",
+        safety_distance_ft: item.safety_distance_ft || "N/A",
+      }))
+    );
+
+    // Load data on component mount
     onMounted(async () => {
       await regulationsStore.loadRegulations();
       await regulationsStore.loadDistancesRequirements();
     });
 
     return {
-      regulationHeaders,
-      distancesRequirementsHeaders,
+      formattedRegulations,
+      formattedDistancesRequirements,
       storageStore,
-      regulationsStore, // Return the store
+      isStorageVolumeValid,
     };
   },
 };
@@ -66,5 +88,21 @@ export default {
 <style scoped>
 .regulations-view {
   padding: 20px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.error {
+  color: red;
+  font-size: 1rem;
+  margin-top: 10px;
 }
 </style>

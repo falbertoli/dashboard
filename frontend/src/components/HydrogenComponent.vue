@@ -153,13 +153,46 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-input[type="range"] {
-  width: 100%;
+h2 {
+  color: #64ffda;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.input-section {
+  margin-bottom: 20px;
+}
+
+.demand-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #ddd;
+}
+
+.demand-section h3 {
+  color: #64ffda;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.demand-section p {
+  margin: 5px 0;
+  color: #aaa;
 }
 
 .error {
-  color: red;
-  font-weight: bold;
+  color: #ff6384;
+  font-weight: 600;
   margin-top: 10px;
+}
+
+.chart-container {
+  margin-top: 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
 }
 </style>
