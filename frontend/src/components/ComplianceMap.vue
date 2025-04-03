@@ -46,21 +46,17 @@
           <tr v-for="feature in filteredFacilities" :key="feature.properties.id">
             <td>{{ feature.properties.name || "Unknown" }}</td>
             <td>{{ feature.properties.amenity || "Unknown" }}</td>
-            <td>{{ feature.properties.sq_ft || "N/A" }}</td>
+            <td>{{ feature.properties.computed_area.toFixed(2) }} ft²</td>
             <td>
               {{
-                feature.properties.sq_ft && storageStore.totalFootprint
-                  ? feature.properties.sq_ft >= storageStore.totalFootprint
-                    ? "Yes"
-                    : "No"
-                  : "Data Unavailable"
+                feature.properties.computed_area >= storageStore.totalFootprint
+                  ? "Yes"
+                  : "No"
               }}
             </td>
             <td>
               {{
-                feature.properties.sq_ft
-                  ? ((storageStore.totalFootprint / feature.properties.sq_ft) * 100).toFixed(2) + "%"
-                  : "N/A"
+                ((storageStore.totalFootprint / feature.properties.computed_area) * 100).toFixed(2) + "%"
               }}
             </td>
           </tr>
@@ -138,20 +134,17 @@ import { useStorageStore } from '../store/storageStore';
 import { ref, onMounted, watch, nextTick, computed } from 'vue';
 import L from 'leaflet';
 import { api } from '@/utils/api';
-
+import turfArea from '@turf/area';
+import { polygon as turfPolygon } from '@turf/helpers';
 
 const storageStore = useStorageStore();
 const map = ref(null);
-const geojsonData = ref(null);
 const error = ref(null);
-const geoJsonLayer = ref(null);
 const isLoading = ref(false);
-
 
 const facilitiesGeoJsonData = ref(null);
 const facilitiesGeoJsonLayer = ref(null);
 const selectedFunction = ref(""); // Selected function for filtering
-
 
 // Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
@@ -160,58 +153,56 @@ const uniqueFunctions = computed(() => {
   return [...new Set(functions)];
 });
 
-
 // Check if "Free Space" or "Deicing" buildings have enough space
 const freeSpaceStatus = computed(() => {
   if (!facilitiesGeoJsonData.value || !storageStore.totalFootprint) return "Data Unavailable";
   const freeSpace = facilitiesGeoJsonData.value.features.find(
     (feature) => feature.properties.amenity === "Free Space"
   );
-  return freeSpace && freeSpace.properties.sq_ft >= storageStore.totalFootprint
+  return freeSpace && freeSpace.properties.computed_area >= storageStore.totalFootprint
     ? "Sufficient Space"
     : "Insufficient Space";
 });
-
 
 const deicingStatus = computed(() => {
   if (!facilitiesGeoJsonData.value || !storageStore.totalFootprint) return "Data Unavailable";
   const deicing = facilitiesGeoJsonData.value.features.find(
     (feature) => feature.properties.amenity === "Deicing"
   );
-  return deicing && deicing.properties.sq_ft >= storageStore.totalFootprint
+  return deicing && deicing.properties.computed_area >= storageStore.totalFootprint
     ? "Sufficient Space"
     : "Insufficient Space";
 });
 
-
-
-// Update the table rendering logic to handle null or undefined data
-const facilities = computed(() => facilitiesGeoJsonData.value?.features || []);
-
-
-// Filter facilities to only include "Free Space" or "Deicing"
-const filteredFacilities = computed(() => {
-  return facilitiesGeoJsonData.value?.features.filter((feature) => {
-    const functionType = feature.properties.amenity;
-    return functionType === "Free Space" || functionType === "Deicing";
-  }) || [];
-});
-
-
-const loadGeoJSON = async () => {
-  isLoading.value = true;
+// Compute area from coordinates using Turf
+const computeFeatureArea = (feature) => {
   try {
-    // Commenting out the loading of atl_areas.geojson
-    // geojsonData.value = await api.map.getAvailableAreas();
-    // await processGeoJSON();
+    if (!feature.geometry || feature.geometry.type !== 'Polygon') {
+      console.warn('Feature does not have valid polygon geometry:', feature);
+      return 0;
+    }
+    const poly = turfPolygon(feature.geometry.coordinates);
+    const areaInSquareMeters = turfArea(poly);
+    // Convert square meters to square feet (1 sq meter = 10.764 sq ft)
+    return areaInSquareMeters * 10.764;
   } catch (err) {
-    error.value = `Failed to load map data: ${err.message}`;
-    console.error('❌ Error fetching map data:', err);
-  } finally {
-    isLoading.value = false;
+    console.error('Error computing area:', err);
+    return 0;
   }
 };
 
+// Filter facilities with computed areas
+const filteredFacilities = computed(() => {
+  return facilitiesGeoJsonData.value?.features.filter((feature) => {
+    const functionType = feature.properties.amenity;
+    if (functionType === "Free Space" || functionType === "Deicing") {
+      // Compute actual area from coordinates
+      feature.properties.computed_area = computeFeatureArea(feature);
+      return true;
+    }
+    return false;
+  }) || [];
+});
 
 const loadFacilitiesGeoJSON = async () => {
   try {
@@ -225,12 +216,10 @@ const loadFacilitiesGeoJSON = async () => {
   }
 };
 
-
 const evaluateCompliance = async (feature) => {
-  const area = feature.properties.area_sqft;
+  const area = feature.properties.computed_area;
   const footprintNeeded = storageStore.totalFootprint;
   const enoughSpace = area >= footprintNeeded;
-
 
   let complianceData;
   try {
@@ -243,35 +232,16 @@ const evaluateCompliance = async (feature) => {
     complianceData = { is_compliant: false, reason: 'Compliance check failed' };
   }
 
-
   feature.properties.compliance_reason = complianceData.reason;
   feature.properties.required_safety_distance_ft = complianceData.required_safety_distance_ft;
   feature.properties.actual_distance_ft = complianceData.actual_distance_ft;
 
-
   const distancesCompliance = complianceData.is_compliant;
-
 
   if (!enoughSpace) return 'non-compliant';
   if (enoughSpace && distancesCompliance) return 'compliant';
   return 'partially-compliant';
 };
-
-
-const processGeoJSON = async () => {
-  if (!geojsonData.value) return;
-};
-
-
-const renderGeoJSONLayer = () => {
-  if (!map.value || !geojsonData.value) return;
-
-
-  if (geoJsonLayer.value) {
-    geoJsonLayer.value.remove();
-  }
-};
-
 
 const renderFacilitiesGeoJSONLayer = () => {
   if (!map.value || !facilitiesGeoJsonData.value) {
@@ -279,15 +249,14 @@ const renderFacilitiesGeoJSONLayer = () => {
     return;
   }
 
-
-  console.log("🚀 Rendering facilities layer with data:", facilitiesGeoJsonData.value);
-
-
   if (facilitiesGeoJsonLayer.value) {
     facilitiesGeoJsonLayer.value.remove();
-    console.log("✅ Removed existing facilities layer.");
   }
 
+  // Update areas before rendering
+  facilitiesGeoJsonData.value.features.forEach(feature => {
+    feature.properties.computed_area = computeFeatureArea(feature);
+  });
 
   facilitiesGeoJsonLayer.value = L.geoJSON(facilitiesGeoJsonData.value, {
     style: (feature) => {
@@ -301,9 +270,9 @@ const renderFacilitiesGeoJSONLayer = () => {
         Support: "cyan",
         Transportation: "yellow",
         Utilities: "brown",
-        "Free Space": feature.properties.sq_ft >= storageStore.totalFootprint ? "limegreen" : "darkgreen",
-        Deicing: feature.properties.sq_ft >= storageStore.totalFootprint ? "lightpink" : "darkred",
-        Unknown: "black", // Default color for unknown functions
+        "Free Space": feature.properties.computed_area >= storageStore.totalFootprint ? "limegreen" : "darkgreen",
+        Deicing: feature.properties.computed_area >= storageStore.totalFootprint ? "lightpink" : "darkred",
+        Unknown: "black",
       };
       const functionType = feature.properties.amenity || "Unknown";
       return {
@@ -315,141 +284,56 @@ const renderFacilitiesGeoJSONLayer = () => {
     },
     onEachFeature: (feature, layer) => {
       const props = feature.properties;
+      const computedArea = props.computed_area;
       const isRelevant = props.amenity === "Free Space" || props.amenity === "Deicing";
       const canContainFootprint = isRelevant
-        ? props.sq_ft >= storageStore.totalFootprint
+        ? computedArea >= storageStore.totalFootprint
           ? "Yes"
           : "No"
         : null;
 
-      // Ensure bounds are defined
-      const bounds = layer.getBounds();
-
       let popupContent = `
         <b>${props.name || "Unknown"}</b><br>
         Amenity: ${props.amenity || "Unknown"}<br>
-        Area: ${props.sq_ft || "N/A"} sqft<br>
+        Computed Area: ${computedArea.toFixed(2)} ft²<br>
         Address: ${props.address || "N/A"}<br>
         Description: ${props.description || "N/A"}<br>
+        ${isRelevant ? `Can Contain Storage: ${canContainFootprint}<br>` : ''}
         Distance Requirements:<br>
         - Contains People: ${props.distance_requirements?.contains_people ? "Yes" : "No"}<br>
         - Contains Flammable Liquids: ${props.distance_requirements?.contains_flammable_liquids ? "Yes" : "No"}<br>
         - Contains Open Fire: ${props.distance_requirements?.contains_open_fire ? "Yes" : "No"}
       `;
 
-      if (isRelevant && canContainFootprint === "Yes") {
-        const bounds = layer.getBounds();
-        const storageArea = storageStore.totalFootprint; // in ft²
-
-        // ✅ Convert storage area to m²
-        const storageAreaMeters = storageArea * 0.092903;
-
-        // ✅ Calculate bounding box size in meters
-        const latDiff = bounds.getNorth() - bounds.getSouth();
-        const lngDiff = bounds.getEast() - bounds.getWest();
-        const centerLat = (bounds.getNorth() + bounds.getSouth()) / 2;
-        const boundsWidthMeters = lngDiff * 111320 * Math.cos(centerLat * (Math.PI / 180));
-        const boundsHeightMeters = latDiff * 111000;
-
-        // ✅ Maintain aspect ratio but ensure exact area
-        const aspectRatio = boundsWidthMeters / boundsHeightMeters;
-
-        let adjustedWidthMeters, adjustedHeightMeters;
-
-        if (aspectRatio > 1) {
-          // Wider space
-          adjustedHeightMeters = Math.sqrt(storageAreaMeters / aspectRatio);
-          adjustedWidthMeters = storageAreaMeters / adjustedHeightMeters;
-        } else {
-          // Taller space
-          adjustedWidthMeters = Math.sqrt(storageAreaMeters * aspectRatio);
-          adjustedHeightMeters = storageAreaMeters / adjustedWidthMeters;
-        }
-
-        // ✅ Convert meters → degrees
-        const adjustedLatDiff = adjustedHeightMeters / 111000;
-        const adjustedLngDiff = adjustedWidthMeters / (111320 * Math.cos(centerLat * (Math.PI / 180)));
-
-        // ✅ Center of bounds
-        const center = bounds.getCenter();
-
-        const minLat = Math.max(bounds.getSouth(), center.lat - adjustedLatDiff / 2);
-        const maxLat = Math.min(bounds.getNorth(), center.lat + adjustedLatDiff / 2);
-        const minLng = Math.max(bounds.getWest(), center.lng - adjustedLngDiff / 2);
-        const maxLng = Math.min(bounds.getEast(), center.lng + adjustedLngDiff / 2);
-
-        const storagePolygonBounds = [
-          [minLat, minLng],
-          [minLat, maxLng],
-          [maxLat, maxLng],
-          [maxLat, minLng],
-        ];
-
-        // ✅ Add polygon to map
-        const polygon = L.polygon(storagePolygonBounds, {
-          color: "#3b82f6",
-          fillColor: "#93c5fd",
-          fillOpacity: 0.7,
-          weight: 2,
-        }).addTo(map.value);
-
-        // ✅ Convert dimensions back to feet
-        const adjustedHeightFeet = adjustedHeightMeters / 0.3048;
-        const adjustedWidthFeet = adjustedWidthMeters / 0.3048;
-
-        // ✅ Force area match using original footprint to avoid mismatch
-        const computedAreaFeet = (adjustedHeightFeet * adjustedWidthFeet);
-
-        // ✅ Bind popup with corrected values
-        layer.bindPopup(`
-          <b>${props.name || "Unknown"}</b><br>
-          Amenity: ${props.amenity || "Unknown"}<br>
-          Area: ${props.sq_ft || "N/A"} ft²<br>
-          <b>Storage Space Details:</b><br>
-          - Length: ${adjustedHeightFeet} feet<br>
-          - Width: ${adjustedWidthFeet} feet<br>
-          - Computed Area: ${computedAreaFeet} ft²
-        `);
-      }
-    },
+      layer.bindPopup(popupContent);
+    }
   }).addTo(map.value);
-
-
-  console.log("✅ Facilities layer added to the map.");
 };
-
 
 const handleMapClick = async (event) => {
   const { lat, lng } = event.latlng;
   console.log("Map clicked at:", lat, lng);
 
-
   try {
-    // Query Overpass API for building boundaries
     const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];way(around:50,${lat},${lng})["building"];out geom;`;
     const response = await fetch(overpassUrl);
     const data = await response.json();
     console.log("Overpass API result:", data);
-
 
     if (data.elements && data.elements.length > 0) {
       const building = data.elements[0];
       const boundaries = building.geometry.map((point) => [point.lat, point.lon]);
       console.log("Building boundaries:", boundaries);
 
-
-      // Extract building information dynamically
       const buildingInfo = {
         name: building.tags?.name || "Unknown",
-        address: building.tags?.addr_full || null, // Address may be null
+        address: building.tags?.addr_full || null,
         amenity: building.tags?.amenity || "Unknown",
         safetyInfo: building.tags?.["fire_hydrant:position"]
           ? "Fire hydrant nearby"
           : "No specific safety information available",
       };
 
-
-      // Fallback to reverse geocoding if address is missing
       if (!buildingInfo.address) {
         const geocodeResponse = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
@@ -458,16 +342,12 @@ const handleMapClick = async (event) => {
         buildingInfo.address = geocodeData.display_name || "Unknown";
       }
 
-
-      // Draw the building boundaries on the map
       const polygon = L.polygon(boundaries, {
         color: "blue",
         weight: 2,
         fillOpacity: 0.3,
       }).addTo(map.value);
 
-
-      // Bind a popup with building information
       polygon.bindPopup(`
         <b>Building Name:</b> ${buildingInfo.name}<br>
         <b>Address:</b> ${buildingInfo.address}<br>
@@ -475,8 +355,6 @@ const handleMapClick = async (event) => {
         <b>Safety Info:</b> ${buildingInfo.safetyInfo}
       `).openPopup();
 
-
-      // Fit the map view to the polygon
       map.value.fitBounds(polygon.getBounds());
     } else {
       alert("No building boundaries found at this location.");
@@ -486,7 +364,6 @@ const handleMapClick = async (event) => {
     alert("Failed to fetch building boundaries.");
   }
 };
-
 
 onMounted(async () => {
   console.log("🚀 Initializing map...");
@@ -503,34 +380,15 @@ onMounted(async () => {
 
   if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
 
-
-  // Commenting out the loading and rendering of atl_areas.geojson
-  // await loadGeoJSON();
   await loadFacilitiesGeoJSON();
-
-
-  // renderGeoJSONLayer();
   renderFacilitiesGeoJSONLayer();
 
-
   map.value.on("click", handleMapClick);
-
 
   nextTick(() => {
     map.value.invalidateSize();
   });
 });
-
-
-watch(
-  () => [storageStore.totalFootprint, storageStore.totalH2VolumeGallons],
-  async ([footprint, volume]) => {
-    if (footprint && volume) {
-      await loadGeoJSON();
-      renderGeoJSONLayer();
-    }
-  }
-);
 </script>
 
 
