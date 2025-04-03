@@ -5,14 +5,18 @@
 
     <section>
       <h2>Regulations Overview</h2>
-      <RegulationsTable :items="formattedRegulations"
-        caption="List of regulations and their minimum storage requirements." />
+      <div class="table-container">
+        <RegulationsTable :items="formattedRegulations"
+          caption="List of regulations and their minimum storage requirements." />
+      </div>
     </section>
 
     <section>
       <h2>Distance Requirements</h2>
-      <RegulationsTable :items="formattedDistancesRequirements"
-        caption="Distance requirements for various storage scenarios." />
+      <div class="table-container">
+        <RegulationsTable :items="formattedDistancesRequirements"
+          caption="Distance requirements for various storage scenarios." />
+      </div>
     </section>
 
     <section>
@@ -97,7 +101,18 @@ section {
 h2 {
   margin-bottom: 10px;
   font-size: 1.5rem;
-  color: #333;
+  color: #64ffda;
+  /* Match the theme color */
+}
+
+.table-container {
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.05);
+  /* Darker background */
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
 }
 
 .error {

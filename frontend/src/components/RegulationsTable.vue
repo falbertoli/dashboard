@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table>
+    <table class="data-table">
       <caption>{{ caption }}</caption>
       <thead>
         <tr>
@@ -46,34 +46,38 @@ export default {
 </script>
 
 <style scoped>
-table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #444;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.data-table th {
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: bold;
+  color: #64ffda;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.data-table tr:hover {
+  background-color: #444;
 }
 
 caption {
   font-weight: bold;
   margin-bottom: 10px;
   text-align: left;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f4f4f4;
-}
-
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-tr:hover {
-  background-color: #f1f1f1;
+  color: #64ffda;
 }
 </style>
