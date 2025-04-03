@@ -65,12 +65,13 @@
     </div>
 
 
-    <!-- Filter by function -->
+    <!-- Filter by Amenity -->
     <div class="filter-container">
       <label for="function-filter">Filter by Amenity:</label>
       <select id="function-filter" v-model="selectedFunction" @change="renderFacilitiesGeoJSONLayer">
-        <option value="">All</option>
-        <option v-for="functionType in uniqueFunctions" :key="functionType" :value="functionType">
+        <option value="storage">Free Space and Deicing Only</option>
+        <option value="">All Amenities</option>
+        <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
           {{ functionType }}
         </option>
       </select>
@@ -144,13 +145,19 @@ const isLoading = ref(false);
 
 const facilitiesGeoJsonData = ref(null);
 const facilitiesGeoJsonLayer = ref(null);
-const selectedFunction = ref(""); // Selected function for filtering
+const selectedFunction = ref("storage"); // Special value to indicate Free Space and Deicing
 
 // Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
   if (!facilitiesGeoJsonData.value) return [];
   const functions = facilitiesGeoJsonData.value.features.map((feature) => feature.properties.amenity || "Unknown");
-  return [...new Set(functions)];
+  const uniqueSet = new Set(functions);
+  return Array.from(uniqueSet);
+});
+
+// Add new computed property for filtered dropdown options
+const filteredDropdownOptions = computed(() => {
+  return uniqueFunctions.value.filter(type => type !== 'storage');
 });
 
 // Check if "Free Space" or "Deicing" buildings have enough space
@@ -191,17 +198,22 @@ const computeFeatureArea = (feature) => {
   }
 };
 
-// Filter facilities with computed areas
+// Update the filtered facilities computed property
 const filteredFacilities = computed(() => {
-  return facilitiesGeoJsonData.value?.features.filter((feature) => {
+  if (!facilitiesGeoJsonData.value?.features) return [];
+  return facilitiesGeoJsonData.value.features.filter((feature) => {
     const functionType = feature.properties.amenity;
-    if (functionType === "Free Space" || functionType === "Deicing") {
-      // Compute actual area from coordinates
+    // First filter by Free Space or Deicing
+    const isRelevantType = functionType === "Free Space" || functionType === "Deicing";
+    // Then apply the selected function filter if one is selected
+    const matchesFilter = !selectedFunction.value || functionType === selectedFunction.value;
+    // Calculate area if feature passes filters
+    if (isRelevantType && matchesFilter) {
       feature.properties.computed_area = computeFeatureArea(feature);
       return true;
     }
     return false;
-  }) || [];
+  });
 });
 
 const loadFacilitiesGeoJSON = async () => {
@@ -243,6 +255,7 @@ const evaluateCompliance = async (feature) => {
   return 'partially-compliant';
 };
 
+// Update the renderFacilitiesGeoJSONLayer function
 const renderFacilitiesGeoJSONLayer = () => {
   if (!map.value || !facilitiesGeoJsonData.value) {
     console.error("❌ Map or facilities data is not available.");
@@ -253,12 +266,25 @@ const renderFacilitiesGeoJSONLayer = () => {
     facilitiesGeoJsonLayer.value.remove();
   }
 
-  // Update areas before rendering
-  facilitiesGeoJsonData.value.features.forEach(feature => {
+  // Filter features based on selected function
+  const filteredFeatures = {
+    type: "FeatureCollection",
+    features: facilitiesGeoJsonData.value.features.filter(feature => {
+      const amenity = feature.properties.amenity;
+      if (selectedFunction.value === "storage") {
+        // Show only Free Space and Deicing
+        return amenity === "Free Space" || amenity === "Deicing";
+      }
+      return !selectedFunction.value || amenity === selectedFunction.value;
+    })
+  };
+
+  // Update areas for all features
+  filteredFeatures.features.forEach(feature => {
     feature.properties.computed_area = computeFeatureArea(feature);
   });
 
-  facilitiesGeoJsonLayer.value = L.geoJSON(facilitiesGeoJsonData.value, {
+  facilitiesGeoJsonLayer.value = L.geoJSON(filteredFeatures, {
     style: (feature) => {
       const colors = {
         Cargo: "blue",
@@ -309,6 +335,11 @@ const renderFacilitiesGeoJSONLayer = () => {
     }
   }).addTo(map.value);
 };
+
+// Add a watch effect for the selectedFunction
+watch(selectedFunction, () => {
+  renderFacilitiesGeoJSONLayer();
+});
 
 const handleMapClick = async (event) => {
   const { lat, lng } = event.latlng;

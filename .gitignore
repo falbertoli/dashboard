@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/vue,python,venv,vuejs,flask
 # Edit at https://www.toptal.com/developers/gitignore?templates=vue,python,venv,vuejs,flask
 
+### Database ###
+backend/data/ac_data.db
+backend/data/gse_data.db
 ### Flask ###
 instance/*
 !instance/.gitignore
