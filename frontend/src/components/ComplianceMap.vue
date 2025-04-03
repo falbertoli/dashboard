@@ -36,7 +36,7 @@
         <thead>
           <tr>
             <th>Building</th>
-            <th>Function</th>
+            <th>Amenity</th>
             <th>Area (ft²)</th>
             <th>Can Contain Footprint</th>
             <th>Proportion (%)</th>
@@ -45,7 +45,7 @@
         <tbody>
           <tr v-for="feature in filteredFacilities" :key="feature.properties.id">
             <td>{{ feature.properties.name || "Unknown" }}</td>
-            <td>{{ feature.properties.function || "Unknown" }}</td>
+            <td>{{ feature.properties.amenity || "Unknown" }}</td>
             <td>{{ feature.properties.sq_ft || "N/A" }}</td>
             <td>
               {{
@@ -71,7 +71,7 @@
 
     <!-- Filter by function -->
     <div class="filter-container">
-      <label for="function-filter">Filter by Function:</label>
+      <label for="function-filter">Filter by Amenity:</label>
       <select id="function-filter" v-model="selectedFunction" @change="renderFacilitiesGeoJSONLayer">
         <option value="">All</option>
         <option v-for="functionType in uniqueFunctions" :key="functionType" :value="functionType">
@@ -156,7 +156,7 @@ const selectedFunction = ref(""); // Selected function for filtering
 // Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
   if (!facilitiesGeoJsonData.value) return [];
-  const functions = facilitiesGeoJsonData.value.features.map((feature) => feature.properties.function || "Unknown");
+  const functions = facilitiesGeoJsonData.value.features.map((feature) => feature.properties.amenity || "Unknown");
   return [...new Set(functions)];
 });
 
@@ -165,7 +165,7 @@ const uniqueFunctions = computed(() => {
 const freeSpaceStatus = computed(() => {
   if (!facilitiesGeoJsonData.value || !storageStore.totalFootprint) return "Data Unavailable";
   const freeSpace = facilitiesGeoJsonData.value.features.find(
-    (feature) => feature.properties.function === "Free Space"
+    (feature) => feature.properties.amenity === "Free Space"
   );
   return freeSpace && freeSpace.properties.sq_ft >= storageStore.totalFootprint
     ? "Sufficient Space"
@@ -176,7 +176,7 @@ const freeSpaceStatus = computed(() => {
 const deicingStatus = computed(() => {
   if (!facilitiesGeoJsonData.value || !storageStore.totalFootprint) return "Data Unavailable";
   const deicing = facilitiesGeoJsonData.value.features.find(
-    (feature) => feature.properties.function === "Deicing"
+    (feature) => feature.properties.amenity === "Deicing"
   );
   return deicing && deicing.properties.sq_ft >= storageStore.totalFootprint
     ? "Sufficient Space"
@@ -191,7 +191,7 @@ const facilities = computed(() => facilitiesGeoJsonData.value?.features || []);
 // Filter facilities to only include "Free Space" or "Deicing"
 const filteredFacilities = computed(() => {
   return facilitiesGeoJsonData.value?.features.filter((feature) => {
-    const functionType = feature.properties.function;
+    const functionType = feature.properties.amenity;
     return functionType === "Free Space" || functionType === "Deicing";
   }) || [];
 });
@@ -259,15 +259,6 @@ const evaluateCompliance = async (feature) => {
 
 const processGeoJSON = async () => {
   if (!geojsonData.value) return;
-
-
-  // Commenting out the processing of atl_areas.geojson
-  // const compliancePromises = geojsonData.value.features.map(async (feature) => {
-  //   feature.properties.compliance_status = await evaluateCompliance(feature);
-  // });
-
-
-  // await Promise.all(compliancePromises);
 };
 
 
@@ -278,39 +269,6 @@ const renderGeoJSONLayer = () => {
   if (geoJsonLayer.value) {
     geoJsonLayer.value.remove();
   }
-
-
-  // Commenting out the rendering of atl_areas.geojson
-  // geoJsonLayer.value = L.geoJSON(geojsonData.value, {
-  //   style: (feature) => {
-  //     const colors = {
-  //       compliant: 'limegreen',
-  //       'partially-compliant': 'yellow',
-  //       'non-compliant': 'red'
-  //     };
-  //     return {
-  //       color: colors[feature.properties.compliance_status],
-  //       fillColor: colors[feature.properties.compliance_status],
-  //       fillOpacity: 0.6,
-  //       weight: 2
-  //     };
-  //   },
-  //   onEachFeature: (feature, layer) => {
-  //     const props = feature.properties;
-  //     const compliance = props.compliance_status;
-
-
-  //     layer.bindPopup(`
-  //       <b>${props.name}</b><br>
-  //       Available Area: ${props.area_sqft} sqft<br>
-  //       Required Footprint: ${storageStore.totalFootprint} sqft<br>
-  //       Required Safety Distance: ${props.required_safety_distance_ft || 'N/A'} ft<br>
-  //       Actual Distance: ${props.actual_distance_ft || 'N/A'} ft<br>
-  //       <strong>Status: ${compliance}</strong><br>
-  //       Reason: ${props.compliance_reason || 'N/A'}
-  //     `);
-  //   }
-  // }).addTo(map.value);
 };
 
 
@@ -346,7 +304,7 @@ const renderFacilitiesGeoJSONLayer = () => {
         Deicing: feature.properties.sq_ft >= storageStore.totalFootprint ? "lightpink" : "darkred",
         Unknown: "black", // Default color for unknown functions
       };
-      const functionType = feature.properties.function || "Unknown";
+      const functionType = feature.properties.amenity || "Unknown";
       return {
         color: colors[functionType] || "black",
         fillColor: colors[functionType] || "black",
@@ -356,7 +314,7 @@ const renderFacilitiesGeoJSONLayer = () => {
     },
     onEachFeature: (feature, layer) => {
       const props = feature.properties;
-      const isRelevant = props.function === "Free Space" || props.function === "Deicing";
+      const isRelevant = props.amenity === "Free Space" || props.amenity === "Deicing";
       const canContainFootprint = isRelevant
         ? props.sq_ft >= storageStore.totalFootprint
           ? "Yes"
@@ -366,9 +324,14 @@ const renderFacilitiesGeoJSONLayer = () => {
 
       let popupContent = `
         <b>${props.name || "Unknown"}</b><br>
-        Function: ${props.function || "Unknown"}<br>
+        Amenity: ${props.amenity || "Unknown"}<br>
         Area: ${props.sq_ft || "N/A"} sqft<br>
-        Address: ${props.address || "N/A"}
+        Address: ${props.address || "N/A"}<br>
+        Description: ${props.description || "N/A"}<br>
+        Distance Requirements:<br>
+        - Contains People: ${props.distance_requirements?.contains_people ? "Yes" : "No"}<br>
+        - Contains Flammable Liquids: ${props.distance_requirements?.contains_flammable_liquids ? "Yes" : "No"}<br>
+        - Contains Open Fire: ${props.distance_requirements?.contains_open_fire ? "Yes" : "No"}
       `;
 
 

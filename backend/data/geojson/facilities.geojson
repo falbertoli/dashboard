@@ -5,9 +5,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Cargo Building A",
-        "function": "Cargo",
+        "amenity": "Cargo",
         "sq_ft": "127,331",
-        "address": "4301 ASR Road Atlanta, GA 30320"
+        "address": "4301 ASR Road Atlanta, GA 30320",
+        "description": "A cargo building used for storage and logistics.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -26,9 +32,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Cargo Building B",
-        "function": "Cargo",
+        "amenity": "Cargo",
         "sq_ft": "130,634",
-        "address": "4300 ASR Road Atlanta, GA 30320"
+        "address": "4300 ASR Road Atlanta, GA 30320",
+        "description": "A cargo building used for storage and logistics.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -47,9 +59,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Cargo Building C",
-        "function": "Cargo",
+        "amenity": "Cargo",
         "sq_ft": "125,524",
-        "address": "4400 South Cargo Drive, Atlanta, GA 30319"
+        "address": "4400 South Cargo Drive, Atlanta, GA 30319",
+        "description": "A cargo building used for storage and logistics.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -68,9 +86,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Cargo Building D",
-        "function": "Cargo",
+        "amenity": "Cargo",
         "sq_ft": "125,524",
-        "address": "4200 South Cargo Drive, Atlanta, GA 30320"
+        "address": "4200 South Cargo Drive, Atlanta, GA 30320",
+        "description": "A cargo building used for storage and logistics.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -89,9 +113,15 @@
       "type": "Feature",
       "properties": {
         "name": "UPS",
-        "function": "Cargo",
+        "amenity": "Cargo",
         "sq_ft": "23,031",
-        "address": "1240 Toffie Terrace, Atlanta, GA 30354"
+        "address": "1240 Toffie Terrace, Atlanta, GA 30354",
+        "description": "A cargo building used for storage and logistics.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -110,9 +140,15 @@
       "type": "Feature",
       "properties": {
         "name": "C4 Building - Integrated Operations Center (IOC)",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "29,235",
-        "address": "720 Doug Davis Drive, Hapeville, GA"
+        "address": "720 Doug Davis Drive, Hapeville, GA",
+        "description": "An emergency response building for integrated operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -131,9 +167,15 @@
       "type": "Feature",
       "properties": {
         "name": "Fire Station 24",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "23,526",
-        "address": "3300 Inner Loop Road, Atlanta, GA 30320"
+        "address": "3300 Inner Loop Road, Atlanta, GA 30320",
+        "description": "A fire station providing emergency response services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -152,9 +194,15 @@
       "type": "Feature",
       "properties": {
         "name": "Fire Station 32",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "26,000",
-        "address": "8500 N Terminal Pkwy, College Park, GA 30337"
+        "address": "8500 N Terminal Pkwy, College Park, GA 30337",
+        "description": "A fire station providing emergency response services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -173,9 +221,15 @@
       "type": "Feature",
       "properties": {
         "name": "Fire Station 33",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "22,161",
-        "address": "1401 South Loop Road, Atlanta, GA 30320"
+        "address": "1401 South Loop Road, Atlanta, GA 30320",
+        "description": "A fire station providing emergency response services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -194,9 +248,15 @@
       "type": "Feature",
       "properties": {
         "name": "Fire Station 35",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "21,000",
-        "address": "2150 Central Cargo Circle, Atlanta, GA 30354"
+        "address": "2150 Central Cargo Circle, Atlanta, GA 30354",
+        "description": "A fire station providing emergency response services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -215,9 +275,15 @@
       "type": "Feature",
       "properties": {
         "name": "Fire Station 40",
-        "function": "Emergency Response",
+        "amenity": "Emergency Response",
         "sq_ft": "28,374",
-        "address": "4600 ASR Road, Atlanta, GA 30320"
+        "address": "4600 ASR Road, Atlanta, GA 30320",
+        "description": "A fire station providing emergency response services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -236,9 +302,15 @@
       "type": "Feature",
       "properties": {
         "name": "FIS Fuel Farm",
-        "function": "Fuel Farm",
+        "amenity": "Fuel Farm",
         "sq_ft": "1,737",
-        "address": "1635 NLVR Road, Atlanta GA, 30320"
+        "address": "1635 NLVR Road, Atlanta GA, 30320",
+        "description": "A fuel farm for storing and managing aviation fuel.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -257,9 +329,15 @@
       "type": "Feature",
       "properties": {
         "name": "City Fuel Farm",
-        "function": "Fuel Farm",
+        "amenity": "Fuel Farm",
         "sq_ft": "1,022",
-        "address": "1 Fuel Farm Road, Atlanta, GA, 30320"
+        "address": "1 Fuel Farm Road, Atlanta, GA, 30320",
+        "description": "A fuel farm for storing and managing aviation fuel.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -278,9 +356,15 @@
       "type": "Feature",
       "properties": {
         "name": "USPS",
-        "function": "Lease",
+        "amenity": "Lease",
         "sq_ft": "334,000",
-        "address": "2310 Maynard H Jackson Jr Blvd., Atlanta, GA 30320"
+        "address": "2310 Maynard H Jackson Jr Blvd., Atlanta, GA 30320",
+        "description": "A leased facility for postal services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -299,9 +383,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 1",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "16,491",
-        "address": "1300 Inner Loop Road, Atlanta, GA 30337"
+        "address": "1300 Inner Loop Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -320,9 +410,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 2",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "40,671",
-        "address": "1300 Inner Loop Road, Atlanta, GA 30337"
+        "address": "1300 Inner Loop Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -341,9 +437,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 3",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "6,072",
-        "address": "1300 Inner Loop Road, Atlanta, GA 30337"
+        "address": "1300 Inner Loop Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -362,9 +464,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 4",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "30,575",
-        "address": "1300 Inner Loop Road, Atlanta, GA 30337"
+        "address": "1300 Inner Loop Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -383,9 +491,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 5",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "3,965",
-        "address": "1300 Inner Loop Road, Atlanta, GA 30337"
+        "address": "1300 Inner Loop Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -404,9 +518,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 6",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "19,907",
-        "address": "3689 Cargo Service Road, Atlanta, GA 30320"
+        "address": "3689 Cargo Service Road, Atlanta, GA 30320",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -425,9 +545,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 7",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "18,701",
-        "address": "2000 Cargo Service Road, Atlanta, GA 30320"
+        "address": "2000 Cargo Service Road, Atlanta, GA 30320",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -446,9 +572,15 @@
       "type": "Feature",
       "properties": {
         "name": "Facilities Maintenance Building 8(New)",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "40,000",
-        "address": "4650 ASR Road, Atlanta, GA 30337"
+        "address": "4650 ASR Road, Atlanta, GA 30337",
+        "description": "A facility for maintenance operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -467,9 +599,15 @@
       "type": "Feature",
       "properties": {
         "name": "Motor Transport Building",
-        "function": "Maintenance",
+        "amenity": "Maintenance",
         "sq_ft": "7,200",
-        "address": "4550 ARS Road, Atlanta, GA"
+        "address": "4550 ARS Road, Atlanta, GA",
+        "description": "A facility for motor transport maintenance.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -488,9 +626,15 @@
       "type": "Feature",
       "properties": {
         "name": "ATL West Parking Deck",
-        "function": "Parking",
+        "amenity": "Parking",
         "sq_ft": "1,800,000",
-        "address": "2079 Hospitality Wy, College Park, GA 30337"
+        "address": "2079 Hospitality Wy, College Park, GA 30337",
+        "description": "A parking deck for vehicles.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -509,9 +653,15 @@
       "type": "Feature",
       "properties": {
         "name": "Domestic Commercial Vehicle Hold-Lot",
-        "function": "Parking",
+        "amenity": "Parking",
         "sq_ft": "7,515",
-        "address": "6000 N Terminal Parkway, Atlanta, GA 30320"
+        "address": "6000 N Terminal Parkway, Atlanta, GA 30320",
+        "description": "A parking lot for commercial vehicles.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -530,9 +680,15 @@
       "type": "Feature",
       "properties": {
         "name": "International Commercial Vehicle Hold Lot",
-        "function": "Parking",
+        "amenity": "Parking",
         "sq_ft": "3,482",
-        "address": "3945 North Loop Road, Atlanta, GA 30354"
+        "address": "3945 North Loop Road, Atlanta, GA 30354",
+        "description": "A parking lot for international commercial vehicles.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -551,9 +707,15 @@
       "type": "Feature",
       "properties": {
         "name": "Park ATL Select",
-        "function": "Parking",
+        "amenity": "Parking",
         "sq_ft": "2,600",
-        "address": "1800 Sullivan Rd, College Park, GA 30337"
+        "address": "1800 Sullivan Rd, College Park, GA 30337",
+        "description": "A parking lot for selected vehicles.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -572,9 +734,15 @@
       "type": "Feature",
       "properties": {
         "name": "Technical Support Campus (Pod A-C)",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "62,667",
-        "address": "1255 South Loop Road, College Park, GA 30337"
+        "address": "1255 South Loop Road, College Park, GA 30337",
+        "description": "A technical support campus for operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -593,9 +761,15 @@
       "type": "Feature",
       "properties": {
         "name": "Technical Support Campus (Pod D & E)",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "10,260",
-        "address": "1255 South Loop Road, College Park, GA 30337"
+        "address": "1255 South Loop Road, College Park, GA 30337",
+        "description": "A technical support campus for operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -614,9 +788,15 @@
       "type": "Feature",
       "properties": {
         "name": "Toffie Terrace",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "137,259",
-        "address": "1220 Toffie Terrace, Atlanta, GA 30354"
+        "address": "1220 Toffie Terrace, Atlanta, GA 30354",
+        "description": "A support facility for operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -635,9 +815,15 @@
       "type": "Feature",
       "properties": {
         "name": "North Cargo Facility (DOA)",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "454,396",
-        "address": "3400 Inner Loop Road, Atlanta, GA 30354"
+        "address": "3400 Inner Loop Road, Atlanta, GA 30354",
+        "description": "A support facility for cargo operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -656,9 +842,15 @@
       "type": "Feature",
       "properties": {
         "name": "COA Airport Rescue & Fire Fighting Training Facility",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "26,521",
-        "address": "860 Lake Mirror Road, Atlanta, GA 30349"
+        "address": "860 Lake Mirror Road, Atlanta, GA 30349",
+        "description": "A training facility for airport rescue and fire fighting.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": true
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -677,9 +869,15 @@
       "type": "Feature",
       "properties": {
         "name": "COA APD K-9 Facility(New)",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "13,000",
-        "address": "1750 Sullivan Rd, College Park, Atlanta, GA 30377"
+        "address": "1750 Sullivan Rd, College Park, Atlanta, GA 30377",
+        "description": "A facility for K-9 operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -698,9 +896,15 @@
       "type": "Feature",
       "properties": {
         "name": "North Deicing - Glycol Building",
-        "function": "Deicing",
+        "amenity": "Deicing",
         "sq_ft": "58,607",
-        "address": "1012 Toffie Terrace, Atl, Ga 30320"
+        "address": "1012 Toffie Terrace, Atl, Ga 30320",
+        "description": "A facility for deicing operations.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -719,9 +923,15 @@
       "type": "Feature",
       "properties": {
         "name": "RAMP - Mixing and Dosing",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "1,536",
-        "address": "4800 South Cargo Drive, Atlanta, GA 30337"
+        "address": "4800 South Cargo Drive, Atlanta, GA 30337",
+        "description": "A facility for mixing and dosing operations.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -740,9 +950,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Deicing Facility",
-        "function": "Deicing",
+        "amenity": "Deicing",
         "sq_ft": "28,500",
-        "address": "4800 South Cargo Drive, Atlanta, GA 30337"
+        "address": "4800 South Cargo Drive, Atlanta, GA 30337",
+        "description": "A facility for deicing operations.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": true,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -761,9 +977,15 @@
       "type": "Feature",
       "properties": {
         "name": "COA Fire & Atlanta Airport Fire Department Office",
-        "function": "Support",
+        "amenity": "Support",
         "sq_ft": "2,500",
-        "address": "5155 Clipper Dr,Atlanta, GA 30349"
+        "address": "5155 Clipper Dr,Atlanta, GA 30349",
+        "description": "An office for fire department operations.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -782,9 +1004,15 @@
       "type": "Feature",
       "properties": {
         "name": "Airport Station",
-        "function": "Transportation",
+        "amenity": "Transportation",
         "sq_ft": "39,286",
-        "address": "6000 N Terminal Parkway, Atlanta, GA 30320"
+        "address": "6000 N Terminal Parkway, Atlanta, GA 30320",
+        "description": "A station for airport transportation.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -803,9 +1031,15 @@
       "type": "Feature",
       "properties": {
         "name": "GICC Station",
-        "function": "Transportation",
+        "amenity": "Transportation",
         "sq_ft": "27,841",
-        "address": "2000 Convention Center Concourse, College Park GA30337"
+        "address": "2000 Convention Center Concourse, College Park GA30337",
+        "description": "A station for transportation to the convention center.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -824,9 +1058,15 @@
       "type": "Feature",
       "properties": {
         "name": "Rental Car Center",
-        "function": "Transportation",
+        "amenity": "Transportation",
         "sq_ft": "362,060",
-        "address": "2200 Rental Car Center Pkwy, College Park, GA 30337"
+        "address": "2200 Rental Car Center Pkwy, College Park, GA 30337",
+        "description": "A center for rental car services.",
+        "distance_requirements": {
+          "contains_people": true,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -845,9 +1085,15 @@
       "type": "Feature",
       "properties": {
         "name": "Central Airfield Electrical Vault",
-        "function": "Utilities",
+        "amenity": "Utilities",
         "sq_ft": "5,363",
-        "address": "4600 ASR Road, Atlanta, GA 30320"
+        "address": "4600 ASR Road, Atlanta, GA 30320",
+        "description": "An electrical vault for airfield utilities.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -866,9 +1112,15 @@
       "type": "Feature",
       "properties": {
         "name": "Interstate (I-285) Bridge Utility Plant",
-        "function": "Utilities",
+        "amenity": "Utilities",
         "sq_ft": "4,700",
-        "address": "1320 S Perimeter Hwy, Atlanta, GA 30349"
+        "address": "1320 S Perimeter Hwy, Atlanta, GA 30349",
+        "description": "A utility plant for bridge operations.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -887,9 +1139,15 @@
       "type": "Feature",
       "properties": {
         "name": "North Airfield Electrical Vault",
-        "function": "Utilities",
+        "amenity": "Utilities",
         "sq_ft": "10,269",
-        "address": "1775 Maynard Jackson Boulevard, Atlanta, GA 30320"
+        "address": "1775 Maynard Jackson Boulevard, Atlanta, GA 30320",
+        "description": "An electrical vault for airfield utilities.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -908,9 +1166,15 @@
       "type": "Feature",
       "properties": {
         "name": "South Airfield Electrical Vault",
-        "function": "Utilities",
+        "amenity": "Utilities",
         "sq_ft": "5,363",
-        "address": "1401 South Loop Road, Atlanta, GA 30320"
+        "address": "1401 South Loop Road, Atlanta, GA 30320",
+        "description": "An electrical vault for airfield utilities.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -929,9 +1193,15 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 2",
-        "function": "Free Space",
+        "amenity": "Free Space",
         "sq_ft": 120000,
-        "address": null
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -950,9 +1220,15 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 3",
-        "function": "Free Space",
+        "amenity": "Free Space",
         "sq_ft": 80000,
-        "address": null
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -971,9 +1247,15 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 4",
-        "function": "Free Space",
+        "amenity": "Free Space",
         "sq_ft": 100000,
-        "address": null
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -992,9 +1274,15 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 5",
-        "function": "Free Space",
+        "amenity": "Free Space",
         "sq_ft": 90000,
-        "address": null
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
@@ -1013,9 +1301,15 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 6",
-        "function": "Free Space",
+        "amenity": "Free Space",
         "sq_ft": 70000,
-        "address": null
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
       },
       "geometry": {
         "type": "Polygon",
