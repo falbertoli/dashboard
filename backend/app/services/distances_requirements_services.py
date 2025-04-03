@@ -1,16 +1,9 @@
 # File: backend/app/services/distances_requirements_services.py
 from geopy.distance import geodesic
-import json
-import os
-
-def load_hazard_coordinates():
-    file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/hazard_coordinates.json"))
-    with open(file_path, encoding='utf-8') as f:
-        return json.load(f)
 
 def calculate_min_distance(area_coords, hazard_coords_list):
     """
-    Clearly calculate minimum distance between an area and multiple hazard points.
+    Calculate minimum distance between an area and multiple hazard points.
     - area_coords: Tuple (lat, lng) of the area centroid.
     - hazard_coords_list: List of tuples [(lat, lng), ...] hazards.
     """

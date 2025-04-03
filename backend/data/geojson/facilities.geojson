@@ -697,10 +697,10 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "North DeIcing - Glycol Building",
-        "function": "Support",
+        "name": "North Deicing - Glycol Building",
+        "function": "Deicing",
         "sq_ft": "58,607",
-        "address": "1012 Toffee Terrace, Atl, Ga 30320"
+        "address": "1012 Toffie Terrace, Atl, Ga 30320"
       },
       "geometry": {
         "type": "Polygon",
@@ -740,7 +740,7 @@
       "type": "Feature",
       "properties": {
         "name": "South Deicing Facility",
-        "function": "Support",
+        "function": "Deicing",
         "sq_ft": "28,500",
         "address": "4800 South Cargo Drive, Atlanta, GA 30337"
       },
@@ -921,6 +921,111 @@
             [-84.51065845374791, 33.63986545374791],
             [-84.51085954625208, 33.63986545374791],
             [-84.51085954625208, 33.64006654625209]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 2",
+        "function": "Free Space",
+        "sq_ft": 120000,
+        "address": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.4279, 33.6406],
+            [-84.4259, 33.6406],
+            [-84.4259, 33.6396],
+            [-84.4279, 33.6396],
+            [-84.4279, 33.6406]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 3",
+        "function": "Free Space",
+        "sq_ft": 80000,
+        "address": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.4231, 33.6357],
+            [-84.4211, 33.6357],
+            [-84.4211, 33.6347],
+            [-84.4231, 33.6347],
+            [-84.4231, 33.6357]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 4",
+        "function": "Free Space",
+        "sq_ft": 100000,
+        "address": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.429, 33.6303],
+            [-84.427, 33.6303],
+            [-84.427, 33.6293],
+            [-84.429, 33.6293],
+            [-84.429, 33.6303]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 5",
+        "function": "Free Space",
+        "sq_ft": 90000,
+        "address": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.435, 33.637],
+            [-84.433, 33.637],
+            [-84.433, 33.636],
+            [-84.435, 33.636],
+            [-84.435, 33.637]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 6",
+        "function": "Free Space",
+        "sq_ft": 70000,
+        "address": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.4205, 33.6385],
+            [-84.4185, 33.6385],
+            [-84.4185, 33.6375],
+            [-84.4205, 33.6375],
+            [-84.4205, 33.6385]
           ]
         ]
       }
