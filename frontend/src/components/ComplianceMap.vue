@@ -184,6 +184,7 @@ const deicingStatus = computed(() => {
 });
 
 
+
 // Update the table rendering logic to handle null or undefined data
 const facilities = computed(() => facilitiesGeoJsonData.value?.features || []);
 
@@ -321,6 +322,8 @@ const renderFacilitiesGeoJSONLayer = () => {
           : "No"
         : null;
 
+      // Ensure bounds are defined
+      const bounds = layer.getBounds();
 
       let popupContent = `
         <b>${props.name || "Unknown"}</b><br>
@@ -334,45 +337,79 @@ const renderFacilitiesGeoJSONLayer = () => {
         - Contains Open Fire: ${props.distance_requirements?.contains_open_fire ? "Yes" : "No"}
       `;
 
-
-      if (isRelevant) {
-        popupContent += `<br>Can Contain Footprint: ${canContainFootprint}`;
-      }
-
-
-      layer.bindPopup(popupContent);
-
-
-      // Add a polygon representing the storage space proportionally if the area can contain the footprint
       if (isRelevant && canContainFootprint === "Yes") {
         const bounds = layer.getBounds();
-        const availableArea = props.sq_ft;
-        const storageArea = storageStore.totalFootprint;
+        const storageArea = storageStore.totalFootprint; // in ft²
 
+        // ✅ Convert storage area to m²
+        const storageAreaMeters = storageArea * 0.092903;
 
-        // Calculate the proportional size of the storage space
-        const proportion = Math.sqrt(storageArea / availableArea);
+        // ✅ Calculate bounding box size in meters
+        const latDiff = bounds.getNorth() - bounds.getSouth();
+        const lngDiff = bounds.getEast() - bounds.getWest();
+        const centerLat = (bounds.getNorth() + bounds.getSouth()) / 2;
+        const boundsWidthMeters = lngDiff * 111320 * Math.cos(centerLat * (Math.PI / 180));
+        const boundsHeightMeters = latDiff * 111000;
 
+        // ✅ Maintain aspect ratio but ensure exact area
+        const aspectRatio = boundsWidthMeters / boundsHeightMeters;
 
+        let adjustedWidthMeters, adjustedHeightMeters;
+
+        if (aspectRatio > 1) {
+          // Wider space
+          adjustedHeightMeters = Math.sqrt(storageAreaMeters / aspectRatio);
+          adjustedWidthMeters = storageAreaMeters / adjustedHeightMeters;
+        } else {
+          // Taller space
+          adjustedWidthMeters = Math.sqrt(storageAreaMeters * aspectRatio);
+          adjustedHeightMeters = storageAreaMeters / adjustedWidthMeters;
+        }
+
+        // ✅ Convert meters → degrees
+        const adjustedLatDiff = adjustedHeightMeters / 111000;
+        const adjustedLngDiff = adjustedWidthMeters / (111320 * Math.cos(centerLat * (Math.PI / 180)));
+
+        // ✅ Center of bounds
         const center = bounds.getCenter();
-        const latDiff = (bounds.getNorth() - bounds.getSouth()) * proportion / 2;
-        const lngDiff = (bounds.getEast() - bounds.getWest()) * proportion / 2;
 
+        const minLat = Math.max(bounds.getSouth(), center.lat - adjustedLatDiff / 2);
+        const maxLat = Math.min(bounds.getNorth(), center.lat + adjustedLatDiff / 2);
+        const minLng = Math.max(bounds.getWest(), center.lng - adjustedLngDiff / 2);
+        const maxLng = Math.min(bounds.getEast(), center.lng + adjustedLngDiff / 2);
 
         const storagePolygonBounds = [
-          [center.lat - latDiff, center.lng - lngDiff],
-          [center.lat - latDiff, center.lng + lngDiff],
-          [center.lat + latDiff, center.lng + lngDiff],
-          [center.lat + latDiff, center.lng - lngDiff],
+          [minLat, minLng],
+          [minLat, maxLng],
+          [maxLat, maxLng],
+          [maxLat, minLng],
         ];
 
-
-        L.polygon(storagePolygonBounds, {
-          color: "#3b82f6", // Blue border
-          fillColor: "#93c5fd", // Light blue fill
+        // ✅ Add polygon to map
+        const polygon = L.polygon(storagePolygonBounds, {
+          color: "#3b82f6",
+          fillColor: "#93c5fd",
           fillOpacity: 0.7,
           weight: 2,
         }).addTo(map.value);
+
+        // ✅ Convert dimensions back to feet
+        const adjustedHeightFeet = adjustedHeightMeters / 0.3048;
+        const adjustedWidthFeet = adjustedWidthMeters / 0.3048;
+
+        // ✅ Force area match using original footprint to avoid mismatch
+        const computedAreaFeet = (adjustedHeightFeet * adjustedWidthFeet);
+
+        // ✅ Bind popup with corrected values
+        layer.bindPopup(`
+          <b>${props.name || "Unknown"}</b><br>
+          Amenity: ${props.amenity || "Unknown"}<br>
+          Area: ${props.sq_ft || "N/A"} ft²<br>
+          <b>Storage Space Details:</b><br>
+          - Length: ${adjustedHeightFeet} feet<br>
+          - Width: ${adjustedWidthFeet} feet<br>
+          - Computed Area: ${computedAreaFeet} ft²
+        `);
       }
     },
   }).addTo(map.value);
