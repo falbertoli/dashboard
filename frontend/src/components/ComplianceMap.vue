@@ -32,7 +32,7 @@
     <!-- Table for Building Compliance -->
     <div class="compliance-table-section">
       <h3>Building Compliance</h3>
-      <table class="compliance-table">
+      <table class="compliance-table" v-if="tableCompliance.length">
         <thead>
           <tr>
             <th>Building</th>
@@ -43,25 +43,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="feature in filteredFacilities" :key="feature.properties.id">
-            <td>{{ feature.properties.name || "Unknown" }}</td>
-            <td>{{ feature.properties.amenity || "Unknown" }}</td>
-            <td>{{ feature.properties.computed_area.toFixed(2) }} ft²</td>
-            <td>
-              {{
-                feature.properties.computed_area >= storageStore.totalFootprint
-                  ? "Yes"
-                  : "No"
-              }}
-            </td>
-            <td>
-              {{
-                ((storageStore.totalFootprint / feature.properties.computed_area) * 100).toFixed(2) + "%"
-              }}
-            </td>
+          <tr v-for="row in tableCompliance" :key="row.building">
+            <td>{{ row.building }}</td>
+            <td>{{ row.amenity }}</td>
+            <td>{{ row.area }} ft²</td>
+            <td>{{ row.canContainFootprint }}</td>
+            <td>{{ row.proportion }}</td>
           </tr>
         </tbody>
       </table>
+      <p v-else class="no-data-message">No buildings meet the compliance criteria.</p>
     </div>
 
 
@@ -214,6 +205,28 @@ const filteredFacilities = computed(() => {
     }
     return false;
   });
+});
+
+const tableCompliance = computed(() => {
+  if (!facilitiesGeoJsonData.value?.features) return [];
+  return facilitiesGeoJsonData.value.features
+    .filter((feature) => {
+      const amenity = feature.properties.amenity;
+      return amenity === "Free Space" || amenity === "Deicing";
+    })
+    .map((feature) => {
+      const area = feature.properties.computed_area || computeFeatureArea(feature);
+      const canContainFootprint = area >= storageStore.totalFootprint ? "Yes" : "No";
+      const proportion = ((storageStore.totalFootprint / area) * 100).toFixed(2) + "%";
+
+      return {
+        building: feature.properties.name || "Unknown",
+        amenity: feature.properties.amenity || "Unknown",
+        area: area.toFixed(2),
+        canContainFootprint,
+        proportion,
+      };
+    });
 });
 
 const loadFacilitiesGeoJSON = async () => {
@@ -487,6 +500,12 @@ h2 {
 
 .compliance-table tr:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.no-data-message {
+  color: #aaa;
+  font-style: italic;
+  margin-top: 10px;
 }
 
 .legend {
