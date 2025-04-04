@@ -6,12 +6,25 @@
     <!-- Results Section -->
     <div class="results-section">
       <div class="result-item">
+        <i class="fas fa-gas-pump"></i>
         <span>Total Hydrogen Demand:</span>
         <strong>{{ storageStore.totalH2VolumeGallons.toFixed(2) }} gallons</strong>
       </div>
       <div class="result-item">
+        <i class="fas fa-ruler-combined"></i>
         <span>Total Footprint Storage:</span>
         <strong>{{ storageStore.totalFootprint.toFixed(2) }} ft²</strong>
+      </div>
+      <div class="result-item">
+        <i class="fas fa-cube"></i>
+        <span>Tank Dimensions:</span>
+        <strong>{{ storageStore.tankDiameter.toFixed(2) }} ft (D) × {{ storageStore.tankLength.toFixed(2) }} ft
+          (L)</strong>
+      </div>
+      <div class="result-item">
+        <i class="fas fa-boxes"></i>
+        <span>Number of Tanks:</span>
+        <strong>{{ storageStore.recommendedTankCount }}</strong>
       </div>
     </div>
 
@@ -476,6 +489,11 @@ h2 {
 .space-check-section .space-check-item strong {
   color: #64ffda;
   font-weight: 600;
+}
+
+.results-section .result-item i {
+  margin-right: 8px;
+  color: #64ffda;
 }
 
 .compliance-table {
