@@ -1323,6 +1323,34 @@
           ]
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 7",
+        "amenity": "Free Space",
+        "sq_ft": 350327.44,
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.451821, 33.631103],
+            [-84.455461, 33.631681],
+            [-84.456022, 33.635736],
+            [-84.453819, 33.635558],
+            [-84.453376, 33.632832],
+            [-84.451828, 33.632484]
+          ]
+        ]
+      }
     }
   ]
 }

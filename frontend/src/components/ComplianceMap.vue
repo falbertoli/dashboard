@@ -179,7 +179,13 @@ const computeFeatureArea = (feature) => {
       console.warn('Feature does not have valid polygon geometry:', feature);
       return 0;
     }
-    const poly = turfPolygon(feature.geometry.coordinates);
+    // Ensure the first and last coordinates are the same
+    const coordinates = feature.geometry.coordinates[0];
+    if (coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
+      coordinates[0][1] !== coordinates[coordinates.length - 1][1]) {
+      coordinates.push(coordinates[0]);
+    }
+    const poly = turfPolygon([coordinates]);
     const areaInSquareMeters = turfArea(poly);
     // Convert square meters to square feet (1 sq meter = 10.764 sq ft)
     return areaInSquareMeters * 10.764;
