@@ -51,6 +51,7 @@ def create_app(config_name="default"):
     from app.routes.map import map_bp
     from app.routes.distances_requirements import distances_requirements_bp
     from app.routes.regulations import regulations_bp
+    from app.routes.zoning_violations import zoning_violations_bp
 
 
 
@@ -61,7 +62,8 @@ def create_app(config_name="default"):
     app.register_blueprint(map_bp, url_prefix='/api/map')
     app.register_blueprint(distances_requirements_bp, url_prefix='/api/distances_requirements')
     app.register_blueprint(regulations_bp, url_prefix='/api/regulations')
-    
+    app.register_blueprint(zoning_violations_bp, url_prefix='/api/zoning_violations')
+
     # Register error handlers (if you've created the error_handler.py file)
     try:
         from app.utils.error_handler import register_error_handlers
