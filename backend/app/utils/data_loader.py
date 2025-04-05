@@ -48,15 +48,6 @@ def init_db_engines(app):
     
     return ac_engine, gse_engine
 
-def load_geojson_areas():
-    file_path = os.path.join(os.path.dirname(__file__), "../../data/geojson/atl_areas.geojson")
-    try:
-        with open(file_path, encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        print("Error loading GeoJSON areas:", e)
-        return None
-
 def load_csv(file_name):
     """
     Load a CSV file from the data directory.

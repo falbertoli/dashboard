@@ -8,6 +8,7 @@ from .map import map_bp
 from .distances_requirements import distances_requirements_bp
 from .regulations import regulations_bp
 from .zoning_violations import zoning_violations_bp
+from .buffer_zones import buffer_zones_bp
 
 # Export all blueprints for easier importing
-__all__ = ['hydrogen_bp', 'economic_bp', 'storage_bp', 'sustainability_bp', 'map_bp', 'distances_requirements_bp', 'regulations_bp', 'zoning_violations_bp']
+__all__ = ['hydrogen_bp', 'economic_bp', 'storage_bp', 'sustainability_bp', 'map_bp', 'distances_requirements_bp', 'regulations_bp', 'zoning_violations_bp', 'buffer_zones_bp']
