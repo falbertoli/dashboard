@@ -190,4 +190,25 @@ export const api = {
       }
     },
   },
+  buffer_zones: {
+    getBuffers: async () => {
+      try {
+        const response = await apiClient.get("/buffer_zones/buffers");
+        if (response.status === 200 && response.data?.features) {
+          console.log("✅ Buffer Zones Loaded:", response.data);
+          return response.data;
+        } else {
+          console.error("❌ Unexpected buffer zone response:", response.data);
+          throw new Error("Invalid buffer zones data received.");
+        }
+      } catch (error) {
+        console.error(
+          "🚨 Buffer Zones Fetch Failed:",
+          error.message,
+          error.response?.data
+        );
+        throw error;
+      }
+    },
+  },
 };

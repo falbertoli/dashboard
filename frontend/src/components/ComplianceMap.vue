@@ -1,7 +1,8 @@
+<!-- File: frontend/src/components/ComplianceMap.vue -->
+
 <template>
   <div class="compliance-map">
     <h2>Compliance Map</h2>
-
 
     <!-- Results Section -->
     <div class="results-section">
@@ -28,7 +29,6 @@
       </div>
     </div>
 
-
     <!-- Free Space and Deicing Check -->
     <div class="space-check-section">
       <div class="space-check-item">
@@ -40,7 +40,6 @@
         <strong>{{ deicingStatus }}</strong>
       </div>
     </div>
-
 
     <!-- Table for Building Compliance -->
     <div class="compliance-table-section">
@@ -68,7 +67,6 @@
       <p v-else class="no-data-message">No buildings meet the compliance criteria.</p>
     </div>
 
-
     <!-- Filter by Amenity -->
     <div class="filter-container">
       <label for="function-filter">Filter by Amenity:</label>
@@ -81,13 +79,11 @@
       </select>
     </div>
 
-
     <!-- Alert shown when hydrogen/storage calculations aren't done -->
     <div v-if="!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint" class="alert info">
       <i class="fas fa-info-circle"></i>
       <span>Please configure hydrogen demand and storage calculations first.</span>
     </div>
-
 
     <!-- Loading state -->
     <div v-else-if="isLoading" class="loading">
@@ -95,23 +91,36 @@
       <p>Loading compliance data...</p>
     </div>
 
-
     <!-- Error state -->
     <div v-else-if="error" class="error-message">
       <i class="fas fa-exclamation-triangle"></i>
       <p>{{ error }}</p>
     </div>
 
-
     <!-- Compliance Map -->
     <div v-else>
       <div id="map" style="height: 400px; width: 100%;"></div>
-
-
+      <!-- Layer Controls -->
+      <div class="layer-controls">
+        <h4>Map Layers</h4>
+        <div class="layer-toggles">
+          <label>
+            <input type="checkbox" v-model="layerControls.facilities" @change="toggleLayer('facilities')">
+            Facilities
+          </label>
+          <label>
+            <input type="checkbox" v-model="layerControls.bufferZones" @change="toggleLayer('bufferZones')">
+            Buffer Zones
+          </label>
+        </div>
+      </div>
       <!-- Legend -->
       <div class="legend">
         <h4>Legend</h4>
         <ul>
+          <li><span class="color-box" style="background-color: #FF4500;"></span> People Safety Buffer</li>
+          <li><span class="color-box" style="background-color: #FFD700;"></span> Flammable Liquids Buffer</li>
+          <li><span class="color-box" style="background-color: #FF0000;"></span> Open Fire Buffer</li>
           <li><span class="color-box" style="background-color: green;"></span> Free Space (Sufficient)</li>
           <li><span class="color-box" style="background-color: darkgreen;"></span> Free Space (Insufficient)</li>
           <li><span class="color-box" style="background-color: pink;"></span> Deicing (Sufficient)</li>
@@ -132,7 +141,6 @@
   </div>
 </template>
 
-
 <script setup>
 import 'leaflet/dist/leaflet.css';
 import { useStorageStore } from '../store/storageStore';
@@ -140,7 +148,8 @@ import { ref, onMounted, watch, nextTick, computed } from 'vue';
 import L from 'leaflet';
 import { api } from '@/utils/api';
 import turfArea from '@turf/area';
-import { polygon as turfPolygon } from '@turf/helpers';
+import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 
 const storageStore = useStorageStore();
 const map = ref(null);
@@ -149,7 +158,17 @@ const isLoading = ref(false);
 
 const facilitiesGeoJsonData = ref(null);
 const facilitiesGeoJsonLayer = ref(null);
+
+const bufferZonesGeoJsonData = ref(null);
+const bufferZonesGeoJsonLayer = ref(null);
+
 const selectedFunction = ref("storage"); // Special value to indicate Free Space and Deicing
+
+// Add new reactive state for layer controls
+const layerControls = ref({
+  facilities: true,
+  bufferZones: true
+});
 
 // Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
@@ -260,6 +279,18 @@ const loadFacilitiesGeoJSON = async () => {
   }
 };
 
+const loadBufferZones = async () => {
+  try {
+    console.log("🚀 Fetching buffer zones...");
+    bufferZonesGeoJsonData.value = await api.buffer_zones.getBuffers();
+    console.log("✅ Buffer Zones data loaded:", bufferZonesGeoJsonData.value);
+    renderBufferZonesGeoJSONLayer();
+  } catch (err) {
+    console.error("❌ Error loading buffer zones:", err.message || err);
+    error.value = `Failed to load buffer zones data: ${err.message || err}`;
+  }
+};
+
 const evaluateCompliance = async (feature) => {
   const area = feature.properties.computed_area;
   const footprintNeeded = storageStore.totalFootprint;
@@ -287,7 +318,7 @@ const evaluateCompliance = async (feature) => {
   return 'partially-compliant';
 };
 
-// Update the renderFacilitiesGeoJSONLayer function
+// Enhance the renderFacilitiesGeoJSONLayer function
 const renderFacilitiesGeoJSONLayer = () => {
   if (!map.value || !facilitiesGeoJsonData.value) {
     console.error("❌ Map or facilities data is not available.");
@@ -333,47 +364,195 @@ const renderFacilitiesGeoJSONLayer = () => {
         Unknown: "black",
       };
       const functionType = feature.properties.amenity || "Unknown";
+      const isStorageType = functionType === "Free Space" || functionType === "Deicing";
+
       return {
         color: colors[functionType] || "black",
         fillColor: colors[functionType] || "black",
         fillOpacity: 0.5,
         weight: 1,
+        zIndex: isStorageType ? 1000 : 500 // Higher z-index for storage areas
       };
     },
     onEachFeature: (feature, layer) => {
       const props = feature.properties;
       const computedArea = props.computed_area;
       const isRelevant = props.amenity === "Free Space" || props.amenity === "Deicing";
-      const canContainFootprint = isRelevant
-        ? computedArea >= storageStore.totalFootprint
-          ? "Yes"
-          : "No"
-        : null;
+      const storageUtilization = isRelevant ?
+        ((storageStore.totalFootprint / computedArea) * 100).toFixed(1) : null;
 
       let popupContent = `
-        <b>${props.name || "Unknown"}</b><br>
-        Amenity: ${props.amenity || "Unknown"}<br>
-        Computed Area: ${computedArea.toFixed(2)} ft²<br>
-        Address: ${props.address || "N/A"}<br>
-        Description: ${props.description || "N/A"}<br>
-        ${isRelevant ? `Can Contain Storage: ${canContainFootprint}<br>` : ''}
-        Distance Requirements:<br>
-        - Contains People: ${props.distance_requirements?.contains_people ? "Yes" : "No"}<br>
-        - Contains Flammable Liquids: ${props.distance_requirements?.contains_flammable_liquids ? "Yes" : "No"}<br>
-        - Contains Open Fire: ${props.distance_requirements?.contains_open_fire ? "Yes" : "No"}
+        <div class="custom-popup">
+          <h3>${props.name || "Unknown Building"}</h3>
+          <div class="popup-section">
+            <h4>General Information</h4>
+            <p><strong>Amenity:</strong> ${props.amenity || "Unknown"}</p>
+            <p><strong>Area:</strong> ${computedArea.toFixed(2)} ft²</p>
+            ${props.address ? `<p><strong>Address:</strong> ${props.address}</p>` : ''}
+          </div>
+          ${isRelevant ? `
+            <div class="popup-section storage-info">
+              <h4>Storage Capability</h4>
+              <p><strong>Can Store:</strong> ${computedArea >= storageStore.totalFootprint ?
+            '<span class="success">Yes</span>' : '<span class="error">No</span>'}</p>
+              <p><strong>Space Utilization:</strong> ${storageUtilization}%</p>
+              <div class="utilization-bar">
+                <div class="fill" style="width: ${Math.min(storageUtilization, 100)}%"></div>
+              </div>
+            </div>
+          ` : ''}
+          ${props.compliance_reason ? `
+            <div class="popup-section safety-info">
+              <h4>Safety Requirements</h4>
+              <p>${props.compliance_reason}</p>
+              ${props.required_safety_distance_ft ? `
+                <p><strong>Required Distance:</strong> ${props.required_safety_distance_ft} ft</p>
+                <p><strong>Actual Distance:</strong> ${props.actual_distance_ft} ft</p>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
       `;
 
-      layer.bindPopup(popupContent);
+      const popupOptions = {
+        maxWidth: 300,
+        className: 'custom-popup-container'
+      };
+
+      layer.bindPopup(popupContent, popupOptions);
     }
-  }).addTo(map.value);
+  });
+
+  if (layerControls.value.facilities) {
+    facilitiesGeoJsonLayer.value.addTo(map.value);
+  }
 };
 
-// Add a watch effect for the selectedFunction
-watch(selectedFunction, () => {
-  renderFacilitiesGeoJSONLayer();
-});
+const renderBufferZonesGeoJSONLayer = () => {
+  if (!map.value || !bufferZonesGeoJsonData.value) {
+    console.error("❌ Map or buffer zones data is not available.");
+    return;
+  }
 
+  if (bufferZonesGeoJsonLayer.value) {
+    bufferZonesGeoJsonLayer.value.remove();
+  }
+
+  // Store all buffer features for click detection
+  const bufferFeatures = [];
+
+  // Track if buffer popup was shown
+  let bufferPopupShown = false;
+
+  // Create a layer group for all buffer zones
+  const layerGroup = L.layerGroup();
+
+  bufferZonesGeoJsonData.value.features.forEach(feature => {
+    const hazardType = feature.properties.hazard_categories[0];
+    const facilityName = feature.properties.facility_name;
+
+    const hazardColors = {
+      "contains_people": "#FF4500",
+      "contains_flammable_liquids": "#FFD700",
+      "contains_open_fire": "#FF0000"
+    };
+
+    const layer = L.geoJSON(feature, {
+      style: {
+        color: hazardColors[hazardType] || "#3388ff",
+        weight: 2,
+        opacity: 0.6,
+        fillOpacity: 0.2,
+        dashArray: hazardType === "contains_people" ? "5,5" : null
+      }
+    });
+
+    // Store feature data for click detection
+    bufferFeatures.push({
+      geometry: feature.geometry,
+      properties: {
+        facility_name: facilityName,
+        hazard_type: hazardType,
+        buffer_distance_ft: feature.properties.buffer_distance_ft
+      }
+    });
+
+    layerGroup.addLayer(layer);
+  });
+
+  // Add click handler to map for buffer detection
+  map.value.on('click', (e) => {
+    if (!layerControls.value.bufferZones) return;
+
+    const clickedPoint = turfPoint([e.latlng.lng, e.latlng.lat]);
+    const overlappingBuffers = bufferFeatures.filter(feature =>
+      booleanPointInPolygon(clickedPoint, feature.geometry)
+    );
+
+    if (overlappingBuffers.length > 0) {
+      bufferPopupShown = true;
+      const popupContent = `
+        <div class="custom-popup buffer-zones-popup">
+          <h3>Safety Buffer Zones</h3>
+          ${overlappingBuffers.map(buffer => `
+            <div class="popup-section">
+              <h4>${buffer.properties.facility_name}</h4>
+              <p><strong>Type:</strong> ${formatHazardType(buffer.properties.hazard_type)}</p>
+              <p><strong>Required Distance:</strong> ${buffer.properties.buffer_distance_ft} ft</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(map.value);
+
+      // Prevent event from reaching the building boundaries handler
+      e.originalEvent.stopPropagation();
+      e.originalEvent.preventDefault();
+    }
+  });
+
+  if (layerControls.value.bufferZones) {
+    layerGroup.addTo(map.value);
+  }
+  bufferZonesGeoJsonLayer.value = layerGroup;
+};
+
+const formatHazardType = (hazardType) => {
+  const displayNames = {
+    "contains_people": "People Safety Zone",
+    "contains_flammable_liquids": "Flammable Liquids Zone",
+    "contains_open_fire": "Open Fire Zone"
+  };
+  return displayNames[hazardType] || hazardType;
+};
+
+// Add toggle layer function
+const toggleLayer = (layerType) => {
+  if (layerType === 'facilities' && facilitiesGeoJsonLayer.value) {
+    if (layerControls.value.facilities) {
+      facilitiesGeoJsonLayer.value.addTo(map.value);
+    } else {
+      facilitiesGeoJsonLayer.value.remove();
+    }
+  } else if (layerType === 'bufferZones' && bufferZonesGeoJsonLayer.value) {
+    if (layerControls.value.bufferZones) {
+      bufferZonesGeoJsonLayer.value.addTo(map.value);
+    } else {
+      bufferZonesGeoJsonLayer.value.remove();
+    }
+  }
+};
+
+// Update handleMapClick to check if buffer popup was shown
 const handleMapClick = async (event) => {
+  // Skip if clicking inside a buffer zone popup
+  const popup = event.target.getContainer()?.querySelector('.buffer-zones-popup');
+  if (popup) return;
+
   const { lat, lng } = event.latlng;
   console.log("Map clicked at:", lat, lng);
 
@@ -424,11 +603,20 @@ const handleMapClick = async (event) => {
     }
   } catch (error) {
     console.error("Error fetching building boundaries:", error);
-    alert("Failed to fetch building boundaries.");
+    // Don't show alert if we're in a buffer zone
+    if (!event.target.getContainer()?.querySelector('.buffer-zones-popup')) {
+      alert("Failed to fetch building boundaries.");
+    }
   }
 };
 
 onMounted(async () => {
+  const mapContainer = document.getElementById('map');
+  console.log("Map container:", mapContainer); // Should not be null.
+  if (!mapContainer) {
+    console.error("Map container not found!");
+    return;
+  }
   console.log("🚀 Initializing map...");
   if (!map.value) {
     map.value = L.map('map').setView([33.6407, -84.4277], 13);
@@ -443,17 +631,23 @@ onMounted(async () => {
 
   if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
 
+  // Move map click handler registration after buffer zones are loaded
   await loadFacilitiesGeoJSON();
   renderFacilitiesGeoJSONLayer();
 
+  await loadBufferZones();
+  renderBufferZonesGeoJSONLayer();
+
+  // Add click handler last to ensure proper event order
   map.value.on("click", handleMapClick);
 
   nextTick(() => {
-    map.value.invalidateSize();
+    setTimeout(() => {
+      map.value.invalidateSize();
+    }, 300);
   });
 });
 </script>
-
 
 <style scoped>
 .compliance-map {
@@ -570,5 +764,92 @@ h2 {
   height: 400px;
   width: 100%;
   border: 1px solid #ddd;
+}
+
+.layer-controls {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.layer-toggles {
+  display: flex;
+  gap: 15px;
+}
+
+.layer-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+/* Custom Popup Styles */
+:deep(.custom-popup-container) {
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #64ffda;
+  border-radius: 4px;
+  padding: 0;
+  margin: 0;
+}
+
+:deep(.custom-popup) {
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+:deep(.custom-popup h3) {
+  color: #64ffda;
+  font-size: 14px;
+  margin: 5px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:deep(.popup-section:last-child) {
+  border-bottom: none;
+}
+
+:deep(.popup-section h4) {
+  color: #64ffda;
+  margin: 2px 0;
+  font-size: 1em;
+}
+
+:deep(.success) {
+  color: #4caf50;
+}
+
+:deep(.error) {
+  color: #f44336;
+}
+
+:deep(.utilization-bar) {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 5px;
+}
+
+:deep(.utilization-bar .fill) {
+  height: 100%;
+  background: #64ffda;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Add these new styles */
+:deep(.buffer-zones-popup) {
+  max-width: 300px;
+}
+
+:deep(.buffer-zones-popup .popup-section) {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
 }
 </style>
