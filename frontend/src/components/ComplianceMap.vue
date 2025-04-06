@@ -67,10 +67,89 @@
       <p v-else class="no-data-message">No buildings meet the compliance criteria.</p>
     </div>
 
+    <!-- Add this after the compliance-table-section -->
+    <div class="buffer-analysis-section" v-if="bufferAnalysisResults.length">
+      <h3>Buffer Zone Impact Analysis</h3>
+      <div class="alert info">
+        <i class="fas fa-info-circle"></i>
+        <span>This analysis shows how safety buffer zones reduce available storage area.</span>
+      </div>
+
+      <table class="buffer-analysis-table">
+        <thead>
+          <tr>
+            <th>Storage Area</th>
+            <th>Original Area (ft²)</th>
+            <th>Available Area (ft²)</th>
+            <th>Reduction (%)</th>
+            <th>Compliance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="result in bufferAnalysisResults" :key="result.area_id" :class="{
+            'compliant': result.available_area_sqft >= storageStore.totalFootprint,
+            'non-compliant': result.available_area_sqft < storageStore.totalFootprint
+          }">
+            <td>{{ result.area_name }}</td>
+            <td>{{ result.original_area_sqft.toFixed(2) }}</td>
+            <td>{{ result.available_area_sqft.toFixed(2) }}</td>
+            <td>{{ result.area_reduction_percent.toFixed(1) }}%</td>
+            <td>
+              <span class="status-badge"
+                :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
+                {{ result.available_area_sqft >= storageStore.totalFootprint ? 'Sufficient' : 'Insufficient' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Details for selected area -->
+      <div class="buffer-details" v-if="selectedArea && selectedArea.overlapping_buffers.length > 0">
+        <h4>Buffer Overlaps for {{ selectedArea.area_name }}</h4>
+        <p class="buffer-details-intro">
+          This area is affected by {{ selectedArea.overlapping_buffers.length }} safety buffer(s),
+          reducing the available space by {{ selectedArea.area_reduction_percent.toFixed(1) }}%.
+        </p>
+
+        <div class="buffer-list">
+          <div v-for="(buffer, index) in selectedArea.overlapping_buffers" :key="index" class="buffer-item">
+            <div class="buffer-item-header">
+              <span class="buffer-name">{{ buffer.buffer_id }}</span>
+              <span class="buffer-type">{{ formatHazardType(buffer.hazard_type) }}</span>
+            </div>
+            <div class="buffer-item-details">
+              <div class="buffer-stat">
+                <span class="label">Overlap Area:</span>
+                <span class="value">{{ buffer.overlap_area_sqft.toFixed(2) }} ft²</span>
+              </div>
+              <div class="buffer-stat">
+                <span class="label">Percentage of Total:</span>
+                <span class="value">
+                  {{ ((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100).toFixed(1) }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area selection controls -->
+      <div class="area-selector">
+        <label for="area-select">Select Area for Detailed Analysis:</label>
+        <select id="area-select" v-model="selectedAreaId">
+          <option v-for="area in bufferAnalysisResults" :key="area.area_id" :value="area.area_id">
+            {{ area.area_name }}
+            ({{ area.overlapping_buffers.length }} buffer{{ area.overlapping_buffers.length !== 1 ? 's' : '' }})
+          </option>
+        </select>
+      </div>
+    </div>
+
     <!-- Filter by Amenity -->
     <div class="filter-container">
       <label for="function-filter">Filter by Amenity:</label>
-      <select id="function-filter" v-model="selectedFunction" @change="renderFacilitiesGeoJSONLayer">
+      <select id="function-filter" :value="selectedFunction" @change="handleFilterChange">
         <option value="storage">Free Space and Deicing Only</option>
         <option value="">All Amenities</option>
         <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
@@ -162,7 +241,17 @@ const facilitiesGeoJsonLayer = ref(null);
 const bufferZonesGeoJsonData = ref(null);
 const bufferZonesGeoJsonLayer = ref(null);
 
+const availableLayers = ref([]);
+const selectedAreaId = ref(null);
+const bufferAnalysisResults = ref([]);
+
 const selectedFunction = ref("storage"); // Special value to indicate Free Space and Deicing
+
+// Add computed property for selected area
+const selectedArea = computed(() => {
+  if (!selectedAreaId.value || !bufferAnalysisResults.value.length) return null;
+  return bufferAnalysisResults.value.find(area => area.area_id === selectedAreaId.value);
+});
 
 // Add new reactive state for layer controls
 const layerControls = ref({
@@ -178,9 +267,24 @@ const uniqueFunctions = computed(() => {
   return Array.from(uniqueSet);
 });
 
-// Add new computed property for filtered dropdown options
+const handleFilterChange = (event) => {
+  selectedFunction.value = event.target.value;
+  console.log("Filter changed to:", selectedFunction.value);
+  if (map.value && facilitiesGeoJsonData.value) {
+    renderFacilitiesGeoJSONLayer();
+  }
+};
+
 const filteredDropdownOptions = computed(() => {
-  return uniqueFunctions.value.filter(type => type !== 'storage');
+  if (!facilitiesGeoJsonData.value) return [];
+
+  // Get all unique amenity types
+  const amenityTypes = facilitiesGeoJsonData.value.features
+    .map(feature => feature.properties.amenity || "Unknown")
+    .filter(amenity => amenity !== "Free Space" && amenity !== "Deicing");
+
+  // Create a Set to remove duplicates and convert back to array
+  return [...new Set(amenityTypes)].sort();
 });
 
 // Check if "Free Space" or "Deicing" buildings have enough space
@@ -225,6 +329,45 @@ const computeFeatureArea = (feature) => {
     console.error('Error computing area:', err);
     return 0;
   }
+};
+
+// const bufferAnalysisResults = computed(() => {
+//   if (!facilitiesGeoJsonData.value?.features || !bufferZonesGeoJsonData.value?.features) return [];
+
+//   const storageAreas = facilitiesGeoJsonData.value.features.filter(feature =>
+//     feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing"
+//   );
+
+//   return storageAreas.map(feature => {
+//     const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
+//     return {
+//       area_id: feature.properties.id,
+//       area_name: feature.properties.name || `${feature.properties.amenity} Area`,
+//       area_type: feature.properties.amenity,
+//       ...areaAnalysis
+//     };
+//   });
+// });
+
+const updateBufferAnalysisResults = () => {
+  if (!facilitiesGeoJsonData.value?.features || !bufferZonesGeoJsonData.value?.features) {
+    bufferAnalysisResults.value = [];
+    return;
+  }
+
+  const storageAreas = facilitiesGeoJsonData.value.features.filter(feature =>
+    feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing"
+  );
+
+  bufferAnalysisResults.value = storageAreas.map(feature => {
+    const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
+    return {
+      area_id: feature.properties.id,
+      area_name: feature.properties.name || `${feature.properties.amenity} Area`,
+      area_type: feature.properties.amenity,
+      ...areaAnalysis
+    };
+  });
 };
 
 // Update the filtered facilities computed property
@@ -279,17 +422,256 @@ const loadFacilitiesGeoJSON = async () => {
   }
 };
 
+
+// Update the loadBufferZones function
 const loadBufferZones = async () => {
   try {
     console.log("🚀 Fetching buffer zones...");
     bufferZonesGeoJsonData.value = await api.buffer_zones.getBuffers();
     console.log("✅ Buffer Zones data loaded:", bufferZonesGeoJsonData.value);
+
+    // Render the buffer zones
     renderBufferZonesGeoJSONLayer();
+
+    // Perform buffer analysis if facilities are loaded
+    if (facilitiesGeoJsonData.value) {
+      performBufferAnalysis();
+    }
   } catch (err) {
     console.error("❌ Error loading buffer zones:", err.message || err);
     error.value = `Failed to load buffer zones data: ${err.message || err}`;
   }
 };
+
+const performBufferAnalysis = () => {
+  if (!facilitiesGeoJsonData.value || !bufferZonesGeoJsonData.value) {
+    console.warn("Cannot perform buffer analysis: missing data");
+    return;
+  }
+
+  try {
+    // Update buffer analysis results
+    updateBufferAnalysisResults();
+
+    console.log("✅ Buffer analysis complete:", bufferAnalysisResults.value);
+
+    // Auto-select first area
+    if (bufferAnalysisResults.value.length > 0) {
+      selectedAreaId.value = bufferAnalysisResults.value[0].area_id;
+    }
+
+    // Update the facilities layer to show available areas
+    updateFacilitiesWithAvailableAreas();
+  } catch (err) {
+    console.error("Error performing buffer analysis:", err);
+  }
+};
+
+// // Add the simplified buffer analysis function
+// const performBufferAnalysis = () => {
+//   if (!facilitiesGeoJsonData.value || !bufferZonesGeoJsonData.value) {
+//     console.warn("Cannot perform buffer analysis: missing data");
+//     return;
+//   }
+
+//   // Find storage areas (Free Space and Deicing)
+//   const storageAreas = facilitiesGeoJsonData.value.features.filter(feature =>
+//     feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing"
+//   );
+
+//   if (!storageAreas.length) {
+//     console.warn("No storage areas found for buffer analysis");
+//     return;
+//   }
+
+//   try {
+//     // Process each storage area
+//     bufferAnalysisResults.value = storageAreas.map(feature => {
+//       const analysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
+
+//       return {
+//         area_id: feature.properties.id || feature.id || Math.random().toString(36).substring(2, 9),
+//         area_name: feature.properties.name || `${feature.properties.amenity} Area`,
+//         area_type: feature.properties.amenity,
+//         ...analysis
+//       };
+//     });
+
+//     console.log("✅ Buffer analysis complete:", bufferAnalysisResults.value);
+
+//     // Auto-select first area
+//     if (bufferAnalysisResults.value.length > 0) {
+//       selectedAreaId.value = bufferAnalysisResults.value[0].area_id;
+//     }
+
+//     // Update the facilities layer to show available areas
+//     updateFacilitiesWithAvailableAreas();
+//   } catch (err) {
+//     console.error("Error performing buffer analysis:", err);
+//   }
+// };
+
+// Add a simplified version of calculateAvailableArea
+const calculateAvailableArea = (storageFeature, bufferFeatures) => {
+  try {
+    // Calculate original area of the storage feature
+    const originalArea = computeFeatureArea(storageFeature);
+
+    // Find buffers that might intersect with this storage area
+    const potentialOverlaps = findPotentialOverlaps(storageFeature, bufferFeatures);
+
+    // Calculate total area reduction (simplified approach)
+    let totalReduction = 0;
+    const overlappingBuffers = [];
+
+    potentialOverlaps.forEach(buffer => {
+      // Estimate overlap area (simplified)
+      // In a real implementation, you'd use proper geometric operations
+      const overlapArea = estimateOverlapArea(storageFeature, buffer);
+
+      if (overlapArea > 0) {
+        overlappingBuffers.push({
+          buffer_id: buffer.properties?.facility_name || 'Unknown',
+          hazard_type: buffer.properties?.hazard_categories?.[0] || 'Unknown',
+          overlap_area_sqft: overlapArea
+        });
+
+        totalReduction += overlapArea;
+      }
+    });
+
+    // Calculate available area
+    const availableArea = Math.max(0, originalArea - totalReduction);
+
+    return {
+      original_area_sqft: originalArea,
+      available_area_sqft: availableArea,
+      area_reduction_percent: originalArea > 0 ? ((originalArea - availableArea) / originalArea * 100) : 0,
+      overlapping_buffers: overlappingBuffers,
+      available_geometry: storageFeature.geometry // Use original geometry
+    };
+  } catch (err) {
+    console.error('Error calculating available area:', err);
+    return {
+      original_area_sqft: 0,
+      available_area_sqft: 0,
+      area_reduction_percent: 0,
+      overlapping_buffers: [],
+      available_geometry: null
+    };
+  }
+};
+
+// Helper function to find potential buffer overlaps using bounding box comparison
+const findPotentialOverlaps = (feature, buffers) => {
+  // Extract feature bounds
+  const featureBounds = getFeatureBounds(feature);
+
+  // Find buffers that might overlap
+  return buffers.filter(buffer => {
+    const bufferBounds = getFeatureBounds(buffer);
+    return boundsOverlap(featureBounds, bufferBounds);
+  });
+};
+
+// Get bounding box of a feature
+const getFeatureBounds = (feature) => {
+  if (!feature.geometry || !feature.geometry.coordinates || !feature.geometry.coordinates[0]) {
+    return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+  }
+
+  // Get coordinates from the first ring
+  const coords = feature.geometry.coordinates[0];
+
+  // Find min/max values
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  coords.forEach(point => {
+    const [x, y] = point;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+  });
+
+  return { minX, minY, maxX, maxY };
+};
+
+// Check if two bounding boxes overlap
+const boundsOverlap = (bounds1, bounds2) => {
+  return !(
+    bounds1.maxX < bounds2.minX ||
+    bounds1.minX > bounds2.maxX ||
+    bounds1.maxY < bounds2.minY ||
+    bounds1.minY > bounds2.maxY
+  );
+};
+
+// Estimate overlap area (simplified)
+const estimateOverlapArea = (feature, buffer) => {
+  // In a production environment, you would use proper geometric operations
+  // For this simplified version, we'll use a rough estimation
+
+  // Get feature and buffer bounds
+  const featureBounds = getFeatureBounds(feature);
+  const bufferBounds = getFeatureBounds(buffer);
+
+  // Calculate overlap area of bounds
+  const overlapWidth = Math.min(featureBounds.maxX, bufferBounds.maxX) -
+    Math.max(featureBounds.minX, bufferBounds.minX);
+  const overlapHeight = Math.min(featureBounds.maxY, bufferBounds.maxY) -
+    Math.max(featureBounds.minY, bufferBounds.minY);
+
+  if (overlapWidth <= 0 || overlapHeight <= 0) return 0;
+
+  // Approximate overlap area (this is a very rough estimate)
+  // In geographic coordinates, this isn't accurate for area
+  // but we're just looking for a reasonable approximation
+  const overlapArea = overlapWidth * overlapHeight;
+
+  // Convert to square feet using a rough approximation
+  // 1 degree of latitude ≈ 69 miles ≈ 364,320 feet
+  // 1 degree of longitude varies but around equator ≈ 69 miles
+  const FEET_PER_DEGREE_LAT = 364320;
+  const FEET_PER_DEGREE_LON = 364320 * Math.cos((featureBounds.minY + featureBounds.maxY) / 2 * Math.PI / 180);
+
+  const overlapAreaFt2 = overlapArea * FEET_PER_DEGREE_LAT * FEET_PER_DEGREE_LON;
+
+  // Apply a correction factor since this is a rough estimate
+  // and account for the fact that the real overlap is likely smaller
+  // than the bounding box overlap
+  const CORRECTION_FACTOR = 0.5; // Assume 50% of bounding box overlap is actual overlap
+
+  return overlapAreaFt2 * CORRECTION_FACTOR;
+};
+
+// Add a function to update facilities with available areas
+const updateFacilitiesWithAvailableAreas = () => {
+  if (!facilitiesGeoJsonData.value || !bufferAnalysisResults.value.length) return;
+
+  // Update each facility with its available area information
+  facilitiesGeoJsonData.value.features.forEach(feature => {
+    const analysis = bufferAnalysisResults.value.find(
+      result => result.area_id === (feature.properties.id || feature.id)
+    );
+
+    if (analysis) {
+      // Store analysis results in feature properties
+      feature.properties.original_area = analysis.original_area_sqft;
+      feature.properties.available_area = analysis.available_area_sqft;
+      feature.properties.area_reduction = analysis.area_reduction_percent;
+      feature.properties.overlapping_buffers = analysis.overlapping_buffers;
+      feature.properties.available_geometry = analysis.available_geometry;
+
+      // Update computed area to reflect available space
+      feature.properties.computed_area = analysis.available_area_sqft;
+    }
+  });
+
+  // Re-render the facilities layer
+  renderFacilitiesGeoJSONLayer();
+};
+
 
 const evaluateCompliance = async (feature) => {
   const area = feature.properties.computed_area;
@@ -318,8 +700,35 @@ const evaluateCompliance = async (feature) => {
   return 'partially-compliant';
 };
 
+
+// Helper function to check if a point is inside a polygon
+const pointInPolygon = (point, polygon) => {
+  // Ray casting algorithm
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1];
+    const xj = polygon[j][0], yj = polygon[j][1];
+
+    const intersect = ((yi > point[1]) !== (yj > point[1])) &&
+      (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+};
+
+// Helper function to return default result
+const defaultResult = () => ({
+  original_area_sqft: 0,
+  available_area_sqft: 0,
+  area_reduction_percent: 0,
+  overlapping_buffers: [],
+  available_geometry: null
+});
+
 // Enhance the renderFacilitiesGeoJSONLayer function
 const renderFacilitiesGeoJSONLayer = () => {
+  console.log("Rendering facilities with filter:", selectedFunction.value);
+  console.log("Available filter options:", filteredDropdownOptions.value);
   if (!map.value || !facilitiesGeoJsonData.value) {
     console.error("❌ Map or facilities data is not available.");
     return;
@@ -329,26 +738,63 @@ const renderFacilitiesGeoJSONLayer = () => {
     facilitiesGeoJsonLayer.value.remove();
   }
 
+  // Clear any existing available layers
+  availableLayers.value.forEach(layer => {
+    if (map.value) map.value.removeLayer(layer);
+  });
+  availableLayers.value = [];
+
   // Filter features based on selected function
   const filteredFeatures = {
     type: "FeatureCollection",
     features: facilitiesGeoJsonData.value.features.filter(feature => {
-      const amenity = feature.properties.amenity;
+      const amenity = feature.properties.amenity || "Unknown";
+
+      // Special case for "storage" to show only Free Space and Deicing
       if (selectedFunction.value === "storage") {
-        // Show only Free Space and Deicing
         return amenity === "Free Space" || amenity === "Deicing";
       }
-      return !selectedFunction.value || amenity === selectedFunction.value;
+
+      // If no filter is selected (empty string), show all features
+      if (!selectedFunction.value) {
+        return true;
+      }
+
+      // Otherwise, match the exact amenity type
+      return amenity === selectedFunction.value;
     })
   };
 
   // Update areas for all features
   filteredFeatures.features.forEach(feature => {
-    feature.properties.computed_area = computeFeatureArea(feature);
+    // Only process storage areas
+    if (feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing") {
+      // Calculate area without buffer consideration first
+      feature.properties.computed_area = computeFeatureArea(feature);
+
+      // If buffer zones are loaded, calculate available area
+      if (bufferZonesGeoJsonData.value) {
+        const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
+
+        // Store analysis results in feature properties
+        feature.properties.original_area = areaAnalysis.original_area_sqft;
+        feature.properties.available_area = areaAnalysis.available_area_sqft;
+        feature.properties.area_reduction = areaAnalysis.area_reduction_percent;
+        feature.properties.overlapping_buffers = areaAnalysis.overlapping_buffers;
+
+        // Update computed area to be the available area
+        feature.properties.computed_area = areaAnalysis.available_area_sqft;
+
+        // Store available geometry for visualization
+        feature.properties.available_geometry = areaAnalysis.available_geometry;
+      }
+    }
   });
 
   facilitiesGeoJsonLayer.value = L.geoJSON(filteredFeatures, {
     style: (feature) => {
+      const functionType = feature.properties.amenity || "Unknown";
+      const isStorageType = functionType === "Free Space" || functionType === "Deicing";
       const colors = {
         Cargo: "blue",
         "Emergency Response": "red",
@@ -363,57 +809,93 @@ const renderFacilitiesGeoJSONLayer = () => {
         Deicing: feature.properties.computed_area >= storageStore.totalFootprint ? "lightpink" : "darkred",
         Unknown: "black",
       };
-      const functionType = feature.properties.amenity || "Unknown";
-      const isStorageType = functionType === "Free Space" || functionType === "Deicing";
 
+      // For storage areas, show different colors based on available area
+      if (isStorageType) {
+        // Use a different color for available vs. unavailable portions
+        if (feature.properties.available_geometry) {
+          // Create a separate layer for the available area
+          const availableLayer = L.geoJSON(feature.properties.available_geometry, {
+            style: {
+              color: functionType === "Free Space" ? "limegreen" : "lightpink",
+              fillColor: functionType === "Free Space" ? "limegreen" : "lightpink",
+              fillOpacity: 0.7,
+              weight: 2
+            }
+          }).addTo(map.value);
+
+          // Store reference to clean up later
+          availableLayers.value.push(availableLayer);
+        }
+
+        return {
+          color: colors[functionType] || "black",
+          fillColor: colors[functionType] || "black",
+          fillOpacity: 0.2,
+          weight: 2,
+          dashArray: "5,5", // Dashed line to show original boundary
+          zIndex: isStorageType ? 1000 : 500 // Higher z-index for storage areas
+        };
+      }
+
+      // Non-storage areas use normal styling
       return {
         color: colors[functionType] || "black",
         fillColor: colors[functionType] || "black",
         fillOpacity: 0.5,
         weight: 1,
-        zIndex: isStorageType ? 1000 : 500 // Higher z-index for storage areas
+        zIndex: 500
       };
     },
     onEachFeature: (feature, layer) => {
       const props = feature.properties;
-      const computedArea = props.computed_area;
+      const computedArea = props.computed_area != null ? props.computed_area : 0;
       const isRelevant = props.amenity === "Free Space" || props.amenity === "Deicing";
-      const storageUtilization = isRelevant ?
+      const storageUtilization = isRelevant && computedArea > 0 ?
         ((storageStore.totalFootprint / computedArea) * 100).toFixed(1) : null;
 
-      let popupContent = `
-        <div class="custom-popup">
-          <h3>${props.name || "Unknown Building"}</h3>
-          <div class="popup-section">
-            <h4>General Information</h4>
-            <p><strong>Amenity:</strong> ${props.amenity || "Unknown"}</p>
-            <p><strong>Area:</strong> ${computedArea.toFixed(2)} ft²</p>
-            ${props.address ? `<p><strong>Address:</strong> ${props.address}</p>` : ''}
-          </div>
-          ${isRelevant ? `
-            <div class="popup-section storage-info">
-              <h4>Storage Capability</h4>
-              <p><strong>Can Store:</strong> ${computedArea >= storageStore.totalFootprint ?
+      const popupContent = `
+          <div class="custom-popup">
+            <h3>${props.name || "Unknown Building"}</h3>
+            <div class="popup-section">
+              <h4>General Information</h4>
+              <p><strong>Amenity:</strong> ${props.amenity || "Unknown"}</p>
+              <p><strong>Total Area:</strong> ${(props.original_area != null ? props.original_area.toFixed(2) : (computedArea != null ? computedArea.toFixed(2) : "N/A"))} ft²</p>
+              ${props.address ? `<p><strong>Address:</strong> ${props.address}</p>` : ''}
+            </div>
+            ${isRelevant ? `
+              <div class="popup-section storage-info">
+                <h4>Storage Capability</h4>
+                <p><strong>Original Area:</strong> ${(props.original_area != null ? props.original_area.toFixed(2) : (computedArea != null ? computedArea.toFixed(2) : "N/A"))} ft²</p>
+                <p><strong>Available Area:</strong> ${props.available_area != null ? props.available_area.toFixed(2) : "N/A"} ft²</p>
+                <p><strong>Area Reduction:</strong> ${props.area_reduction != null ? props.area_reduction.toFixed(1) : "0"}%</p>
+                <p><strong>Can Store:</strong> ${props.available_area >= storageStore.totalFootprint ?
             '<span class="success">Yes</span>' : '<span class="error">No</span>'}</p>
-              <p><strong>Space Utilization:</strong> ${storageUtilization}%</p>
-              <div class="utilization-bar">
-                <div class="fill" style="width: ${Math.min(storageUtilization, 100)}%"></div>
+                ${props.available_area != null && props.available_area > 0 ? `
+                  <p><strong>Space Utilization:</strong> ${((storageStore.totalFootprint / props.available_area) * 100).toFixed(1)}%</p>
+                  <div class="utilization-bar">
+                    <div class="fill" style="width: ${Math.min((storageStore.totalFootprint / props.available_area) * 100, 100)}%"></div>
+                  </div>
+                ` : ''}
               </div>
-            </div>
-          ` : ''}
-          ${props.compliance_reason ? `
-            <div class="popup-section safety-info">
-              <h4>Safety Requirements</h4>
-              <p>${props.compliance_reason}</p>
-              ${props.required_safety_distance_ft ? `
-                <p><strong>Required Distance:</strong> ${props.required_safety_distance_ft} ft</p>
-                <p><strong>Actual Distance:</strong> ${props.actual_distance_ft} ft</p>
-              ` : ''}
-            </div>
-          ` : ''}
-        </div>
-      `;
-
+            ` : ''}
+            ${props.overlapping_buffers && props.overlapping_buffers.length > 0 ? `
+              <div class="popup-section buffer-info">
+                <h4>Buffer Zone Impacts</h4>
+                <p><strong>Overlapping Buffers:</strong> ${props.overlapping_buffers.length}</p>
+                <ul>
+                  ${props.overlapping_buffers.map(buffer => `
+                    <li>
+                      <strong>${buffer.buffer_id}</strong>: 
+                      ${formatHazardType(buffer.hazard_type)} - 
+                      ${buffer.overlap_area_sqft != null ? buffer.overlap_area_sqft.toFixed(2) : "N/A"} ft²
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        `;
       const popupOptions = {
         maxWidth: 300,
         className: 'custom-popup-container'
@@ -647,6 +1129,14 @@ onMounted(async () => {
     }, 300);
   });
 });
+
+// Add this after your computed properties
+watch(selectedFunction, () => {
+  console.log("Filter changed to:", selectedFunction.value);
+  if (map.value && facilitiesGeoJsonData.value) {
+    renderFacilitiesGeoJSONLayer();
+  }
+});
 </script>
 
 <style scoped>
@@ -851,5 +1341,155 @@ h2 {
   border-radius: 4px;
   padding: 4px;
   margin: 2px 0;
+}
+
+.buffer-analysis-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.buffer-analysis-section h3 {
+  margin-bottom: 1rem;
+  color: #64ffda;
+  border-bottom: 1px solid rgba(100, 255, 218, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+.buffer-analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.buffer-analysis-table th,
+.buffer-analysis-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.buffer-analysis-table th {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+  font-weight: 600;
+}
+
+.buffer-analysis-table tr.compliant {
+  background-color: rgba(0, 255, 0, 0.05);
+}
+
+.buffer-analysis-table tr.non-compliant {
+  background-color: rgba(255, 0, 0, 0.05);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.compliant {
+  background-color: rgba(0, 255, 0, 0.2);
+  color: #64ffda;
+}
+
+.status-badge.non-compliant {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: #ff6384;
+}
+
+.buffer-details {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.buffer-details h4 {
+  margin-bottom: 0.75rem;
+  color: #fff;
+}
+
+.buffer-details-intro {
+  margin-bottom: 1rem;
+  color: #aaa;
+}
+
+.buffer-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.buffer-item {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.buffer-item-header {
+  padding: 0.75rem;
+  background-color: rgba(100, 255, 218, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buffer-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.buffer-type {
+  font-size: 0.85rem;
+  color: #64ffda;
+}
+
+.buffer-item-details {
+  padding: 0.75rem;
+}
+
+.buffer-stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.buffer-stat .label {
+  color: #aaa;
+}
+
+.buffer-stat .value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.area-selector {
+  margin-top: 1.5rem;
+}
+
+.area-selector label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+
+.area-selector select {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3a3f4b;
+  color: #fff;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  border-radius: 4px;
+  outline: none;
+}
+
+.area-selector select:focus {
+  border-color: #64ffda;
 }
 </style>

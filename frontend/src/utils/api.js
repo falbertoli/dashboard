@@ -210,5 +210,21 @@ export const api = {
         throw error;
       }
     },
+    analyzeStorageAreas: async (storageVolumeGal = null) => {
+      try {
+        const params = storageVolumeGal
+          ? { storage_volume_gal: storageVolumeGal }
+          : {};
+        const response = await apiClient.get(
+          "/buffer_zones/storage-area-analysis",
+          { params }
+        );
+        console.log("✅ Storage area analysis complete:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("🚨 Storage Area Analysis Failed:", error.message);
+        throw error;
+      }
+    },
   },
 };
