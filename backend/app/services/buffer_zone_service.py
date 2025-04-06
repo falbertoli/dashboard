@@ -11,6 +11,24 @@ import pyproj
 
 from app.services.zoning_violations_service import load_facilities_data, load_distances_requirements_data
 
+def save_buffer_zones(geojson_data, filename="buffer_zones.geojson"):
+    """
+    Save the buffer zones GeoJSON to a file in the geojson data directory.
+    
+    Args:
+        geojson_data (dict): The GeoJSON data to save
+        filename (str): The name of the file to save
+    """
+    output_dir = os.path.join(current_app.root_path, '..', 'data', 'geojson')
+    os.makedirs(output_dir, exist_ok=True)
+    
+    filepath = os.path.join(output_dir, filename)
+    with open(filepath, 'w') as f:
+        json.dump(geojson_data, f, indent=2)
+    
+    current_app.logger.info(f"Buffer zones saved to: {filepath}")
+    return filepath
+
 def generate_buffer_zones():
     """
     Generate buffer zones around hazardous facilities with a separate buffer for each hazard category
@@ -87,7 +105,10 @@ def generate_buffer_zones():
         if not buffer_features:
             raise ValueError("No buffer zones could be generated.")
 
-        return {"type": "FeatureCollection", "features": buffer_features}
+        result = {"type": "FeatureCollection", "features": buffer_features}
+        filepath = save_buffer_zones(result)
+        current_app.logger.info(f"Buffer zones saved to file: {filepath}")
+        return result
 
     except Exception as e:
         current_app.logger.error(f"Error generating buffer zones: {str(e)}")
