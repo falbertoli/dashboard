@@ -41,8 +41,8 @@
       </div>
     </div>
 
-    <!-- Table for Building Compliance -->
-    <div class="compliance-table-section">
+    <!-- Table for Building Compliance WITHOUT buffer zones -->
+    <!-- <div class="compliance-table-section">
       <h3>Building Compliance</h3>
       <table class="compliance-table" v-if="tableCompliance.length">
         <thead>
@@ -65,9 +65,8 @@
         </tbody>
       </table>
       <p v-else class="no-data-message">No buildings meet the compliance criteria.</p>
-    </div>
+    </div> -->
 
-    <!-- Add this after the compliance-table-section -->
     <div class="buffer-analysis-section" v-if="bufferAnalysisResults.length">
       <h3>Buffer Zone Impact Analysis</h3>
       <div class="alert info">
