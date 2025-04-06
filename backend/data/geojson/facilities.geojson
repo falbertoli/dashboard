@@ -1483,8 +1483,9 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 2",
+        "id": "45",
         "amenity": "Free Space",
-        "sq_ft": 120000,
+        "sq_ft": "120,000",
         "address": null,
         "description": "An open space available for future use.",
         "distance_requirements": {
@@ -1510,8 +1511,9 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 3",
+        "id": "46",
         "amenity": "Free Space",
-        "sq_ft": 80000,
+        "sq_ft": "80,000",
         "address": null,
         "description": "An open space available for future use.",
         "distance_requirements": {
@@ -1537,8 +1539,9 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 4",
+        "id": "47",
         "amenity": "Free Space",
-        "sq_ft": 100000,
+        "sq_ft": "100,000",
         "address": null,
         "description": "An open space available for future use.",
         "distance_requirements": {
@@ -1564,8 +1567,9 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 5",
+        "id": "48",
         "amenity": "Free Space",
-        "sq_ft": 90000,
+        "sq_ft": "90,000",
         "address": null,
         "description": "An open space available for future use.",
         "distance_requirements": {
@@ -1591,8 +1595,9 @@
       "type": "Feature",
       "properties": {
         "name": "Free Space 6",
+        "id": "49",
         "amenity": "Free Space",
-        "sq_ft": 200000,
+        "sq_ft": "200,000",
         "address": null,
         "description": "An open space available for future use.",
         "distance_requirements": {
@@ -1610,6 +1615,36 @@
             [-84.4165, 33.6367],
             [-84.4205, 33.6367],
             [-84.4205, 33.6385]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Free Space 7",
+        "id": "50",
+        "amenity": "Free Space",
+        "sq_ft": "350,327.44",
+        "address": null,
+        "description": "An open space available for future use.",
+        "distance_requirements": {
+          "contains_people": false,
+          "contains_flammable_liquids": false,
+          "contains_open_fire": false
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-84.451821, 33.631103],
+            [-84.455461, 33.631681],
+            [-84.456022, 33.635736],
+            [-84.453819, 33.635558],
+            [-84.453376, 33.632832],
+            [-84.451828, 33.632484],
+            [-84.451821, 33.631103]
           ]
         ]
       }
