@@ -153,13 +153,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-h2 {
-  color: #64ffda;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
 .input-section {
   margin-bottom: 20px;
 }
@@ -170,12 +163,6 @@ h2 {
   padding: 20px;
   margin-bottom: 20px;
   color: #ddd;
-}
-
-.demand-section h3 {
-  color: #64ffda;
-  font-size: 1.2rem;
-  margin-bottom: 10px;
 }
 
 .demand-section p {

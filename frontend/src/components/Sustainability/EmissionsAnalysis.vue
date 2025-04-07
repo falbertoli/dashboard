@@ -95,18 +95,20 @@
         </div>
       </div>
 
-      <!-- Emissions Comparison Chart -->
-      <div class="chart-section">
-        <h3>Emissions Comparison</h3>
-        <ChartComponent chart-id="emissions-comparison-chart" chart-type="bar"
-          :chart-data="emissionsComparisonChartData" :chart-options="emissionsComparisonChartOptions" />
-      </div>
+      <div class="charts-container">
+        <!-- Emissions Comparison Chart -->
+        <div class="chart-section">
+          <h3>Emissions Comparison</h3>
+          <ChartComponent chart-id="emissions-comparison-chart" chart-type="bar"
+            :chart-data="emissionsComparisonChartData" :chart-options="emissionsComparisonChartOptions" />
+        </div>
 
-      <!-- Emissions Reduction Chart -->
-      <div class="chart-section">
-        <h3>Emissions Reduction Impact</h3>
-        <ChartComponent chart-id="emissions-reduction-chart" chart-type="doughnut"
-          :chart-data="emissionsReductionChartData" :chart-options="emissionsReductionChartOptions" />
+        <!-- Emissions Reduction Chart -->
+        <div class="chart-section">
+          <h3>Emissions Reduction Impact</h3>
+          <ChartComponent chart-id="emissions-reduction-chart" chart-type="doughnut"
+            :chart-data="emissionsReductionChartData" :chart-options="emissionsReductionChartOptions" />
+        </div>
       </div>
 
       <!-- Environmental Equivalents -->
@@ -141,7 +143,7 @@
       <!-- Emissions Breakdown -->
       <div class="breakdown-section">
         <h3>Emissions Breakdown</h3>
-        <div class="breakdown-table">
+        <div class="table-container">
           <div class="table-header">
             <div class="header-cell">Source</div>
             <div class="header-cell">Emissions (metric tons CO₂)</div>
@@ -272,7 +274,8 @@ const emissionsComparisonChartOptions = computed(() => {
         },
         grid: {
           display: false
-        }
+        },
+        stacked: true
       },
       y: {
         beginAtZero: true,
@@ -322,7 +325,7 @@ const emissionsReductionChartOptions = computed(() => {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '70%',
+    cutout: '60%',
     plugins: {
       legend: {
         position: 'bottom',
@@ -346,10 +349,16 @@ const emissionsReductionChartOptions = computed(() => {
 </script>
 
 <style scoped>
+/* =========================
+   Global & Utility Styles
+   ========================= */
 .emissions-analysis {
   margin-bottom: 30px;
 }
 
+/* =========================
+   Headings
+   ========================= */
 h2 {
   margin-top: 0;
   margin-bottom: 20px;
@@ -367,12 +376,34 @@ h3 {
   padding-bottom: 0.5rem;
 }
 
+/* =========================
+   Alerts & Feedback Messages
+   ========================= */
 .error-message {
   border-left: 4px solid #e74c3c;
   color: #e74c3c;
   background-color: rgba(255, 99, 132, 0.1);
   padding: 15px;
   border-radius: 6px;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+}
+
+.alert.info {
+  background-color: rgba(54, 162, 235, 0.1);
+  border-left: 4px solid rgba(54, 162, 235, 0.8);
+  color: #ddd;
+}
+
+.alert i {
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
 .no-results {
@@ -383,6 +414,9 @@ h3 {
   text-align: center;
 }
 
+/* =========================
+   Loading & Spinner
+   ========================= */
 .loading {
   display: flex;
   flex-direction: column;
@@ -406,11 +440,15 @@ h3 {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
+/* =========================
+   Button Styles
+   ========================= */
 .calculate-btn {
   margin-top: 15px;
   padding: 10px 20px;
@@ -435,6 +473,9 @@ h3 {
   font-size: 1rem;
 }
 
+/* =========================
+   Results & Summary Cards
+   ========================= */
 .results-container {
   display: flex;
   flex-direction: column;
@@ -530,6 +571,9 @@ h3 {
   font-size: 0.9rem;
 }
 
+/* =========================
+   Chart Section
+   ========================= */
 .chart-section,
 .equivalents-section,
 .breakdown-section {
@@ -543,6 +587,9 @@ h3 {
   position: relative;
 }
 
+/* =========================
+   Equivalents Grid & Cards
+   ========================= */
 .equivalents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -592,7 +639,10 @@ h3 {
   font-size: 0.8rem;
 }
 
-.breakdown-table {
+/* =========================
+   Table
+   ========================= */
+.table-container {
   width: 100%;
   border-collapse: collapse;
 }
@@ -631,8 +681,35 @@ h3 {
   padding: 0 10px;
 }
 
-/* Responsive adjustments */
+/* =========================
+   Charts Container & Responsive Layout
+   ========================= */
+.charts-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.chart-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  flex: 1;
+  min-width: 0;
+  /* Prevents flex items from overflowing */
+}
+
+/* =========================
+   Responsive Adjustments
+   ========================= */
+@media (max-width: 1024px) {
+  .charts-container {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 768px) {
+
   .summary-grid,
   .equivalents-grid {
     grid-template-columns: 1fr;
@@ -642,24 +719,5 @@ h3 {
   .table-row {
     grid-template-columns: 2fr 1fr 1fr;
   }
-}
-
-.alert {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 25px;
-}
-
-.alert.info {
-  background-color: rgba(54, 162, 235, 0.1);
-  border-left: 4px solid rgba(54, 162, 235, 0.8);
-  color: #ddd;
-}
-
-.alert i {
-  margin-right: 10px;
-  font-size: 1.2rem;
 }
 </style>

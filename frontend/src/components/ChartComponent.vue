@@ -71,12 +71,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  /* Adjust as needed */
-}
-</style>

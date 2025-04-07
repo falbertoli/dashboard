@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Header />
+    <NotificationToast />
     <div class="main-container">
       <Sidebar />
       <main>
@@ -13,6 +14,7 @@
 <script setup>
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
+import NotificationToast from '@/components/Common/NotificationToast.vue';
 </script>
 
 <style scoped>

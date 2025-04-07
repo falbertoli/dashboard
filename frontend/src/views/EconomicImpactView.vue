@@ -337,30 +337,6 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-h1,
-h2,
-h3 {
-  color: #64ffda;
-  margin-bottom: 1rem;
-}
-
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 0.5rem;
-}
-
 .loading-container,
 .error-container,
 .no-data-container {
@@ -437,6 +413,11 @@ h3 {
 
 .btn.secondary:hover {
   background-color: #444;
+}
+
+.chart-container {
+  height: 300px;
+  position: relative;
 }
 
 .chart-wrapper {
