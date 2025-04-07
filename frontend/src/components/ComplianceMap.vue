@@ -2,160 +2,108 @@
 
 <template>
   <div class="compliance-map">
-    <h2>Compliance Map</h2>
-
-    <!-- Results Section -->
-    <div class="results-section">
-      <div class="result-item">
-        <i class="fas fa-gas-pump"></i>
-        <span>Total Hydrogen Demand: </span>
-        <strong>{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</strong>
-      </div>
-      <div class="result-item">
-        <i class="fas fa-ruler-combined"></i>
-        <span>Total Footprint Storage: </span>
-        <strong>{{ $formatNumber(storageStore.totalFootprint) }} ft²</strong>
-      </div>
-      <div class="result-item">
-        <i class="fas fa-cube"></i>
-        <span>Tank Dimensions: </span>
-        <strong>{{ $formatNumber(storageStore.tankDiameter) }} ft (D) × {{ storageStore.tankLength.toFixed(2) }} ft
-          (L)</strong>
-      </div>
-      <div class="result-item">
-        <i class="fas fa-boxes"></i>
-        <span>Number of Tanks: </span>
-        <strong>{{ storageStore.recommendedTankCount }}</strong>
-      </div>
+    <div class="header-section">
+      <h2>Hydrogen Storage Compliance Map</h2>
+      <p class="subtitle">Interactive visualization of hydrogen storage requirements and safety zones</p>
     </div>
 
-    <!-- Free Space and Deicing Check -->
-    <div class="space-check-section">
-      <div class="space-check-item">
-        <span>Free Space: </span>
-        <strong>{{ freeSpaceStatus }}</strong>
-      </div>
-      <div class="space-check-item">
-        <span>Deicing: </span>
-        <strong>{{ deicingStatus }}</strong>
-      </div>
-    </div>
-
-    <!-- Table for Building Compliance WITHOUT buffer zones -->
-    <!-- <div class="compliance-table-section">
-      <h3>Building Compliance</h3>
-      <table class="compliance-table" v-if="tableCompliance.length">
-        <thead>
-          <tr>
-            <th>Building</th>
-            <th>Amenity</th>
-            <th>Area (ft²)</th>
-            <th>Can Contain Footprint</th>
-            <th>Proportion (%)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in tableCompliance" :key="row.building">
-            <td>{{ row.building }}</td>
-            <td>{{ row.amenity }}</td>
-            <td>{{ row.area }} ft²</td>
-            <td>{{ row.canContainFootprint }}</td>
-            <td>{{ row.proportion }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else class="no-data-message">No buildings meet the compliance criteria.</p>
-    </div> -->
-
-    <div class="buffer-analysis-section" v-if="bufferAnalysisResults.length">
-      <h3>Buffer Zone Impact Analysis</h3>
-      <div class="alert info">
-        <i class="fas fa-info-circle"></i>
-        <span>This analysis shows how safety buffer zones reduce available storage area.</span>
-      </div>
-
-      <table class="buffer-analysis-table">
-        <thead>
-          <tr>
-            <th>Storage Area</th>
-            <th>Original Area (ft²)</th>
-            <th>Available Area (ft²)</th>
-            <th>Reduction (%)</th>
-            <th>Compliance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="result in bufferAnalysisResults" :key="result.area_id" :class="{
-            'compliant': result.available_area_sqft >= storageStore.totalFootprint,
-            'non-compliant': result.available_area_sqft < storageStore.totalFootprint
-          }">
-            <td>{{ $formatNumber(result.area_name) }}</td>
-            <td>{{ $formatNumber(result.original_area_sqft) }}</td>
-            <td>{{ $formatNumber(result.available_area_sqft) }}</td>
-            <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
-            <td>
-              <span class="status-badge"
-                :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
-                {{ result.available_area_sqft >= storageStore.totalFootprint ? 'Sufficient' : 'Insufficient' }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Details for selected area -->
-      <div class="buffer-details" v-if="selectedArea && selectedArea.overlapping_buffers.length > 0">
-        <h4>Buffer Overlaps for {{ selectedArea.area_name }}</h4>
-        <p class="buffer-details-intro">
-          This area is affected by {{ selectedArea.overlapping_buffers.length }} safety buffer(s),
-          reducing the available space by {{ selectedArea.area_reduction_percent.toFixed(1) }}%.
-        </p>
-
-        <div class="buffer-list">
-          <div v-for="(buffer, index) in selectedArea.overlapping_buffers" :key="index" class="buffer-item">
-            <div class="buffer-item-header">
-              <span class="buffer-name">{{ buffer.buffer_id }}</span>
-              <span class="buffer-type">{{ formatHazardType(buffer.hazard_type) }}</span>
+    <!-- Dashboard Section -->
+    <div class="dashboard">
+      <div class="card metrics-card">
+        <h3><i class="fas fa-chart-line"></i> Storage Metrics</h3>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-gas-pump"></i></div>
+            <div class="metric-content">
+              <div class="metric-label">Total H₂ Demand</div>
+              <div class="metric-value">{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</div>
             </div>
-            <div class="buffer-item-details">
-              <div class="buffer-stat">
-                <span class="label">Overlap Area: </span>
-                <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
-              </div>
-              <div class="buffer-stat">
-                <span class="label">Percentage of Total: </span>
-                <span class="value">
-                  {{ (($formatNumber(buffer.overlap_area_sqft) / $formatNumber(selectedArea.original_area_sqft)) * 100)
-                  }}%
-                </span>
-              </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-ruler-combined"></i></div>
+            <div class="metric-content">
+              <div class="metric-label">Storage Footprint</div>
+              <div class="metric-value">{{ $formatNumber(storageStore.totalFootprint) }} ft²</div>
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-cube"></i></div>
+            <div class="metric-content">
+              <div class="metric-label">Tank Dimensions</div>
+              <div class="metric-value">{{ $formatNumber(storageStore.tankDiameter) }} ft × {{
+                storageStore.tankLength.toFixed(2) }} ft</div>
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-boxes"></i></div>
+            <div class="metric-content">
+              <div class="metric-label">Number of Tanks</div>
+              <div class="metric-value">{{ storageStore.recommendedTankCount }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Area selection controls -->
-      <div class="area-selector">
-        <label for="area-select">Select Area for Detailed Analysis:</label>
-        <select id="area-select" v-model="selectedAreaId">
-          <option v-for="area in bufferAnalysisResults" :key="area.area_id" :value="area.area_id">
-            {{ area.area_name }}
-            ({{ area.overlapping_buffers.length }} buffer{{ area.overlapping_buffers.length !== 1 ? 's' : '' }})
-          </option>
-        </select>
+      <div class="card compliance-card">
+        <h3><i class="fas fa-check-circle"></i> Compliance Status</h3>
+        <div class="compliance-status-grid">
+          <div class="status-item" :class="freeSpaceStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
+            <div class="status-icon">
+              <i
+                :class="freeSpaceStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+            </div>
+            <div class="status-content">
+              <div class="status-label">Free Space</div>
+              <div class="status-value">{{ freeSpaceStatus }}</div>
+            </div>
+          </div>
+          <div class="status-item" :class="deicingStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
+            <div class="status-icon">
+              <i
+                :class="deicingStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+            </div>
+            <div class="status-content">
+              <div class="status-label">Deicing Area</div>
+              <div class="status-value">{{ deicingStatus }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Filter by Amenity -->
-    <div class="filter-container">
-      <label for="function-filter">Filter by Amenity:</label>
-      <select id="function-filter" :value="selectedFunction" @change="handleFilterChange">
-        <option value="storage">Free Space and Deicing Only</option>
-        <option value="">All Amenities</option>
-        <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
-          {{ functionType }}
-        </option>
-      </select>
+    <!-- Map Controls Section -->
+    <div class="map-controls">
+      <div class="control-panel">
+        <div class="filter-group">
+          <label for="function-filter">
+            <i class="fas fa-filter"></i> Filter by Amenity
+          </label>
+          <select id="function-filter" :value="selectedFunction" @change="handleFilterChange" class="select-control">
+            <option value="storage">Free Space and Deicing Only</option>
+            <option value="">All Amenities</option>
+            <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
+              {{ functionType }}
+            </option>
+          </select>
+        </div>
+
+        <div class="layer-toggles">
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="layerControls.facilities" @change="toggleLayer('facilities')">
+              <span class="toggle-slider"></span>
+            </label>
+            <span>Facilities</span>
+          </div>
+          <div class="toggle-item">
+            <label class="toggle">
+              <input type="checkbox" v-model="layerControls.bufferZones" @change="toggleLayer('bufferZones')">
+              <span class="toggle-slider"></span>
+            </label>
+            <span>Buffer Zones</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Alert shown when hydrogen/storage calculations aren't done -->
@@ -165,59 +113,240 @@
     </div>
 
     <!-- Loading state -->
-    <div v-else-if="isLoading" class="loading">
+    <div v-else-if="isLoading" class="loading-container">
       <div class="spinner"></div>
       <p>Loading compliance data...</p>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="error-message">
+    <div v-else-if="error" class="alert error">
       <i class="fas fa-exclamation-triangle"></i>
       <p>{{ error }}</p>
     </div>
 
-    <!-- Compliance Map -->
-    <div v-else>
-      <div id="map" style="height: 400px; width: 100%;"></div>
-      <!-- Layer Controls -->
-      <div class="layer-controls">
-        <h4>Map Layers</h4>
-        <div class="layer-toggles">
-          <label>
-            <input type="checkbox" v-model="layerControls.facilities" @change="toggleLayer('facilities')">
-            Facilities
-          </label>
-          <label>
-            <input type="checkbox" v-model="layerControls.bufferZones" @change="toggleLayer('bufferZones')">
-            Buffer Zones
-          </label>
+    <!-- Map and Analysis Section -->
+    <div v-else class="map-analysis-container">
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+
+      <!-- Fixed Legend Below Map -->
+      <div class="fixed-legend">
+        <h4><i class="fas fa-map-signs"></i> Map Legend</h4>
+
+        <div class="legend-grid">
+          <!-- Buffer Zones -->
+          <div class="legend-section">
+            <h5>Buffer Zones</h5>
+            <ul>
+              <li>
+                <div class="color-box" style="background-color: #FF4500; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>People Safety Buffer</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: #FFD700; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Flammable Liquids Buffer</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: #FF0000; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Open Fire Buffer</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Storage Areas -->
+          <div class="legend-section">
+            <h5>Storage Areas</h5>
+            <ul>
+              <li>
+                <div class="color-box" style="background-color: limegreen; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Free Space (Available)</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: darkgreen; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Free Space (Insufficient)</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: lightpink; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Deicing (Available)</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: darkred; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Deicing (Insufficient)</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Amenities -->
+          <div class="legend-section">
+            <h5>Amenities</h5>
+            <ul class="amenities-grid">
+              <li>
+                <div class="color-box" style="background-color: blue; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Cargo</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: red; border: 2px solid rgba(255, 255, 255, 0.7);"></div>
+                <span>Emergency Response</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: orange; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Fuel Farm</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: purple; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Lease</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: gray; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Maintenance</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: lightblue; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Parking</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: cyan; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Support</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: yellow; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Transportation</span>
+              </li>
+              <li>
+                <div class="color-box" style="background-color: brown; border: 2px solid rgba(255, 255, 255, 0.7);">
+                </div>
+                <span>Utilities</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <!-- Legend -->
-      <div class="legend">
-        <h4>Legend</h4>
-        <ul>
-          <li><span class="color-box" style="background-color: #FF4500;"></span> People Safety Buffer</li>
-          <li><span class="color-box" style="background-color: #FFD700;"></span> Flammable Liquids Buffer</li>
-          <li><span class="color-box" style="background-color: #FF0000;"></span> Open Fire Buffer</li>
-          <li><span class="color-box" style="background-color: green;"></span> Free Space (Sufficient)</li>
-          <li><span class="color-box" style="background-color: darkgreen;"></span> Free Space (Insufficient)</li>
-          <li><span class="color-box" style="background-color: pink;"></span> Deicing (Sufficient)</li>
-          <li><span class="color-box" style="background-color: darkred;"></span> Deicing (Insufficient)</li>
-          <li><span class="color-box" style="background-color: blue;"></span> Cargo</li>
-          <li><span class="color-box" style="background-color: red;"></span> Emergency Response</li>
-          <li><span class="color-box" style="background-color: orange;"></span> Fuel Farm</li>
-          <li><span class="color-box" style="background-color: purple;"></span> Lease</li>
-          <li><span class="color-box" style="background-color: gray;"></span> Maintenance</li>
-          <li><span class="color-box" style="background-color: lightblue;"></span> Parking</li>
-          <li><span class="color-box" style="background-color: cyan;"></span> Support</li>
-          <li><span class="color-box" style="background-color: yellow;"></span> Transportation</li>
-          <li><span class="color-box" style="background-color: brown;"></span> Utilities</li>
-          <li><span class="color-box" style="background-color: black;"></span> Unknown</li>
-        </ul>
+    </div>
+
+    <!-- Buffer Analysis Section -->
+    <div class="analysis-section" v-if="bufferAnalysisResults.length">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-shield-alt"></i> Buffer Zone Impact Analysis</h3>
+          <div class="info-badge">
+            <i class="fas fa-info-circle"></i>
+            <span class="tooltip">This analysis shows how safety buffer zones reduce available storage area</span>
+          </div>
+        </div>
+
+        <div class="analysis-tabs">
+          <button class="tab-button" :class="{ 'active': activeTab === 'table' }" @click="activeTab = 'table'">
+            <i class="fas fa-table"></i> Overview
+          </button>
+          <button class="tab-button" :class="{ 'active': activeTab === 'details' }" @click="activeTab = 'details'">
+            <i class="fas fa-search-plus"></i> Detailed Analysis
+          </button>
+        </div>
+
+        <!-- Table Tab -->
+        <div class="tab-content" v-show="activeTab === 'table'">
+          <div class="table-container">
+            <table class="buffer-analysis-table">
+              <thead>
+                <tr>
+                  <th>Storage Area</th>
+                  <th>Original Area (ft²)</th>
+                  <th>Available Area (ft²)</th>
+                  <th>Reduction (%)</th>
+                  <th>Compliance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="result in bufferAnalysisResults" :key="result.area_id" :class="{
+                  'compliant': result.available_area_sqft >= storageStore.totalFootprint,
+                  'non-compliant': result.available_area_sqft < storageStore.totalFootprint
+                }">
+                  <td>{{ result.area_name }}</td>
+                  <td>{{ $formatNumber(result.original_area_sqft) }}</td>
+                  <td>{{ $formatNumber(result.available_area_sqft) }}</td>
+                  <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
+                  <td>
+                    <span class="status-badge"
+                      :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
+                      {{ result.available_area_sqft >= storageStore.totalFootprint ? 'Sufficient' : 'Insufficient' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Details Tab -->
+        <div class="tab-content" v-show="activeTab === 'details'">
+          <div class="area-selector-container">
+            <label for="area-select">Select Area for Detailed Analysis: </label>
+            <select id="area-select" v-model="selectedAreaId" class="select-control">
+              <option v-for="area in bufferAnalysisResults" :key="area.area_id" :value="area.area_id">
+                {{ area.area_name }}
+                ({{ area.overlapping_buffers.length }} buffer{{ area.overlapping_buffers.length !== 1 ? 's' : '' }})
+              </option>
+            </select>
+          </div>
+
+          <div class="buffer-details" v-if="selectedArea && selectedArea.overlapping_buffers.length > 0">
+            <div class="details-header">
+              <h4>Buffer Overlaps for {{ selectedArea.area_name }}</h4>
+              <div class="details-summary">
+                This area is affected by <strong>{{ selectedArea.overlapping_buffers.length }}</strong> safety
+                buffer(s),
+                reducing the available space by <strong>{{ selectedArea.area_reduction_percent.toFixed(1)
+                }}%</strong>.
+              </div>
+            </div>
+
+            <div class="buffer-cards">
+              <div v-for="(buffer, index) in selectedArea.overlapping_buffers" :key="index" class="buffer-card">
+                <div class="buffer-card-header" :class="getHazardClass(buffer.hazard_type)">
+                  <span class="buffer-name">{{ buffer.buffer_id }}</span>
+                  <span class="buffer-type">{{ formatHazardType(buffer.hazard_type) }}</span>
+                </div>
+                <div class="buffer-card-body">
+                  <div class="buffer-stat">
+                    <span class="label">Overlap Area:</span>
+                    <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
+                  </div>
+                  <div class="buffer-stat">
+                    <span class="label">Percentage of Total:</span>
+                    <span class="value">
+                      {{ $formatNumber(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100)) }}%
+                    </span>
+                  </div>
+                  <div class="impact-bar">
+                    <div class="impact-fill" :style="{
+                      width: `${Math.min(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100), 100)}%`,
+                      backgroundColor: getHazardColor(buffer.hazard_type)
+                    }"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -230,10 +359,13 @@ import turfArea from '@turf/area';
 import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 
+// Store and state management
 const storageStore = useStorageStore();
 const map = ref(null);
 const error = ref(null);
 const isLoading = ref(false);
+const legendCollapsed = ref(false);
+const activeTab = ref('table');
 
 const facilitiesGeoJsonData = ref(null);
 const facilitiesGeoJsonLayer = ref(null);
@@ -247,17 +379,37 @@ const bufferAnalysisResults = ref([]);
 
 const selectedFunction = ref("storage"); // Special value to indicate Free Space and Deicing
 
-// Add computed property for selected area
+// Computed property for selected area
 const selectedArea = computed(() => {
   if (!selectedAreaId.value || !bufferAnalysisResults.value.length) return null;
   return bufferAnalysisResults.value.find(area => area.area_id === selectedAreaId.value);
 });
 
-// Add new reactive state for layer controls
+// Reactive state for layer controls
 const layerControls = ref({
   facilities: true,
   bufferZones: true
 });
+
+// Get hazard class for styling
+const getHazardClass = (hazardType) => {
+  const classes = {
+    "contains_people": "hazard-people",
+    "contains_flammable_liquids": "hazard-flammable",
+    "contains_open_fire": "hazard-fire"
+  };
+  return classes[hazardType] || "hazard-unknown";
+};
+
+// Get hazard color for progress bars
+const getHazardColor = (hazardType) => {
+  const colors = {
+    "contains_people": "#FF4500",
+    "contains_flammable_liquids": "#FFD700",
+    "contains_open_fire": "#FF0000"
+  };
+  return colors[hazardType] || "#999";
+};
 
 // Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
@@ -331,24 +483,6 @@ const computeFeatureArea = (feature) => {
   }
 };
 
-// const bufferAnalysisResults = computed(() => {
-//   if (!facilitiesGeoJsonData.value?.features || !bufferZonesGeoJsonData.value?.features) return [];
-
-//   const storageAreas = facilitiesGeoJsonData.value.features.filter(feature =>
-//     feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing"
-//   );
-
-//   return storageAreas.map(feature => {
-//     const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
-//     return {
-//       area_id: feature.properties.id,
-//       area_name: feature.properties.name || `${feature.properties.amenity} Area`,
-//       area_type: feature.properties.amenity,
-//       ...areaAnalysis
-//     };
-//   });
-// });
-
 const updateBufferAnalysisResults = () => {
   if (!facilitiesGeoJsonData.value?.features || !bufferZonesGeoJsonData.value?.features) {
     bufferAnalysisResults.value = [];
@@ -386,28 +520,6 @@ const filteredFacilities = computed(() => {
     }
     return false;
   });
-});
-
-const tableCompliance = computed(() => {
-  if (!facilitiesGeoJsonData.value?.features) return [];
-  return facilitiesGeoJsonData.value.features
-    .filter((feature) => {
-      const amenity = feature.properties.amenity;
-      return amenity === "Free Space" || amenity === "Deicing";
-    })
-    .map((feature) => {
-      const area = feature.properties.computed_area || computeFeatureArea(feature);
-      const canContainFootprint = area >= storageStore.totalFootprint ? "Yes" : "No";
-      const proportion = ((storageStore.totalFootprint / area) * 100).toFixed(2) + "%";
-
-      return {
-        building: feature.properties.name || "Unknown",
-        amenity: feature.properties.amenity || "Unknown",
-        area: area.toFixed(2),
-        canContainFootprint,
-        proportion,
-      };
-    });
 });
 
 const loadFacilitiesGeoJSON = async () => {
@@ -466,50 +578,6 @@ const performBufferAnalysis = () => {
     console.error("Error performing buffer analysis:", err);
   }
 };
-
-// // Add the simplified buffer analysis function
-// const performBufferAnalysis = () => {
-//   if (!facilitiesGeoJsonData.value || !bufferZonesGeoJsonData.value) {
-//     console.warn("Cannot perform buffer analysis: missing data");
-//     return;
-//   }
-
-//   // Find storage areas (Free Space and Deicing)
-//   const storageAreas = facilitiesGeoJsonData.value.features.filter(feature =>
-//     feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing"
-//   );
-
-//   if (!storageAreas.length) {
-//     console.warn("No storage areas found for buffer analysis");
-//     return;
-//   }
-
-//   try {
-//     // Process each storage area
-//     bufferAnalysisResults.value = storageAreas.map(feature => {
-//       const analysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
-
-//       return {
-//         area_id: feature.properties.id || feature.id || Math.random().toString(36).substring(2, 9),
-//         area_name: feature.properties.name || `${feature.properties.amenity} Area`,
-//         area_type: feature.properties.amenity,
-//         ...analysis
-//       };
-//     });
-
-//     console.log("✅ Buffer analysis complete:", bufferAnalysisResults.value);
-
-//     // Auto-select first area
-//     if (bufferAnalysisResults.value.length > 0) {
-//       selectedAreaId.value = bufferAnalysisResults.value[0].area_id;
-//     }
-
-//     // Update the facilities layer to show available areas
-//     updateFacilitiesWithAvailableAreas();
-//   } catch (err) {
-//     console.error("Error performing buffer analysis:", err);
-//   }
-// };
 
 // Add a simplified version of calculateAvailableArea
 const calculateAvailableArea = (storageFeature, bufferFeatures) => {
@@ -725,7 +793,7 @@ const defaultResult = () => ({
   available_geometry: null
 });
 
-// Enhance the renderFacilitiesGeoJSONLayer function
+// renderFacilitiesGeoJSONLayer function
 const renderFacilitiesGeoJSONLayer = () => {
   console.log("Rendering facilities with filter:", selectedFunction.value);
   console.log("Available filter options:", filteredDropdownOptions.value);
@@ -1029,7 +1097,7 @@ const toggleLayer = (layerType) => {
   }
 };
 
-// Update handleMapClick to check if buffer popup was shown
+// handleMapClick to check if buffer popup was shown
 const handleMapClick = async (event) => {
   // Skip if clicking inside a buffer zone popup
   const popup = event.target.getContainer()?.querySelector('.buffer-zones-popup');
@@ -1140,163 +1208,790 @@ watch(selectedFunction, () => {
 </script>
 
 <style scoped>
+/* Modern, clean styling with improved visual hierarchy */
 .compliance-map {
-  background-color: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  padding: 20px;
-  color: #ddd;
+  background-color: #1e1e2f;
+  border-radius: 12px;
+  padding: 24px;
+  color: #e4e4e4;
+  font-family: 'Inter', 'Segoe UI', Roboto, -apple-system, sans-serif;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-h2 {
+.header-section {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.header-section h2 {
+  color: #64ffda;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #a0aec0;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+/* Dashboard Section */
+.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  color: #64ffda;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card h3 i {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Metrics Card */
+.metrics-card {
+  padding: 24px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.metric-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(100, 255, 218, 0.15);
+  border-radius: 12px;
   color: #64ffda;
   font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 20px;
 }
 
-.results-section,
-.space-check-section,
-.compliance-table-section {
-  margin-bottom: 20px;
-  background-color: rgba(255, 255, 255, 0.05);
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #a0aec0;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Compliance Card */
+.compliance-card {
+  padding: 24px;
+}
+
+.compliance-status-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
   border-radius: 8px;
-  padding: 20px;
+  transition: transform 0.2s ease;
 }
 
-.results-section .result-item,
-.space-check-section .space-check-item {
-  margin-bottom: 10px;
-  color: #aaa;
+.status-item:hover {
+  transform: translateX(4px);
 }
 
-.results-section .result-item strong,
-.space-check-section .space-check-item strong {
-  color: #64ffda;
+.status-item.status-ok {
+  background: rgba(52, 211, 153, 0.1);
+  border-left: 4px solid #34d399;
+}
+
+.status-item.status-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 4px solid #fbbf24;
+}
+
+.status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+
+.status-ok .status-icon {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.status-warning .status-icon {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.status-content {
+  flex: 1;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  color: #a0aec0;
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
-.results-section .result-item i {
-  margin-right: 8px;
-  color: #64ffda;
+.status-ok .status-value {
+  color: #34d399;
 }
 
-.compliance-table {
+.status-warning .status-value {
+  color: #fbbf24;
+}
+
+/* Map Controls */
+.map-controls {
+  margin-bottom: 20px;
+}
+
+.control-panel {
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #a0aec0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.select-control {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  background-color: #282c34;
+  padding: 10px 14px;
+  background: rgba(17, 24, 39, 0.7);
+  color: #e4e4e4;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364ffda' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.select-control:focus {
+  border-color: #64ffda;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+}
+
+.layer-toggles {
+  display: flex;
+  gap: 16px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(100, 255, 218, 0.2);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #64ffda;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked+.toggle-slider {
+  background-color: rgba(100, 255, 218, 0.6);
+}
+
+input:focus+.toggle-slider {
+  box-shadow: 0 0 1px rgba(100, 255, 218, 0.8);
+}
+
+input:checked+.toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Map and Analysis Container */
+.map-analysis-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1200px) {
+  .map-analysis-container {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+/* Updated Map Container */
+.map-container {
+  background: rgba(30, 41, 59, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  flex: 1;
   border-radius: 8px;
   overflow: hidden;
+  min-height: 500px;
 }
 
-.compliance-table th,
-.compliance-table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ddd;
+/* Fixed Legend Below Map */
+.fixed-legend {
+  background: rgba(30, 41, 59, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.compliance-table th {
-  background-color: rgba(255, 255, 255, 0.05);
-  font-weight: 600;
-}
-
-.compliance-table tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03);
-}
-
-.compliance-table tr:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.no-data-message {
-  color: #aaa;
-  font-style: italic;
-  margin-top: 10px;
-}
-
-.legend {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  color: #ddd;
-}
-
-.legend h4 {
-  margin-bottom: 10px;
+.fixed-legend h4 {
+  color: #64ffda;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #64ffda;
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.legend ul {
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.legend-section {
+  background: rgba(17, 24, 39, 0.7);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-section h5 {
+  color: #64ffda;
+  font-size: 1rem;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+.fixed-legend ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.legend li {
+.fixed-legend li {
   display: flex;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #e4e4e4;
 }
 
-.legend .color-box {
+.fixed-legend li:last-child {
+  margin-bottom: 0;
+}
+
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.fixed-legend .color-box {
+  min-width: 20px;
   width: 20px;
   height: 20px;
   margin-right: 10px;
-  border-radius: 3px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-#map {
-  height: 400px;
-  width: 100%;
-  border: 1px solid #ddd;
+/* Analysis Section */
+.analysis-section {
+  display: flex;
+  flex-direction: column;
 }
 
-.layer-controls {
-  margin-top: 10px;
-  padding: 10px;
+.card-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-badge {
+  position: relative;
+  display: inline-block;
+  color: #64ffda;
+  cursor: help;
+}
+
+.info-badge .tooltip {
+  visibility: hidden;
+  width: 240px;
+  background-color: rgba(17, 24, 39, 0.95);
+  color: #e4e4e4;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.info-badge:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Tabs */
+.analysis-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-button:hover {
+  color: #e4e4e4;
   background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+  color: #64ffda;
+  border-bottom: 2px solid #64ffda;
+  font-weight: 500;
+}
+
+.tab-content {
+  padding: 20px;
+}
+
+/* Table styles */
+.table-container {
+  overflow-x: auto;
+  border-radius: 6px;
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.buffer-analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.buffer-analysis-table th,
+.buffer-analysis-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.buffer-analysis-table th {
+  background-color: rgba(30, 41, 59, 0.8);
+  color: #64ffda;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.buffer-analysis-table tr:last-child td {
+  border-bottom: none;
+}
+
+.buffer-analysis-table tr.compliant {
+  background-color: rgba(52, 211, 153, 0.05);
+}
+
+.buffer-analysis-table tr.non-compliant {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.buffer-analysis-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-badge.compliant {
+  background-color: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.status-badge.non-compliant {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Area selector */
+.area-selector-container {
+  margin-bottom: 20px;
+}
+
+.area-selector-container label {
+  display: block;
+  margin-bottom: 8px;
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+/* Buffer details */
+.buffer-details {
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.details-header {
+  padding: 16px;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.details-header h4 {
+  color: #64ffda;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.details-summary {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.buffer-cards {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.buffer-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.buffer-card:hover {
+  transform: translateY(-4px);
+}
+
+.buffer-card-header {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buffer-card-header.hazard-people {
+  background: rgba(255, 69, 0, 0.2);
+}
+
+.buffer-card-header.hazard-flammable {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.buffer-card-header.hazard-fire {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.buffer-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #e4e4e4;
+}
+
+.buffer-type {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
   border-radius: 4px;
 }
 
-.layer-toggles {
-  display: flex;
-  gap: 15px;
+.buffer-card-body {
+  padding: 12px;
 }
 
-.layer-toggles label {
+.buffer-stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.buffer-stat .label {
+  color: #a0aec0;
+}
+
+.buffer-stat .value {
+  font-weight: 600;
+  color: #e4e4e4;
+}
+
+.impact-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.impact-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* Alert styles */
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  cursor: pointer;
+  gap: 12px;
+}
+
+.alert i {
+  font-size: 1.25rem;
+}
+
+.alert.info {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid #3b82f6;
+  color: #93c5fd;
+}
+
+.alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  color: #fca5a5;
+}
+
+/* Loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 8px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(100, 255, 218, 0.2);
+  border-top-color: #64ffda;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Custom Popup Styles */
 :deep(.custom-popup-container) {
-  background: #1a1a1a;
-  color: #fff;
+  background: #1a1a2e;
+  color: #e4e4e4;
   border: 1px solid #64ffda;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 0;
   margin: 0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 :deep(.custom-popup) {
-  padding: 8px;
-  font-size: 12px;
-  line-height: 1.4;
+  padding: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 :deep(.custom-popup h3) {
   color: #64ffda;
-  font-size: 14px;
-  margin: 5px 0;
-  padding-bottom: 5px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:deep(.popup-section) {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+:deep(.popup-section) {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 :deep(.popup-section:last-child) {
@@ -1305,191 +2000,84 @@ h2 {
 
 :deep(.popup-section h4) {
   color: #64ffda;
-  margin: 2px 0;
-  font-size: 1em;
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 :deep(.success) {
-  color: #4caf50;
+  color: #34d399;
+  font-weight: 600;
 }
 
 :deep(.error) {
-  color: #f44336;
+  color: #ef4444;
+  font-weight: 600;
 }
 
 :deep(.utilization-bar) {
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  margin-top: 5px;
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
 }
 
 :deep(.utilization-bar .fill) {
   height: 100%;
   background: #64ffda;
-  border-radius: 2px;
+  border-radius: 3px;
   transition: width 0.3s ease;
 }
 
-/* Add these new styles */
 :deep(.buffer-zones-popup) {
-  max-width: 300px;
+  max-width: 320px;
 }
 
 :deep(.buffer-zones-popup .popup-section) {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  padding: 4px;
-  margin: 2px 0;
-}
-
-.buffer-analysis-section {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background-color: #282c34;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.buffer-analysis-section h3 {
-  margin-bottom: 1rem;
-  color: #64ffda;
-  border-bottom: 1px solid rgba(100, 255, 218, 0.3);
-  padding-bottom: 0.5rem;
-}
-
-.buffer-analysis-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1.5rem;
-}
-
-.buffer-analysis-table th,
-.buffer-analysis-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.buffer-analysis-table th {
-  background-color: rgba(100, 255, 218, 0.1);
-  color: #64ffda;
-  font-weight: 600;
-}
-
-.buffer-analysis-table tr.compliant {
-  background-color: rgba(0, 255, 0, 0.05);
-}
-
-.buffer-analysis-table tr.non-compliant {
-  background-color: rgba(255, 0, 0, 0.05);
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.status-badge.compliant {
-  background-color: rgba(0, 255, 0, 0.2);
-  color: #64ffda;
-}
-
-.status-badge.non-compliant {
-  background-color: rgba(255, 0, 0, 0.2);
-  color: #ff6384;
-}
-
-.buffer-details {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-}
-
-.buffer-details h4 {
-  margin-bottom: 0.75rem;
-  color: #fff;
-}
-
-.buffer-details-intro {
-  margin-bottom: 1rem;
-  color: #aaa;
-}
-
-.buffer-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.buffer-item {
-  background-color: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 41, 59, 0.5);
   border-radius: 6px;
-  overflow: hidden;
+  padding: 10px;
+  margin: 8px 0;
 }
 
-.buffer-item-header {
-  padding: 0.75rem;
-  background-color: rgba(100, 255, 218, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .compliance-map {
+    padding: 16px;
+  }
 
-.buffer-name {
-  font-weight: 600;
-  color: #fff;
-}
+  .header-section h2 {
+    font-size: 1.5rem;
+  }
 
-.buffer-type {
-  font-size: 0.85rem;
-  color: #64ffda;
-}
+  .subtitle {
+    font-size: 0.9rem;
+  }
 
-.buffer-item-details {
-  padding: 0.75rem;
-}
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
 
-.buffer-stat {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
+  .control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.buffer-stat .label {
-  color: #aaa;
-}
+  .layer-toggles {
+    justify-content: space-between;
+  }
 
-.buffer-stat .value {
-  font-weight: 600;
-  color: #fff;
-}
+  #map {
+    height: 400px;
+  }
 
-.area-selector {
-  margin-top: 1.5rem;
-}
+  .buffer-cards {
+    grid-template-columns: 1fr;
+  }
 
-.area-selector label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #aaa;
-}
-
-.area-selector select {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #3a3f4b;
-  color: #fff;
-  border: 1px solid rgba(100, 255, 218, 0.3);
-  border-radius: 4px;
-  outline: none;
-}
-
-.area-selector select:focus {
-  border-color: #64ffda;
+  .legend-panel {
+    width: 250px;
+  }
 }
 </style>

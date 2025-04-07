@@ -4,23 +4,20 @@
     <h1>Regulatory Compliance</h1>
 
     <section>
-      <h2>Regulations Overview</h2>
+      <h2><i class="fas fa-book-open"></i>List of regulations and their minimum storage requirements</h2>
       <div class="table-container">
-        <RegulationsTable :items="formattedRegulations"
-          caption="List of regulations and their minimum storage requirements." />
+        <RegulationsTable :items="formattedRegulations" />
       </div>
     </section>
 
     <section>
-      <h2>Distance Requirements</h2>
+      <h2><i class="fas fa-ruler"></i>Distance requirements for various storage scenarios</h2>
       <div class="table-container">
-        <RegulationsTable :items="formattedDistancesRequirements"
-          caption="Distance requirements for various storage scenarios." />
+        <RegulationsTable :items="formattedDistancesRequirements" />
       </div>
     </section>
 
     <section>
-      <h2>Compliance Map</h2>
       <ComplianceMap :storageVolume="storageStore.totalH2VolumeFromHydrogenStore" />
       <!-- <p v-if="!isStorageVolumeValid" class="error">
         Warning: Hydrogen storage volume is not defined. Please configure it.
@@ -98,26 +95,41 @@ section {
   margin-bottom: 30px;
 }
 
-h2 {
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+h1 {
   color: #64ffda;
-  /* Match the theme color */
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+}
+
+h2 {
+  color: #64ffda;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h2 i {
+  opacity: 0.8;
+  width: 20px;
 }
 
 .table-container {
   overflow-x: auto;
   background: rgba(255, 255, 255, 0.05);
-  /* Darker background */
-  border: 1px solid #444;
   border-radius: 8px;
-  padding: 10px;
+  padding: 20px;
   margin-top: 10px;
 }
 
 .error {
-  color: red;
+  color: #ff6b6b;
   font-size: 1rem;
   margin-top: 10px;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
 }
 </style>

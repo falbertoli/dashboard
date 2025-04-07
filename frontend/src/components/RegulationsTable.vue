@@ -1,14 +1,13 @@
 <template>
-  <div>
+  <div class="regulations-container">
     <table class="data-table">
-      <caption>{{ caption }}</caption>
       <thead>
         <tr>
-          <th>Regulation Name</th>
-          <th>Details</th>
-          <th v-if="hasColumn('storage_gal_min')">Minimum Storage (Gal)</th>
-          <th v-if="hasColumn('storage_gal_max')">Maximum Storage (Gal)</th>
-          <th v-if="hasColumn('safety_distance_ft')">Safety Distance (ft)</th>
+          <th><i class="fas fa-gavel"></i>Regulation Name</th>
+          <th><i class="fas fa-info-circle"></i>Details</th>
+          <th v-if="hasColumn('storage_gal_min')"><i class="fas fa-tank"></i>Minimum Storage (Gal)</th>
+          <th v-if="hasColumn('storage_gal_max')"><i class="fas fa-tank"></i>Maximum Storage (Gal)</th>
+          <th v-if="hasColumn('safety_distance_ft')"><i class="fas fa-ruler"></i>Safety Distance (ft)</th>
         </tr>
       </thead>
       <tbody>
@@ -31,11 +30,7 @@ export default {
     items: {
       type: Array,
       required: true,
-    },
-    caption: {
-      type: String,
-      required: true,
-    },
+    }
   },
   methods: {
     hasColumn(column) {
@@ -46,38 +41,68 @@ export default {
 </script>
 
 <style scoped>
+.regulations-container {
+  margin-bottom: 30px;
+  color: #ddd;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 2rem;
-  color: #e0e0e0;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .data-table th,
 .data-table td {
-  border: 1px solid #444;
-  padding: 0.5rem;
+  padding: 12px 15px;
   text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .data-table th {
   background-color: rgba(255, 255, 255, 0.05);
-  font-weight: bold;
+  font-weight: 600;
   color: #64ffda;
+  white-space: nowrap;
 }
 
-.data-table tr:nth-child(even) {
+.data-table th i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-.data-table tr:hover {
-  background-color: #444;
+.data-table tbody tr:hover {
+  background-color: rgba(100, 255, 218, 0.05);
 }
 
-caption {
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: left;
-  color: #64ffda;
+.data-table td {
+  color: #ddd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
+  }
 }
 </style>
