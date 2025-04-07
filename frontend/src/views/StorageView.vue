@@ -150,7 +150,7 @@ const resetStorage = () => {
 }
 
 .visualization-card {
-  margin-top: 20px;
+  margin-top: 35px;
 }
 
 .actions {

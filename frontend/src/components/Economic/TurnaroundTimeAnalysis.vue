@@ -153,15 +153,15 @@
             <div class="card-metrics">
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Tax Credit</span>
-                <span class="metric-value">{{ $formatNumber(scenario.maxTaxCredit) }}</span>
+                <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
               </div>
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-chart-line"></i> Max Revenue Drop</span>
-                <span class="metric-value">{{ $formatNumber(scenario.maxRevenueDrop) }}</span>
+                <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
               </div>
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Tax Credit</span>
-                <span class="metric-value">{{ $formatNumber(scenario.finalYearTaxCredit) }}</span>
+                <span class="metric-value">{{ scenario.finalYearTaxCredit }}</span>
               </div>
             </div>
           </div>

@@ -89,29 +89,6 @@
           <div class="cost-value">{{ $formatNumber(results.total_infrastructure_cost) }}</div>
         </div>
       </div>
-
-      <!-- Tank Details Section -->
-      <div class="tank-section">
-        <h3>Tank Specifications</h3>
-        <div class="specs-grid">
-          <div class="spec-item">
-            <div class="spec-label">Tank Diameter</div>
-            <div class="spec-value">{{ tankDiameter }} ft</div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-label">Tank Length</div>
-            <div class="spec-value">{{ tankLength }} ft</div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-label">Usable Volume per Tank</div>
-            <div class="spec-value">{{ formatNumber(usableVolumePerTank) }} ft³</div>
-          </div>
-          <div class="spec-item">
-            <div class="spec-label">Insulation Volume</div>
-            <div class="spec-value">{{ formatNumber(results.insulation_volume_total) }} ft³</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>

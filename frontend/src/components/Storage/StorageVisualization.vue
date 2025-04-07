@@ -196,7 +196,7 @@ const formatNumber = (value) => {
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
-  margin-top: 1.5rem;
+  /* margin-top: 1.5rem; */
   position: relative;
 }
 

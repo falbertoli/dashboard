@@ -1,7 +1,24 @@
 <!-- File: frontend/src/views/RegulationsView.vue -->
 <template>
+
   <div class="regulations-view">
-    <h1>Regulatory Compliance</h1>
+    <div class="page-header">
+      <h1><i class="fas fa-gavel"></i>Regulations and Compliance</h1>
+      <p class="description">
+        This section provides an overview of the regulations and compliance requirements for hydrogen storage systems.
+        It includes a list of regulations, their minimum storage requirements, and distance requirements for various
+        storage scenarios.
+        <br />
+        <strong>Disclaimer:</strong> The information provided in this section is for informational purposes only and
+        should not be considered legal advice. Always consult with a qualified professional or regulatory authority for
+        specific compliance requirements.
+        <br />
+        <strong>Note:</strong> Ensure that your storage system complies with all applicable regulations and safety
+        standards.
+        <br />
+      </p>
+    </div>
+
 
     <section>
       <h2><i class="fas fa-book-open"></i>List of regulations and their minimum storage requirements</h2>
@@ -122,6 +139,9 @@ h2 i {
   border-radius: 8px;
   padding: 20px;
   margin-top: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .error {
