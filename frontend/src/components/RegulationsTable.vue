@@ -15,9 +15,9 @@
         <tr v-for="item in items" :key="item.regulation_name">
           <td>{{ item.regulation_name }}</td>
           <td>{{ item.regulation_info }}</td>
-          <td v-if="hasColumn('storage_gal_min')">{{ item.storage_gal_min }}</td>
-          <td v-if="hasColumn('storage_gal_max')">{{ item.storage_gal_max }}</td>
-          <td v-if="hasColumn('safety_distance_ft')">{{ item.safety_distance_ft }}</td>
+          <td v-if="hasColumn('storage_gal_min')">{{ $formatNumber(item.storage_gal_min) }}</td>
+          <td v-if="hasColumn('storage_gal_max')">{{ $formatNumber(item.storage_gal_max) }}</td>
+          <td v-if="hasColumn('safety_distance_ft')">{{ $formatNumber(item.safety_distance_ft) }}</td>
         </tr>
       </tbody>
     </table>

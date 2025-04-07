@@ -206,7 +206,7 @@ const {
 // Format number with commas
 const formatNumber = (value) => {
   return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 0
+    maximumFractionDigits: 2
   }).format(value || 0);
 };
 

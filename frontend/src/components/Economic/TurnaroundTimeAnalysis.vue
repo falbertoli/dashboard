@@ -44,12 +44,12 @@
       <div class="params-grid">
         <div class="param-item">
           <span class="param-label">Fleet Percentage:</span>
-          <span class="param-value">{{ hydrogenStore.fleetPercentage }}%</span>
+          <span class="param-value">{{ $formatNumber(hydrogenStore.fleetPercentage) }}%</span>
           <span class="param-note">(from Hydrogen Demand)</span>
         </div>
         <div class="param-item">
           <span class="param-label">Growth Rate:</span>
-          <span class="param-value">2.0%</span>
+          <span class="param-value">{{ $formatNumber(2.0) }}%</span>
           <span class="param-note">(fixed)</span>
         </div>
         <div class="param-item">
@@ -153,15 +153,15 @@
             <div class="card-metrics">
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Tax Credit</span>
-                <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
+                <span class="metric-value">{{ $formatNumber(scenario.maxTaxCredit) }}</span>
               </div>
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-chart-line"></i> Max Revenue Drop</span>
-                <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
+                <span class="metric-value">{{ $formatNumber(scenario.maxRevenueDrop) }}</span>
               </div>
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Tax Credit</span>
-                <span class="metric-value">{{ scenario.finalYearTaxCredit }}</span>
+                <span class="metric-value">{{ $formatNumber(scenario.finalYearTaxCredit) }}</span>
               </div>
             </div>
           </div>
@@ -174,17 +174,17 @@
         <div class="summary-metrics">
           <div class="metric-card">
             <h3><i class="fas fa-dollar-sign"></i> Peak Tax Credit</h3>
-            <p class="metric-value">${{ getMaxTaxCredit(selectedScenario) }}/gal</p>
+            <p class="metric-value">${{ $formatNumber(getMaxTaxCredit(selectedScenario)) }}/gal</p>
             <p class="metric-year">in {{ getTaxCreditPeakYear(selectedScenario) }}</p>
           </div>
           <div class="metric-card">
             <h3><i class="fas fa-chart-line"></i> Peak Revenue Impact</h3>
-            <p class="metric-value">{{ getMaxRevenueDrop(selectedScenario) }}%</p>
+            <p class="metric-value">{{ $formatNumber(getMaxRevenueDrop(selectedScenario)) }}%</p>
             <p class="metric-year">in {{ getRevenueDropPeakYear(selectedScenario) }}</p>
           </div>
           <div class="metric-card">
             <h3><i class="fas fa-coins"></i> Cumulative Cost</h3>
-            <p class="metric-value">${{ getCumulativeCost(selectedScenario) }}M</p>
+            <p class="metric-value">${{ $formatNumber(getCumulativeCost(selectedScenario)) }}M</p>
             <p class="metric-year">through {{ hydrogenStore.year }}</p>
           </div>
         </div>
@@ -219,12 +219,12 @@
 
           <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">{{ item.Growth_Factor.toFixed(3) }}</div>
-            <div class="row-cell">{{ item.Turn_Time_min }}</div>
-            <div class="row-cell">{{ (item.Fraction_Flights_H2 * 100).toFixed(1) }}%</div>
-            <div class="row-cell">${{ item.Baseline_Revenue_M.toFixed(2) }}M</div>
-            <div class="row-cell">${{ item.Hydrogen_Revenue_M.toFixed(2) }}M</div>
-            <div class="row-cell">{{ item.Pct_Drop.toFixed(2) }}%</div>
+            <div class="row-cell">{{ $formatNumber(item.Growth_Factor) }}</div>
+            <div class="row-cell">{{ $formatNumber(item.Turn_Time_min) }}</div>
+            <div class="row-cell">{{ $formatNumber(item.Fraction_Flights_H2 * 100) }}%</div>
+            <div class="row-cell">${{ $formatNumber(item.Baseline_Revenue_M) }}M</div>
+            <div class="row-cell">${{ $formatNumber(item.Hydrogen_Revenue_M) }}M</div>
+            <div class="row-cell">{{ $formatNumber(item.Pct_Drop) }}%</div>
           </div>
         </div>
       </section>
@@ -244,21 +244,20 @@
 
           <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">${{ item.Revenue_Drop_M ? item.Revenue_Drop_M.toFixed(2) : '0.00' }}M</div>
-            <div class="row-cell">{{ formatH2Volume(item.H2_Demand_annual_gal || 0) }}</div>
-            <div class="row-cell">${{ item.Req_Tax_Credit_per_gal ? item.Req_Tax_Credit_per_gal.toFixed(2) : '0.00' }}
-            </div>
-            <div class="row-cell">${{ calculateTotalSubsidy(item).toFixed(2) }}M</div>
-            <div class="row-cell">{{ calculateCostRecovery(item).toFixed(1) }}%</div>
+            <div class="row-cell">${{ $formatNumber(item.Revenue_Drop_M || 0) }}M</div>
+            <div class="row-cell">{{ formatH2Volume($formatNumber(item.H2_Demand_annual_gal) || 0) }}</div>
+            <div class="row-cell">${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0) }}</div>
+            <div class="row-cell">${{ $formatNumber(calculateTotalSubsidy(item)) }}M</div>
+            <div class="row-cell">{{ $formatNumber(calculateCostRecovery(item)) }}%</div>
           </div>
 
           <div class="table-row total">
             <div class="row-cell"><i class="fas fa-calculator"></i> Average</div>
-            <div class="row-cell">${{ calculateAverageRevenueLoss().toFixed(2) }}M</div>
-            <div class="row-cell">{{ formatH2Volume(calculateTotalH2Volume()) }}</div>
-            <div class="row-cell">${{ calculateAverageTaxCredit().toFixed(2) }}</div>
-            <div class="row-cell">${{ calculateTotalSubsidies().toFixed(2) }}M</div>
-            <div class="row-cell">{{ calculateAverageCostRecovery().toFixed(1) }}%</div>
+            <div class="row-cell">${{ $formatNumber(calculateAverageRevenueLoss()) }}M</div>
+            <div class="row-cell">{{ $formatNumber(formatH2Volume(calculateTotalH2Volume())) }}</div>
+            <div class="row-cell">${{ $formatNumber(calculateAverageTaxCredit()) }}</div>
+            <div class="row-cell">${{ $formatNumber(calculateTotalSubsidies()) }}M</div>
+            <div class="row-cell">{{ $formatNumber(calculateAverageCostRecovery()) }}%</div>
           </div>
         </div>
       </section>
@@ -380,7 +379,7 @@ export default {
       if (data.length === 0) return '0.00';
 
       const maxCredit = Math.max(...data.map(item => item.Req_Tax_Credit_per_gal || 0));
-      return maxCredit.toFixed(2);
+      return maxCredit;
     };
 
     const getTaxCreditPeakYear = (rate) => {
@@ -399,7 +398,7 @@ export default {
       if (data.length === 0) return '0.00';
 
       const maxDrop = Math.max(...data.map(item => item.Pct_Drop || 0));
-      return maxDrop.toFixed(2);
+      return maxDrop;
     };
 
     const getRevenueDropPeakYear = (rate) => {
@@ -421,7 +420,7 @@ export default {
         const revenueLoss = (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
         return sum + revenueLoss;
       }, 0);
-      return totalCost.toFixed(2);
+      return totalCost;
     };
 
     // Helper functions for tax credit summary calculations
@@ -465,11 +464,11 @@ export default {
     const formatH2Volume = (volume) => {
       if (!volume) return '0';
       if (volume >= 1000000) {
-        return `${(volume / 1000000).toFixed(2)}M gal`;
+        return `${volume / 1000000}M gal`;
       } else if (volume >= 1000) {
-        return `${(volume / 1000).toFixed(2)}K gal`;
+        return `${volume / 1000}K gal`;
       }
-      return `${volume.toFixed(2)} gal`;
+      return `${volume} gal`;
     };
 
     const calculateTotalSubsidy = (item) => {

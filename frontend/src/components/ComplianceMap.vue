@@ -8,23 +8,23 @@
     <div class="results-section">
       <div class="result-item">
         <i class="fas fa-gas-pump"></i>
-        <span>Total Hydrogen Demand:</span>
-        <strong>{{ storageStore.totalH2VolumeGallons.toFixed(2) }} gallons</strong>
+        <span>Total Hydrogen Demand: </span>
+        <strong>{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</strong>
       </div>
       <div class="result-item">
         <i class="fas fa-ruler-combined"></i>
-        <span>Total Footprint Storage:</span>
-        <strong>{{ storageStore.totalFootprint.toFixed(2) }} ft²</strong>
+        <span>Total Footprint Storage: </span>
+        <strong>{{ $formatNumber(storageStore.totalFootprint) }} ft²</strong>
       </div>
       <div class="result-item">
         <i class="fas fa-cube"></i>
-        <span>Tank Dimensions:</span>
-        <strong>{{ storageStore.tankDiameter.toFixed(2) }} ft (D) × {{ storageStore.tankLength.toFixed(2) }} ft
+        <span>Tank Dimensions: </span>
+        <strong>{{ $formatNumber(storageStore.tankDiameter) }} ft (D) × {{ storageStore.tankLength.toFixed(2) }} ft
           (L)</strong>
       </div>
       <div class="result-item">
         <i class="fas fa-boxes"></i>
-        <span>Number of Tanks:</span>
+        <span>Number of Tanks: </span>
         <strong>{{ storageStore.recommendedTankCount }}</strong>
       </div>
     </div>
@@ -32,11 +32,11 @@
     <!-- Free Space and Deicing Check -->
     <div class="space-check-section">
       <div class="space-check-item">
-        <span>Free Space:</span>
+        <span>Free Space: </span>
         <strong>{{ freeSpaceStatus }}</strong>
       </div>
       <div class="space-check-item">
-        <span>Deicing:</span>
+        <span>Deicing: </span>
         <strong>{{ deicingStatus }}</strong>
       </div>
     </div>
@@ -89,10 +89,10 @@
             'compliant': result.available_area_sqft >= storageStore.totalFootprint,
             'non-compliant': result.available_area_sqft < storageStore.totalFootprint
           }">
-            <td>{{ result.area_name }}</td>
-            <td>{{ result.original_area_sqft.toFixed(2) }}</td>
-            <td>{{ result.available_area_sqft.toFixed(2) }}</td>
-            <td>{{ result.area_reduction_percent.toFixed(1) }}%</td>
+            <td>{{ $formatNumber(result.area_name) }}</td>
+            <td>{{ $formatNumber(result.original_area_sqft) }}</td>
+            <td>{{ $formatNumber(result.available_area_sqft) }}</td>
+            <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
             <td>
               <span class="status-badge"
                 :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
@@ -119,13 +119,14 @@
             </div>
             <div class="buffer-item-details">
               <div class="buffer-stat">
-                <span class="label">Overlap Area:</span>
-                <span class="value">{{ buffer.overlap_area_sqft.toFixed(2) }} ft²</span>
+                <span class="label">Overlap Area: </span>
+                <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
               </div>
               <div class="buffer-stat">
-                <span class="label">Percentage of Total:</span>
+                <span class="label">Percentage of Total: </span>
                 <span class="value">
-                  {{ ((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100).toFixed(1) }}%
+                  {{ (($formatNumber(buffer.overlap_area_sqft) / $formatNumber(selectedArea.original_area_sqft)) * 100)
+                  }}%
                 </span>
               </div>
             </div>

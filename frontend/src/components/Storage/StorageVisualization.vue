@@ -11,7 +11,7 @@
         </div>
         <div class="stat-item" v-if="lastTankFill !== undefined">
           <span class="stat-label">Last Tank Fill:</span>
-          <span class="stat-value">{{ lastTankFill.toFixed(2) }}%</span>
+          <span class="stat-value">{{ $formatNumber(lastTankFill) }}%</span>
         </div>
       </div>
     </div>

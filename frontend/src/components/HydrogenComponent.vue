@@ -2,47 +2,89 @@
 
 <template>
   <div>
-    <h2>Hydrogen Demand Estimation</h2>
-    <!-- Fleet Percentage Input -->
-    <div class="input-section">
-      <Slider label="Fleet Percentage:" id="fleet-percentage" :min="0" :max="100" :step="1" v-model="fleetPercentage" />
+    <h2><i class="fas fa-atom"></i> Hydrogen Demand Estimation</h2>
+
+    <!-- Input Parameters Section -->
+    <div class="parameters-section">
+      <h3><i class="fas fa-sliders-h"></i> Input Parameters</h3>
+
+      <!-- Fleet Percentage Input -->
+      <div class="form-group">
+        <Slider label="Fleet Percentage:" id="fleet-percentage" :min="0" :max="100" :step="1"
+          v-model="fleetPercentage" />
+      </div>
+
+      <!-- Year Selection -->
+      <div class="form-group">
+        <Dropdown label="Select Year:" id="year-selection" :options="yearOptions" v-model="year" />
+      </div>
+
+      <!-- GSE Selection -->
+      <div class="form-group">
+        <CheckboxGroup label="GSE to Transition:" :options="gseOptionsFormatted" v-model="gseList" />
+      </div>
     </div>
 
-    <!-- Year Selection -->
-    <div class="input-section">
-      <Dropdown label="Select Year:" id="year-selection" :options="yearOptions" v-model="year" />
-    </div>
+    <!-- Results Section -->
+    <div class="results-container">
+      <!-- Aircraft Hydrogen Demand -->
+      <div v-if="aircraftH2Demand" class="demand-section">
+        <h3><i class="fas fa-plane"></i> Aircraft Hydrogen Demand</h3>
+        <div class="metric-card">
+          <div class="metric">
+            <span class="metric-label">Daily Demand:</span>
+            <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft³</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Projected Fuel Weight:</span>
+            <span class="metric-value">{{ $formatNumber(aircraftH2Demand.projected_fuel_weight_lb) }} lb</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- GSE Selection -->
-    <div class="input-section">
-      <CheckboxGroup label="GSE to Transition:" :options="gseOptionsFormatted" v-model="gseList" />
-    </div>
+      <!-- GSE Hydrogen Demand -->
+      <div v-if="gseH2Demand" class="demand-section">
+        <h3><i class="fas fa-truck"></i> GSE Hydrogen Demand</h3>
+        <div class="metric-card">
+          <div class="metric">
+            <span class="metric-label">Daily Demand:</span>
+            <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft³</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Total Diesel Used:</span>
+            <span class="metric-value">{{ $formatNumber(gseH2Demand.total_diesel_used_lb) }} lb</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Total Gasoline Used:</span>
+            <span class="metric-value">{{ $formatNumber(gseH2Demand.total_gasoline_used_lb) }} lb</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- Aircraft Hydrogen Demand -->
-    <div v-if="aircraftH2Demand" class="demand-section">
-      <h3>Aircraft Hydrogen Demand</h3>
-      <p>Daily Demand (ft³): {{ aircraftH2Demand.daily_h2_demand_ft3?.toFixed(2) ?? 'N/A' }}</p>
-      <p>Projected Fuel Weight (lb): {{ aircraftH2Demand.projected_fuel_weight_lb?.toFixed(2) ?? 'N/A' }}</p>
-    </div>
+      <!-- Chart Section -->
+      <div class="chart-wrapper">
+        <h3><i class="fas fa-chart-bar"></i> Hydrogen Demand Distribution</h3>
+        <ChartComponent chart-id="hydrogen-demand-chart" chart-type="bar" :chart-data="hydrogenDemandData"
+          :chart-options="hydrogenDemandOptions" />
+      </div>
 
-    <!-- GSE Hydrogen Demand -->
-    <div v-if="gseH2Demand" class="demand-section">
-      <h3>GSE Hydrogen Demand</h3>
-      <p>Daily Demand (ft³): {{ gseH2Demand.daily_h2_demand_ft3?.toFixed(2) ?? 'N/A' }}</p>
-      <p>Total Diesel Used (lb): {{ gseH2Demand.total_diesel_used_lb?.toFixed(2) ?? 'N/A' }}</p>
-      <p>Total Gasoline Used (lb): {{ gseH2Demand.total_gasoline_used_lb?.toFixed(2) ?? 'N/A' }}</p>
-    </div>
-    <ChartComponent chart-id="hydrogen-demand-chart" chart-type="bar" :chart-data="hydrogenDemandData"
-      :chart-options="hydrogenDemandOptions" />
-
-    <!-- Total Hydrogen Demand -->
-    <div class="demand-section">
-      <h3>Total Hydrogen Demand</h3>
-      <p>Daily Demand (ft³): {{ store.totalH2Demand }}</p>
+      <!-- Total Hydrogen Demand -->
+      <div class="demand-section total-demand">
+        <h3><i class="fas fa-tachometer-alt"></i> Total Hydrogen Demand</h3>
+        <div class="metric-card highlight">
+          <div class="metric">
+            <span class="metric-label">Daily Demand:</span>
+            <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft³</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Error Message -->
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <div v-if="errorMessage" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ errorMessage }}</p>
+    </div>
   </div>
 </template>
 
@@ -153,33 +195,120 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.input-section {
+/* Global & Utility Styles */
+h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #64ffda;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ddd;
+  font-size: 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+/* Form Elements */
+.parameters-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.form-group {
   margin-bottom: 20px;
 }
 
+/* Results Container */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Demand Sections */
 .demand-section {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 20px;
-  color: #ddd;
 }
 
-.demand-section p {
-  margin: 5px 0;
+.metric-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.metric:last-child {
+  margin-bottom: 0;
+}
+
+.metric-label {
   color: #aaa;
+  font-size: 0.9rem;
 }
 
-.error {
-  color: #ff6384;
+.metric-value {
+  color: #64ffda;
   font-weight: 600;
-  margin-top: 10px;
 }
 
-.chart-container {
-  margin-top: 20px;
+/* Total Demand Highlight */
+.total-demand .metric-card.highlight {
+  background-color: rgba(100, 255, 218, 0.1);
+  border-left: 4px solid #64ffda;
+}
+
+/* Chart Styles */
+.chart-wrapper {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 20px;
+  height: 400px;
+}
+
+/* Error Container */
+.error-container {
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
+  background-color: rgba(255, 99, 132, 0.1);
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Icon Styling */
+h2 i,
+h3 i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .metric {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .metric-value {
+    text-align: right;
+  }
 }
 </style>

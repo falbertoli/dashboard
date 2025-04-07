@@ -15,11 +15,11 @@
         <div class="summary-grid">
           <div class="summary-item">
             <div class="summary-label">Total Storage Area</div>
-            <div class="summary-value">{{ formatArea(results.footprint_total) }}</div>
+            <div class="summary-value">{{ $formatNumber(results.footprint_total) }}</div>
           </div>
           <div class="summary-item">
             <div class="summary-label">Total Infrastructure Cost</div>
-            <div class="summary-value">{{ formatCurrency(results.total_infrastructure_cost) }}</div>
+            <div class="summary-value">{{ $formatNumber(results.total_infrastructure_cost) }}</div>
           </div>
           <div class="summary-item">
             <div class="summary-label">Number of Tanks</div>
@@ -73,20 +73,20 @@
         <div class="cost-grid">
           <div class="cost-item">
             <div class="cost-label">Construction Cost</div>
-            <div class="cost-value">{{ formatCurrency(results.construction_cost) }}</div>
+            <div class="cost-value">{{ $formatNumber(results.construction_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.construction_cost /
               results.total_infrastructure_cost * 100) }}</div>
           </div>
           <div class="cost-item">
             <div class="cost-label">Insulation Cost</div>
-            <div class="cost-value">{{ formatCurrency(results.insulation_cost) }}</div>
+            <div class="cost-value">{{ $formatNumber(results.insulation_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.insulation_cost / results.total_infrastructure_cost
               * 100) }}</div>
           </div>
         </div>
         <div class="cost-total">
           <div class="cost-label">Total Cost</div>
-          <div class="cost-value">{{ formatCurrency(results.total_infrastructure_cost) }}</div>
+          <div class="cost-value">{{ $formatNumber(results.total_infrastructure_cost) }}</div>
         </div>
       </div>
 
@@ -120,7 +120,6 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStorageStore } from '@/store/storageStore'
-import { formatCurrency, formatArea } from '@/utils/formatters'
 
 const store = useStorageStore()
 const {

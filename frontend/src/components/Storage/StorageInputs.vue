@@ -7,7 +7,7 @@
       <h3>Hydrogen Demand</h3>
       <div class="info-row" v-if="totalH2Volume > 0">
         <span>Total Daily Hydrogen Demand:</span>
-        <strong>{{ totalH2Volume.toFixed(2) }} ft³</strong>
+        <strong>{{ $formatNumber(totalH2Volume) }} ft³</strong>
       </div>
       <div class="info-alert" v-else>
         <i class="fas fa-exclamation-triangle"></i>
@@ -26,7 +26,7 @@
         </div>
         <div class="field-value">{{ recommendedTankCount }}</div>
         <div class="field-detail" v-if="rawTankCount > 0">
-          <span>Raw calculation: {{ rawTankCount.toFixed(2) }} tanks</span>
+          <span>Raw calculation: {{ $formatNumber(rawTankCount) }} tanks</span>
         </div>
       </div>
 
@@ -36,17 +36,17 @@
         <div class="fill-bar">
           <div class="fill-progress" :style="{ width: `${Math.min(lastTankFillPercentage, 100)}%` }"></div>
         </div>
-        <div class="fill-percentage">{{ lastTankFillPercentage.toFixed(2) }}%</div>
+        <div class="fill-percentage">{{ $formatNumber(lastTankFillPercentage) }}%</div>
       </div>
 
       <div class="calculated-value">
         <span>Usable Volume per Tank:</span>
-        <strong>{{ usableVolumePerTank.toFixed(2) }} ft³</strong>
+        <strong>{{ $formatNumber(usableVolumePerTank) }} ft³</strong>
       </div>
 
       <div class="calculated-value">
         <span>Total Storage Capacity:</span>
-        <strong>{{ (usableVolumePerTank * recommendedTankCount).toFixed(2) }} ft³</strong>
+        <strong>{{ $formatNumber(usableVolumePerTank * recommendedTankCount) }} ft³</strong>
       </div>
     </div>
   </div>
