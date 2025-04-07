@@ -27,54 +27,84 @@
 
     <!-- Results Section -->
     <div class="results-container">
-      <!-- Aircraft Hydrogen Demand -->
-      <div v-if="aircraftH2Demand" class="demand-section">
-        <h3><i class="fas fa-plane"></i> Aircraft Hydrogen Demand</h3>
-        <div class="metric-card">
-          <div class="metric">
-            <span class="metric-label">Daily Demand:</span>
-            <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft³</span>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button :class="['tab-button', { active: activeTab === 'demand' }]" @click="activeTab = 'demand'">
+          <i class="fas fa-chart-line"></i> Demand Details
+        </button>
+        <button :class="['tab-button', { active: activeTab === 'chart' }]" @click="activeTab = 'chart'">
+          <i class="fas fa-chart-bar"></i> Charts
+        </button>
+      </div>
+
+      <!-- Demand Details Tab -->
+      <div v-show="activeTab === 'demand'" class="demand-grid">
+        <!-- Aircraft Hydrogen Demand -->
+        <div v-if="aircraftH2Demand" class="demand-section">
+          <h3><i class="fas fa-plane"></i> Aircraft Hydrogen Demand</h3>
+          <div class="metric-card">
+            <div class="metric">
+              <span class="metric-label">Daily Demand:</span>
+              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft³</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Projected Fuel Weight:</span>
+              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.projected_fuel_weight_lb) }} lb</span>
+            </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">Projected Fuel Weight:</span>
-            <span class="metric-value">{{ $formatNumber(aircraftH2Demand.projected_fuel_weight_lb) }} lb</span>
+        </div>
+
+        <!-- GSE Hydrogen Demand -->
+        <div v-if="gseH2Demand" class="demand-section">
+          <h3><i class="fas fa-truck"></i> GSE Hydrogen Demand</h3>
+          <div class="metric-card">
+            <div class="metric">
+              <span class="metric-label">Daily Demand:</span>
+              <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft³</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Diesel Used:</span>
+              <span class="metric-value">{{ $formatNumber(gseH2Demand.total_diesel_used_lb) }} lb</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Gasoline Used:</span>
+              <span class="metric-value">{{ $formatNumber(gseH2Demand.total_gasoline_used_lb) }} lb</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Hydrogen Demand -->
+        <div class="demand-section total-demand span-full">
+          <h3><i class="fas fa-tachometer-alt"></i> Total Hydrogen Demand</h3>
+          <div class="metric-card highlight">
+            <div class="metric">
+              <span class="metric-label">Daily Demand:</span>
+              <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft³</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- GSE Hydrogen Demand -->
-      <div v-if="gseH2Demand" class="demand-section">
-        <h3><i class="fas fa-truck"></i> GSE Hydrogen Demand</h3>
-        <div class="metric-card">
-          <div class="metric">
-            <span class="metric-label">Daily Demand:</span>
-            <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft³</span>
+      <!-- Charts Tab -->
+      <div v-show="activeTab === 'chart'" class="chart-tab">
+        <div class="charts-container">
+          <div class="chart-wrapper">
+            <h3><i class="fas fa-chart-bar"></i> Hydrogen Demand (Log Scale)</h3>
+            <p class="chart-explanation">Logarithmic scale comparison showing the vast difference between aircraft and
+              GSE hydrogen demands</p>
+            <div class="chart-container">
+              <ChartComponent chart-id="hydrogen-demand-log" chart-type="bar" :chart-data="hydrogenDemandData"
+                :chart-options="hydrogenDemandLogOptions" />
+            </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">Total Diesel Used:</span>
-            <span class="metric-value">{{ $formatNumber(gseH2Demand.total_diesel_used_lb) }} lb</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Total Gasoline Used:</span>
-            <span class="metric-value">{{ $formatNumber(gseH2Demand.total_gasoline_used_lb) }} lb</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart Section -->
-      <div class="chart-wrapper">
-        <h3><i class="fas fa-chart-bar"></i> Hydrogen Demand Distribution</h3>
-        <ChartComponent chart-id="hydrogen-demand-chart" chart-type="bar" :chart-data="hydrogenDemandData"
-          :chart-options="hydrogenDemandOptions" />
-      </div>
-
-      <!-- Total Hydrogen Demand -->
-      <div class="demand-section total-demand">
-        <h3><i class="fas fa-tachometer-alt"></i> Total Hydrogen Demand</h3>
-        <div class="metric-card highlight">
-          <div class="metric">
-            <span class="metric-label">Daily Demand:</span>
-            <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft³</span>
+          <div class="chart-wrapper">
+            <h3><i class="fas fa-chart-pie"></i> Demand Distribution (%)</h3>
+            <p class="chart-explanation">Proportional distribution of hydrogen demand between aircraft and ground
+              support equipment</p>
+            <div class="chart-container">
+              <ChartComponent chart-id="hydrogen-demand-pie" chart-type="doughnut" :chart-data="hydrogenDemandPieData"
+                :chart-options="hydrogenDemandPieOptions" />
+            </div>
           </div>
         </div>
       </div>
@@ -137,7 +167,7 @@ const gseOptionsFormatted = computed(() => {
   return gseOptions.value.map(gse => ({ value: gse, text: gse }));
 });
 
-//Chart Data
+// Chart Data
 const hydrogenDemandData = computed(() => {
   return {
     labels: ['Aircraft', 'GSE'],
@@ -148,26 +178,184 @@ const hydrogenDemandData = computed(() => {
         store.gseH2Demand?.daily_h2_demand_ft3 || 0
       ],
       backgroundColor: [
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 99, 132, 0.8)'
+        'rgba(100, 255, 218, 0.7)',
+        'rgba(255, 99, 132, 0.7)'
       ],
       borderColor: [
-        'rgba(54, 162, 235, 1)',
+        'rgba(100, 255, 218, 1)',
         'rgba(255, 99, 132, 1)'
       ],
-      borderWidth: 1
+      borderWidth: 2,
+      borderRadius: 5,
     }]
   };
 });
 
-//Chart Options
+const hydrogenDemandPieData = computed(() => {
+  const aircraftDemand = store.aircraftH2Demand?.daily_h2_demand_ft3 || 0;
+  const gseDemand = store.gseH2Demand?.daily_h2_demand_ft3 || 0;
+  const total = aircraftDemand + gseDemand;
+
+  return {
+    labels: ['Aircraft', 'GSE'],
+    datasets: [{
+      data: [aircraftDemand, gseDemand],
+      backgroundColor: [
+        'rgba(100, 255, 218, 0.7)',
+        'rgba(255, 99, 132, 0.7)'
+      ],
+      borderColor: [
+        'rgba(100, 255, 218, 1)',
+        'rgba(255, 99, 132, 1)'
+      ],
+      borderWidth: 2,
+    }]
+  };
+});
+
+const formatLargeNumber = (num) => {
+  if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+  if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+  return num.toFixed(2);
+};
+
+// Chart Options
 const hydrogenDemandOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+      labels: {
+        color: '#ddd',
+        font: {
+          size: 12
+        },
+        padding: 20
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#64ffda',
+      bodyColor: '#fff',
+      padding: 12,
+      cornerRadius: 6,
+      displayColors: true,
+      callbacks: {
+        label: function (context) {
+          const value = context.raw;
+          return `${value.toLocaleString()} ft³`;
+        }
+      }
+    }
+  },
   scales: {
     y: {
-      beginAtZero: true
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(255, 255, 255, 0.1)',
+        drawBorder: false
+      },
+      ticks: {
+        color: '#aaa',
+        callback: function (value) {
+          return value.toLocaleString() + ' ft³';
+        }
+      }
+    },
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        color: '#aaa'
+      }
     }
   }
-}))
+}));
+
+const hydrogenDemandLogOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#64ffda',
+      bodyColor: '#fff',
+      callbacks: {
+        label: (context) => `${context.raw.toLocaleString()} ft³`
+      }
+    }
+  },
+  scales: {
+    y: {
+      type: 'logarithmic',
+      grid: {
+        color: 'rgba(255, 255, 255, 0.1)'
+      },
+      ticks: {
+        color: '#aaa',
+        callback: (value) => value.toLocaleString() + ' ft³'
+      }
+    },
+    x: {
+      grid: { display: false },
+      ticks: { color: '#aaa' }
+    }
+  }
+}));
+
+const hydrogenDemandPieOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        color: '#aaa', // Changed to match the log chart color
+        font: {
+          size: 12,
+          color: '#64ffda'
+        },
+        padding: 20,
+        generateLabels: (chart) => {
+          const data = chart.data;
+          const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+          return data.labels.map((label, i) => ({
+            text: `${label} (${((data.datasets[0].data[i] / total) * 100).toFixed(2)}%)`,
+            fillStyle: data.datasets[0].backgroundColor[i],
+            strokeStyle: data.datasets[0].borderColor[i],
+            fontColor: '#aaa', // Add this line to color the text
+            lineWidth: 1,
+            hidden: false,
+          }));
+        }
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#64ffda',
+      bodyColor: '#fff',
+      callbacks: {
+        label: (context) => {
+          const value = context.raw;
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = ((value / total) * 100).toFixed(2);
+          return [
+            `Demand: ${formatLargeNumber(value)} ft³`,
+            `Percentage: ${percentage}%`
+          ];
+        }
+      }
+    }
+  }
+}));
+
+const activeTab = ref('demand');
 
 watch(fleetPercentage, (newFleetPercentage) => {
   console.log('Setting fleetPercentage in store:', newFleetPercentage);
@@ -232,6 +420,82 @@ h3 {
   gap: 25px;
 }
 
+/* Tabs Styling */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+}
+
+.tab-button i {
+  margin-right: 8px;
+}
+
+/* Demand Grid Layout */
+.demand-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.span-full {
+  grid-column: 1 / -1;
+}
+
+/* Chart Tab */
+.chart-tab {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.chart-wrapper {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+.chart-wrapper:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.chart-explanation {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin: 0 0 15px 0;
+  font-style: italic;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 350px;
+}
+
 /* Demand Sections */
 .demand-section {
   background-color: rgba(255, 255, 255, 0.05);
@@ -276,7 +540,26 @@ h3 {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 20px;
-  height: 400px;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+.chart-wrapper:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.chart-explanation {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin: 0 0 15px 0;
+  font-style: italic;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 350px;
 }
 
 /* Error Container */
@@ -309,6 +592,14 @@ h3 i {
 
   .metric-value {
     text-align: right;
+  }
+
+  .demand-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-container {
+    grid-template-columns: 1fr;
   }
 }
 </style>
