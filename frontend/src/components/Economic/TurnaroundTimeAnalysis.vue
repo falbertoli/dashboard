@@ -29,6 +29,41 @@
   </div>
 
   <div v-else>
+    <!-- Add auto-recalculate option here -->
+    <div class="auto-recalculate-option">
+      <label class="toggle-switch">
+        <input type="checkbox" v-model="economicsStore.autoRecalculate" @change="handleAutoRecalculateChange">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Auto-recalculate when hydrogen data changes</span>
+    </div>
+
+    <!-- Always show calculation parameters -->
+    <div class="calculation-params">
+      <h3><i class="fas fa-cog"></i> Calculation Parameters</h3>
+      <div class="params-grid">
+        <div class="param-item">
+          <span class="param-label">Fleet Percentage:</span>
+          <span class="param-value">{{ hydrogenStore.fleetPercentage }}%</span>
+          <span class="param-note">(from Hydrogen Demand)</span>
+        </div>
+        <div class="param-item">
+          <span class="param-label">Growth Rate:</span>
+          <span class="param-value">2.0%</span>
+          <span class="param-note">(fixed)</span>
+        </div>
+        <div class="param-item">
+          <span class="param-label">Initial Turn Time:</span>
+          <span class="param-value">{{ extraTurnTime }} minutes</span>
+          <span class="param-note">(user input)</span>
+        </div>
+        <div class="param-item">
+          <span class="param-label">Years:</span>
+          <span class="param-value">{{ economicsStore.startYear }} - {{ hydrogenStore.year }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="data-consistency-indicator" v-if="economicsStore.results">
       <div class="calculation-timestamp" v-if="economicsStore.results && economicsStore.lastCalculationTime">
         <i class="fas fa-clock"></i>
@@ -41,15 +76,6 @@
       <button v-if="!isDataConsistent" @click="calculateEconomicImpact" class="btn warning">
         <i class="fas fa-sync"></i> Recalculate
       </button>
-    </div>
-
-    <!-- Add auto-recalculate option here -->
-    <div class="auto-recalculate-option">
-      <label class="toggle-switch">
-        <input type="checkbox" v-model="economicsStore.autoRecalculate" @change="handleAutoRecalculateChange">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label">Auto-recalculate when hydrogen data changes</span>
     </div>
 
     <div class="parameters-description" v-if="!economicsStore.results">
@@ -141,17 +167,6 @@
           </div>
         </div>
       </section>
-
-      <!-- Calculation Parameters Section -->
-      <div class="calculation-params">
-        <p>
-          <i class="fas fa-cog"></i> <strong>Calculation Parameters:</strong>
-          Fleet Percentage: {{ hydrogenStore.fleetPercentage }}% (from Hydrogen Demand),
-          Growth Rate: 2.0% per year (fixed),
-          Initial Turn Time: {{ extraTurnTime }} minutes (user input),
-          Years: {{ economicsStore.startYear }} - {{ hydrogenStore.year }}
-        </p>
-      </div>
 
       <!-- Selected Scenario Summary -->
       <section class="scenario-summary">
@@ -937,9 +952,18 @@ h3 {
 }
 
 .btn.remove {
-  background-color: transparent;
+  padding: 6px;
+  margin-left: auto;
+  background-color: rgba(255, 99, 132, 0.1);
+  border: 1px solid rgba(255, 99, 132, 0.3);
   color: #ff6384;
-  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn.remove:hover {
+  background-color: rgba(255, 99, 132, 0.2);
+  border-color: #ff6384;
 }
 
 .btn:disabled {
@@ -1008,7 +1032,7 @@ h3 {
 
 .scenarios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 15px;
   margin-bottom: 20px;
 }
@@ -1016,24 +1040,66 @@ h3 {
 .scenario-input {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background-color: rgba(255, 255, 255, 0.03);
-  padding: 12px;
-  border-radius: 6px;
+  gap: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.scenario-input:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(100, 255, 218, 0.3);
+}
+
+.scenario-input label {
+  color: #aaa;
+  font-size: 0.9rem;
+  min-width: 90px;
 }
 
 .scenario-input input {
-  width: 60px;
-  padding: 6px;
+  width: 70px;
+  padding: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
-  color: #fff;
+  color: #64ffda;
+  font-size: 1rem;
   text-align: center;
+  transition: all 0.2s ease;
+}
+
+.scenario-input input:focus {
+  outline: none;
+  border-color: #64ffda;
+  background-color: rgba(100, 255, 218, 0.1);
+}
+
+.scenario-input span {
+  color: #aaa;
+  font-size: 0.9rem;
 }
 
 .scenario-actions {
-  margin-top: 15px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.scenario-config h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64ffda;
+  margin-bottom: 15px;
+}
+
+.scenario-config p {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
 }
 
 /* =========================
@@ -1049,15 +1115,6 @@ h3 {
   display: flex;
   gap: 15px;
   margin-bottom: 20px;
-}
-
-.calculation-params {
-  background-color: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  padding: 15px;
-  margin-bottom: 20px;
-  color: #aaa;
-  font-size: 0.9rem;
 }
 
 /* =========================
@@ -1471,5 +1528,54 @@ input:checked+.toggle-slider:before {
 .toggle-label {
   font-size: 0.9rem;
   color: #aaa;
+}
+
+/* =========================
+   Calculation Parameters
+   ========================= */
+.calculation-params {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #ddd;
+}
+
+.calculation-params h3 {
+  margin: 0 0 15px 0;
+  color: #64ffda;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.params-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.param-label {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.param-value {
+  color: #64ffda;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.param-note {
+  color: #aaa;
+  font-size: 0.8rem;
+  font-style: italic;
 }
 </style>

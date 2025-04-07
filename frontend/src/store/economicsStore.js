@@ -13,6 +13,7 @@ export const useEconomicsStore = defineStore("economics", {
     lastParams: null,
     lastCalculationTime: null,
     autoRecalculate: false,
+    startYear: 2023, // Add base year as 2024
   }),
 
   getters: {
