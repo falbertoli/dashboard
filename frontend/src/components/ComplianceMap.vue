@@ -465,13 +465,16 @@ const computeFeatureArea = (feature) => {
       return 0;
     }
     const coordinates = feature.geometry.coordinates[0];
-    if (coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
-      coordinates[0][1] !== coordinates[coordinates.length - 1][1]) {
-      coordinates.push(coordinates[0]);
+    // Ensure coordinates are in the correct format [longitude, latitude]
+    const latLngCoords = coordinates.map(coord => [coord[1], coord[0]]);
+    // Close the polygon if not already closed
+    if (JSON.stringify(latLngCoords[0]) !== JSON.stringify(latLngCoords[latLngCoords.length - 1])) {
+      latLngCoords.push(latLngCoords[0]);
     }
     const poly = turfPolygon([coordinates]);
     const areaInSquareMeters = turfArea(poly);
-    return areaInSquareMeters * 10.764;
+    const areaInSquareFeet = areaInSquareMeters * 10.764; // Convert to square feet
+    return Math.round(areaInSquareFeet);
   } catch (err) {
     console.error('Error computing area:', err);
     return 0;
@@ -739,19 +742,20 @@ const defaultResult = () => ({
 });
 
 const renderFacilitiesGeoJSONLayer = () => {
-  console.log("Rendering facilities with filter:", selectedFunction.value);
-  console.log("Available filter options:", filteredDropdownOptions.value);
-  if (!map.value || !facilitiesGeoJsonData.value) {
-    console.error("❌ Map or facilities data is not available.");
+  if (!map.value || !map.value._loaded || !facilitiesGeoJsonData.value) {
+    console.error("❌ Map not fully initialized or facilities data not available.");
     return;
   }
 
+  // Remove existing layers first
   if (facilitiesGeoJsonLayer.value) {
-    facilitiesGeoJsonLayer.value.remove();
+    map.value.removeLayer(facilitiesGeoJsonLayer.value);
   }
 
   availableLayers.value.forEach(layer => {
-    if (map.value) map.value.removeLayer(layer);
+    if (map.value && layer) {
+      map.value.removeLayer(layer);
+    }
   });
   availableLayers.value = [];
 
@@ -773,9 +777,10 @@ const renderFacilitiesGeoJSONLayer = () => {
   };
 
   filteredFeatures.features.forEach(feature => {
-    if (feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing") {
-      feature.properties.computed_area = computeFeatureArea(feature);
+    // Calculate area for all features, not just storage areas
+    feature.properties.computed_area = computeFeatureArea(feature);
 
+    if (feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing") {
       if (bufferZonesGeoJsonData.value) {
         const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
 
@@ -906,8 +911,8 @@ const renderFacilitiesGeoJSONLayer = () => {
 };
 
 const renderBufferZonesGeoJSONLayer = () => {
-  if (!map.value || !bufferZonesGeoJsonData.value) {
-    console.error("❌ Map or buffer zones data is not available.");
+  if (!map.value || !map.value._loaded || !bufferZonesGeoJsonData.value) {
+    console.error("❌ Map not fully initialized or buffer zones data not available.");
     return;
   }
 
@@ -1035,6 +1040,13 @@ const handleMapClick = async (event) => {
       const boundaries = building.geometry.map((point) => [point.lat, point.lon]);
       console.log("Building boundaries:", boundaries);
 
+      // Calculate area using turf.js
+      const coordinates = boundaries.map(point => [point[1], point[0]]);
+      coordinates.push(coordinates[0]); // Close the polygon
+      const poly = turfPolygon([coordinates]);
+      const areaInSquareMeters = turfArea(poly);
+      const areaInSquareFeet = areaInSquareMeters * 10.764; // Convert to square feet
+
       const buildingInfo = {
         name: building.tags?.name || "Unknown",
         address: building.tags?.addr_full || null,
@@ -1042,6 +1054,7 @@ const handleMapClick = async (event) => {
         safetyInfo: building.tags?.["fire_hydrant:position"]
           ? "Fire hydrant nearby"
           : "No specific safety information available",
+        area: areaInSquareFeet
       };
 
       if (!buildingInfo.address) {
@@ -1062,6 +1075,7 @@ const handleMapClick = async (event) => {
         <b>Building Name:</b> ${buildingInfo.name}<br>
         <b>Address:</b> ${buildingInfo.address}<br>
         <b>Amenity:</b> ${buildingInfo.amenity}<br>
+        <b>Area:</b> ${Math.round(buildingInfo.area).toLocaleString()} ft²<br>
         <b>Safety Info:</b> ${buildingInfo.safetyInfo}
       `).openPopup();
 
@@ -1079,43 +1093,51 @@ const handleMapClick = async (event) => {
 
 onMounted(async () => {
   const mapContainer = document.getElementById('map');
-  console.log("Map container:", mapContainer);
   if (!mapContainer) {
     console.error("Map container not found!");
     return;
   }
-  console.log("🚀 Initializing map...");
-  if (!map.value) {
-    map.value = L.map('map').setView([33.6407, -84.4277], 13);
+
+  try {
+    console.log("🚀 Initializing map...");
+    map.value = L.map('map', {
+      center: [33.6407, -84.4277],
+      zoom: 13,
+      zoomAnimation: true,
+      fadeAnimation: true
+    });
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map.value);
-    console.log("✅ Map initialized successfully.");
-  } else {
-    console.warn("⚠️ Map is already initialized.");
+
+    // Wait for map to be ready
+    map.value.whenReady(async () => {
+      console.log("✅ Map initialized successfully.");
+
+      if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
+
+      await loadFacilitiesGeoJSON();
+      await loadBufferZones();
+
+      map.value.on("click", handleMapClick);
+
+      nextTick(() => {
+        map.value.invalidateSize();
+      });
+    });
+
+  } catch (error) {
+    console.error("Error initializing map:", error);
+    error.value = "Failed to initialize map";
   }
-
-  if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
-
-  await loadFacilitiesGeoJSON();
-  renderFacilitiesGeoJSONLayer();
-
-  await loadBufferZones();
-  renderBufferZonesGeoJSONLayer();
-
-  map.value.on("click", handleMapClick);
-
-  nextTick(() => {
-    setTimeout(() => {
-      map.value.invalidateSize();
-    }, 300);
-  });
 });
 
+// Update the watch handler to check for map initialization
 watch(selectedFunction, () => {
-  console.log("Filter changed to:", selectedFunction.value);
-  if (map.value && facilitiesGeoJsonData.value) {
+  if (map.value && map.value._loaded && facilitiesGeoJsonData.value) {
+    console.log("Filter changed to:", selectedFunction.value);
     renderFacilitiesGeoJSONLayer();
   }
 });
@@ -1794,15 +1816,6 @@ input:checked+.toggle-slider:before {
   justify-content: space-between;
   margin-bottom: 8px;
   font-size: 0.85rem;
-}
-
-.buffer-stat .label {
-  color: #a0aec0;
-}
-
-.buffer-stat .value {
-  font-weight: 600;
-  color: #e4e4e4;
 }
 
 .impact-bar {
