@@ -26,19 +26,29 @@
     <div v-else-if="!emissionsResults" class="no-results">
       <!-- Hydrogen Demand Information -->
       <div class="hydrogen-demand-info">
-        <h3>Hydrogen Demand</h3>
-        <div class="info-row">
+        <h3><i class="fas fa-atom"></i> Hydrogen Demand</h3>
+        <div class="info-row total-demand">
           <span>Total Daily Hydrogen Demand:</span>
           <strong>{{ formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }} ft³</strong>
         </div>
-        <div class="breakdown-row">
+        <div class="breakdown-container">
           <div class="breakdown-item">
-            <span>Aircraft:</span>
-            <strong>{{ formatNumber(hydrogenStore.aircraftH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+            <div class="icon-wrapper">
+              <i class="fas fa-plane"></i>
+            </div>
+            <div class="content">
+              <span>Aircraft</span>
+              <strong>{{ formatNumber(hydrogenStore.aircraftH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+            </div>
           </div>
           <div class="breakdown-item">
-            <span>GSE:</span>
-            <strong>{{ formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+            <div class="icon-wrapper">
+              <i class="fas fa-truck"></i>
+            </div>
+            <div class="content">
+              <span>GSE</span>
+              <strong>{{ formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -471,6 +481,103 @@ h3 {
 
 .calculate-btn i {
   font-size: 1rem;
+}
+
+/* =========================
+   Hydrogen Demand Info
+   ========================= */
+.hydrogen-demand-info {
+  background: linear-gradient(145deg, rgba(54, 162, 235, 0.1), rgba(100, 255, 218, 0.1));
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hydrogen-demand-info h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #64ffda;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.hydrogen-demand-info h3 i {
+  font-size: 1.1rem;
+}
+
+.info-row.total-demand {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.info-row.total-demand strong {
+  color: #64ffda;
+  font-size: 1.2rem;
+}
+
+.breakdown-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.breakdown-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.breakdown-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.icon-wrapper {
+  background: rgba(100, 255, 218, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrapper i {
+  color: #64ffda;
+  font-size: 1.1rem;
+}
+
+.breakdown-item .content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.breakdown-item span {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.breakdown-item strong {
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 600px) {
+  .breakdown-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================

@@ -10,8 +10,8 @@
 
       <!-- Fleet Percentage Input -->
       <div class="form-group">
-        <Slider label="Fleet Percentage:" id="fleet-percentage" :min="0" :max="100" :step="1"
-          v-model="fleetPercentage" />
+        <Slider label="Fleet Percentage:" id="fleet-percentage" :min="0" :max="100" :step="1" v-model="fleetPercentage"
+          unit="%" />
       </div>
 
       <!-- Year Selection -->

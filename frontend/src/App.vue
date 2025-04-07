@@ -1,43 +1,72 @@
 <template>
   <div id="app">
-    <Header />
+    <Header @toggle-sidebar="toggleSidebar" />
     <NotificationToast />
     <div class="main-container">
-      <Sidebar />
-      <main>
-        <router-view /> <!-- Loads the selected page here -->
+      <Sidebar :is-collapsed="isSidebarCollapsed" />
+      <main :class="{ 'sidebar-expanded': !isSidebarCollapsed }">
+        <router-view />
       </main>
     </div>
   </div>
 </template>
 
-<script setup>
+<script>
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import NotificationToast from '@/components/Common/NotificationToast.vue';
+
+export default {
+  components: {
+    Header,
+    Sidebar,
+    NotificationToast
+  },
+  data() {
+    return {
+      isSidebarCollapsed: false
+    }
+  },
+  methods: {
+    toggleSidebar() {
+      this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    }
+  }
+}
 </script>
 
-<style scoped>
+<style>
 #app {
-  display: flex;
-  flex-direction: column;
-  /* Header stays on top */
+  min-height: 100vh;
+  background: #161c24;
+  color: #fff;
 }
 
 .main-container {
   display: flex;
-  flex-grow: 1;
-}
-
-Sidebar {
-  width: 250px;
-  background: #2c3e50;
-  color: white;
-  padding: 15px;
+  min-height: 100vh;
+  padding-top: 60px;
+  /* Height of header */
 }
 
 main {
   flex-grow: 1;
-  padding: 20px;
+  transition: padding 0.3s ease;
+  padding: 20px 20px 20px 290px;
+  /* Added left padding for sidebar */
+}
+
+main.sidebar-expanded {
+  padding-left: 290px;
+}
+
+@media (max-width: 768px) {
+  main {
+    padding: 20px;
+  }
+
+  main.sidebar-expanded {
+    padding-left: 20px;
+  }
 }
 </style>
