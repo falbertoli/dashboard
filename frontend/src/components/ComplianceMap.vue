@@ -356,7 +356,7 @@
 <script setup>
 import 'leaflet/dist/leaflet.css';
 import { useStorageStore } from '../store/storageStore';
-import { ref, onMounted, watch, nextTick, computed } from 'vue';
+import { ref, onMounted, watch, nextTick, computed, getCurrentInstance } from 'vue';
 import L from 'leaflet';
 import { api } from '@/utils/api';
 import turfArea from '@turf/area';
@@ -382,6 +382,8 @@ const selectedAreaId = ref(null);
 const bufferAnalysisResults = ref([]);
 
 const selectedFunction = ref("storage"); // Special value to indicate Free Space and Deicing
+
+const formatters = ref(null);
 
 // Computed property for selected area
 const selectedArea = computed(() => {
@@ -742,7 +744,7 @@ const defaultResult = () => ({
 });
 
 const renderFacilitiesGeoJSONLayer = () => {
-  if (!map.value || !map.value._loaded || !facilitiesGeoJsonData.value) {
+  if (!map.value || !map.value._loaded || !facilitiesGeoJsonData.value || !formatters.value) {
     console.error("❌ Map not fully initialized or facilities data not available.");
     return;
   }
@@ -860,19 +862,19 @@ const renderFacilitiesGeoJSONLayer = () => {
             <div class="popup-section">
               <h4>General Information</h4>
               <p><strong>Amenity:</strong> ${props.amenity || "Unknown"}</p>
-              <p><strong>Total Area:</strong> ${(props.original_area != null ? props.original_area.toFixed(2) : (computedArea != null ? computedArea.toFixed(2) : "N/A"))} ft²</p>
+              <p><strong>Total Area:</strong> ${formatters.value.$formatArea(props.original_area != null ? props.original_area : computedArea)}</p>
               ${props.address ? `<p><strong>Address:</strong> ${props.address}</p>` : ''}
             </div>
             ${isRelevant ? `
               <div class="popup-section storage-info">
                 <h4>Storage Capability</h4>
-                <p><strong>Original Area:</strong> ${(props.original_area != null ? props.original_area.toFixed(2) : (computedArea != null ? computedArea.toFixed(2) : "N/A"))} ft²</p>
-                <p><strong>Available Area:</strong> ${props.available_area != null ? props.available_area.toFixed(2) : "N/A"} ft²</p>
-                <p><strong>Area Reduction:</strong> ${props.area_reduction != null ? props.area_reduction.toFixed(1) : "0"}%</p>
+                <p><strong>Original Area:</strong> ${formatters.value.$formatArea(props.original_area != null ? props.original_area : computedArea)}</p>
+                <p><strong>Available Area:</strong> ${formatters.value.$formatArea(props.available_area)}</p>
+                <p><strong>Area Reduction:</strong> ${formatters.value.$formatNumber(props.area_reduction)}%</p>
                 <p><strong>Can Store:</strong> ${props.available_area >= storageStore.totalFootprint ?
             '<span class="success">Yes</span>' : '<span class="error">No</span>'}</p>
                 ${props.available_area != null && props.available_area > 0 ? `
-                  <p><strong>Space Utilization:</strong> ${((storageStore.totalFootprint / props.available_area) * 100).toFixed(1)}%</p>
+                  <p><strong>Space Utilization:</strong> ${formatters.value.$formatNumber((storageStore.totalFootprint / props.available_area) * 100)}%</p>
                   <div class="utilization-bar">
                     <div class="fill" style="width: ${Math.min((storageStore.totalFootprint / props.available_area) * 100, 100)}%"></div>
                   </div>
@@ -888,7 +890,7 @@ const renderFacilitiesGeoJSONLayer = () => {
                     <li>
                       <strong>${buffer.buffer_id}</strong>: 
                       ${formatHazardType(buffer.hazard_type)} - 
-                      ${buffer.overlap_area_sqft != null ? buffer.overlap_area_sqft.toFixed(2) : "N/A"} ft²
+                      ${formatters.value.$formatArea(buffer.overlap_area_sqft)}
                     </li>
                   `).join('')}
                 </ul>
@@ -975,7 +977,7 @@ const renderBufferZonesGeoJSONLayer = () => {
             <div class="popup-section">
               <h4>${buffer.properties.facility_name}</h4>
               <p><strong>Type:</strong> ${formatHazardType(buffer.properties.hazard_type)}</p>
-              <p><strong>Required Distance:</strong> ${buffer.properties.buffer_distance_ft} ft</p>
+              <p><strong>Required Distance:</strong> ${formatters.value.$formatNumber(buffer.properties.buffer_distance_ft)} ft</p>
             </div>
           `).join('')}
         </div>
@@ -1075,7 +1077,7 @@ const handleMapClick = async (event) => {
         <b>Building Name:</b> ${buildingInfo.name}<br>
         <b>Address:</b> ${buildingInfo.address}<br>
         <b>Amenity:</b> ${buildingInfo.amenity}<br>
-        <b>Area:</b> ${Math.round(buildingInfo.area).toLocaleString()} ft²<br>
+        <b>Area:</b> ${formatters.value.$formatArea(buildingInfo.area)}<br>
         <b>Safety Info:</b> ${buildingInfo.safetyInfo}
       `).openPopup();
 
@@ -1092,6 +1094,12 @@ const handleMapClick = async (event) => {
 };
 
 onMounted(async () => {
+  const instance = getCurrentInstance();
+  formatters.value = {
+    $formatNumber: instance.appContext.config.globalProperties.$formatNumber,
+    $formatArea: instance.appContext.config.globalProperties.$formatArea
+  };
+
   const mapContainer = document.getElementById('map');
   if (!mapContainer) {
     console.error("Map container not found!");
