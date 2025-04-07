@@ -7,107 +7,8 @@
       <p class="subtitle">Interactive visualization of hydrogen storage requirements and safety zones</p>
     </div>
 
-    <!-- Dashboard Section -->
-    <div class="dashboard">
-      <div class="card metrics-card">
-        <h3><i class="fas fa-chart-line"></i> Storage Metrics</h3>
-        <div class="metrics-grid">
-          <div class="metric-item">
-            <div class="metric-icon"><i class="fas fa-gas-pump"></i></div>
-            <div class="metric-content">
-              <div class="metric-label">Total H₂ Demand</div>
-              <div class="metric-value">{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</div>
-            </div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-icon"><i class="fas fa-ruler-combined"></i></div>
-            <div class="metric-content">
-              <div class="metric-label">Storage Footprint</div>
-              <div class="metric-value">{{ $formatNumber(storageStore.totalFootprint) }} ft²</div>
-            </div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-icon"><i class="fas fa-cube"></i></div>
-            <div class="metric-content">
-              <div class="metric-label">Tank Dimensions</div>
-              <div class="metric-value">{{ $formatNumber(storageStore.tankDiameter) }} ft × {{
-                storageStore.tankLength.toFixed(2) }} ft</div>
-            </div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-icon"><i class="fas fa-boxes"></i></div>
-            <div class="metric-content">
-              <div class="metric-label">Number of Tanks</div>
-              <div class="metric-value">{{ storageStore.recommendedTankCount }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card compliance-card">
-        <h3><i class="fas fa-check-circle"></i> Compliance Status</h3>
-        <div class="compliance-status-grid">
-          <div class="status-item" :class="freeSpaceStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
-            <div class="status-icon">
-              <i
-                :class="freeSpaceStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
-            </div>
-            <div class="status-content">
-              <div class="status-label">Free Space</div>
-              <div class="status-value">{{ freeSpaceStatus }}</div>
-            </div>
-          </div>
-          <div class="status-item" :class="deicingStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
-            <div class="status-icon">
-              <i
-                :class="deicingStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
-            </div>
-            <div class="status-content">
-              <div class="status-label">Deicing Area</div>
-              <div class="status-value">{{ deicingStatus }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Map Controls Section -->
-    <div class="map-controls">
-      <div class="control-panel">
-        <div class="filter-group">
-          <label for="function-filter">
-            <i class="fas fa-filter"></i> Filter by Amenity
-          </label>
-          <select id="function-filter" :value="selectedFunction" @change="handleFilterChange" class="select-control">
-            <option value="storage">Free Space and Deicing Only</option>
-            <option value="">All Amenities</option>
-            <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
-              {{ functionType }}
-            </option>
-          </select>
-        </div>
-
-        <div class="layer-toggles">
-          <div class="toggle-item">
-            <label class="toggle">
-              <input type="checkbox" v-model="layerControls.facilities" @change="toggleLayer('facilities')">
-              <span class="toggle-slider"></span>
-            </label>
-            <span>Facilities</span>
-          </div>
-          <div class="toggle-item">
-            <label class="toggle">
-              <input type="checkbox" v-model="layerControls.bufferZones" @change="toggleLayer('bufferZones')">
-              <span class="toggle-slider"></span>
-            </label>
-            <span>Buffer Zones</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Alert shown when hydrogen/storage calculations aren't done -->
-    <div v-if="!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint" class="alert info">
+    <div v-if="!storageStore.totalH2VolumeGallons || !storageStore.results" class="alert info">
       <i class="fas fa-info-circle"></i>
       <span>Please configure hydrogen demand and storage calculations first.</span>
     </div>
@@ -124,219 +25,322 @@
       <p>{{ error }}</p>
     </div>
 
-    <!-- Map and Analysis Section -->
-    <div v-else class="map-analysis-container">
-      <div class="map-container">
-        <div id="map"></div>
-      </div>
+    <div v-else class="result">
 
-      <!-- Fixed Legend Below Map -->
-      <div class="fixed-legend">
-        <h4><i class="fas fa-map-signs"></i> Map Legend</h4>
-
-        <div class="legend-grid">
-          <!-- Buffer Zones -->
-          <div class="legend-section">
-            <h5>Buffer Zones</h5>
-            <ul>
-              <li>
-                <div class="color-box" style="background-color: #FF4500; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>People Safety Buffer</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: #FFD700; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Flammable Liquids Buffer</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: #FF0000; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Open Fire Buffer</span>
-              </li>
-            </ul>
+      <!-- Dashboard Section -->
+      <div class="dashboard">
+        <div class="card metrics-card">
+          <h3><i class="fas fa-chart-line"></i> Storage Metrics</h3>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <div class="metric-icon"><i class="fas fa-gas-pump"></i></div>
+              <div class="metric-content">
+                <div class="metric-label">Total H₂ Demand</div>
+                <div class="metric-value">{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</div>
+              </div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="fas fa-ruler-combined"></i></div>
+              <div class="metric-content">
+                <div class="metric-label">Storage Footprint</div>
+                <div class="metric-value">{{ $formatNumber(storageStore.totalFootprint) }} ft²</div>
+              </div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="fas fa-cube"></i></div>
+              <div class="metric-content">
+                <div class="metric-label">Tank Dimensions</div>
+                <div class="metric-value">{{ $formatNumber(storageStore.tankDiameter) }} ft × {{
+                  storageStore.tankLength.toFixed(2) }} ft</div>
+              </div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="fas fa-boxes"></i></div>
+              <div class="metric-content">
+                <div class="metric-label">Number of Tanks</div>
+                <div class="metric-value">{{ storageStore.recommendedTankCount }}</div>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <!-- Storage Areas -->
-          <div class="legend-section">
-            <h5>Storage Areas</h5>
-            <ul>
-              <li>
-                <div class="color-box" style="background-color: limegreen; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Free Space (Available)</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: darkgreen; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Free Space (Insufficient)</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: lightpink; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Deicing (Available)</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: darkred; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Deicing (Insufficient)</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Amenities -->
-          <div class="legend-section">
-            <h5>Amenities</h5>
-            <ul class="amenities-grid">
-              <li>
-                <div class="color-box" style="background-color: blue; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Cargo</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: red; border: 2px solid rgba(255, 255, 255, 0.7);"></div>
-                <span>Emergency Response</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: orange; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Fuel Farm</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: purple; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Lease</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: gray; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Maintenance</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: lightblue; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Parking</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: cyan; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Support</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: yellow; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Transportation</span>
-              </li>
-              <li>
-                <div class="color-box" style="background-color: brown; border: 2px solid rgba(255, 255, 255, 0.7);">
-                </div>
-                <span>Utilities</span>
-              </li>
-            </ul>
+        <div class="card compliance-card">
+          <h3><i class="fas fa-check-circle"></i> Compliance Status</h3>
+          <div class="compliance-status-grid">
+            <div class="status-item" :class="freeSpaceStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
+              <div class="status-icon">
+                <i
+                  :class="freeSpaceStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+              </div>
+              <div class="status-content">
+                <div class="status-label">Free Space</div>
+                <div class="status-value">{{ freeSpaceStatus }}</div>
+              </div>
+            </div>
+            <div class="status-item" :class="deicingStatus.includes('Sufficient') ? 'status-ok' : 'status-warning'">
+              <div class="status-icon">
+                <i
+                  :class="deicingStatus.includes('Sufficient') ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+              </div>
+              <div class="status-content">
+                <div class="status-label">Deicing Area</div>
+                <div class="status-value">{{ deicingStatus }}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Buffer Analysis Section -->
-    <div class="analysis-section" v-if="bufferAnalysisResults.length">
-      <div class="card">
-        <div class="card-header">
-          <h3><i class="fas fa-shield-alt"></i> Buffer Zone Impact Analysis</h3>
-          <div class="info-badge">
-            <i class="fas fa-info-circle"></i>
-            <span class="tooltip">This analysis shows how safety buffer zones reduce available storage area</span>
-          </div>
-        </div>
-
-        <div class="analysis-tabs">
-          <button class="tab-button" :class="{ 'active': activeTab === 'table' }" @click="activeTab = 'table'">
-            <i class="fas fa-table"></i> Overview
-          </button>
-          <button class="tab-button" :class="{ 'active': activeTab === 'details' }" @click="activeTab = 'details'">
-            <i class="fas fa-search-plus"></i> Detailed Analysis
-          </button>
-        </div>
-
-        <!-- Table Tab -->
-        <div class="tab-content" v-show="activeTab === 'table'">
-          <div class="table-container">
-            <table class="buffer-analysis-table">
-              <thead>
-                <tr>
-                  <th>Storage Area</th>
-                  <th>Original Area (ft²)</th>
-                  <th>Available Area (ft²)</th>
-                  <th>Reduction (%)</th>
-                  <th>Compliance</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="result in bufferAnalysisResults" :key="result.area_id" :class="{
-                  'compliant': result.available_area_sqft >= storageStore.totalFootprint,
-                  'non-compliant': result.available_area_sqft < storageStore.totalFootprint
-                }">
-                  <td>{{ result.area_name }}</td>
-                  <td>{{ $formatNumber(result.original_area_sqft) }}</td>
-                  <td>{{ $formatNumber(result.available_area_sqft) }}</td>
-                  <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
-                  <td>
-                    <span class="status-badge"
-                      :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
-                      {{ result.available_area_sqft >= storageStore.totalFootprint ? 'Sufficient' : 'Insufficient' }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Details Tab -->
-        <div class="tab-content" v-show="activeTab === 'details'">
-          <div class="area-selector-container">
-            <label for="area-select">Select Area for Detailed Analysis: </label>
-            <select id="area-select" v-model="selectedAreaId" class="select-control">
-              <option v-for="area in bufferAnalysisResults" :key="area.area_id" :value="area.area_id">
-                {{ area.area_name }}
-                ({{ area.overlapping_buffers.length }} buffer{{ area.overlapping_buffers.length !== 1 ? 's' : '' }})
+      <!-- Map Controls Section -->
+      <div class="map-controls">
+        <div class="control-panel">
+          <div class="filter-group">
+            <label for="function-filter">
+              <i class="fas fa-filter"></i> Filter by Amenity
+            </label>
+            <select id="function-filter" :value="selectedFunction" @change="handleFilterChange" class="select-control">
+              <option value="storage">Free Space and Deicing Only</option>
+              <option value="">All Amenities</option>
+              <option v-for="functionType in filteredDropdownOptions" :key="functionType" :value="functionType">
+                {{ functionType }}
               </option>
             </select>
           </div>
 
-          <div class="buffer-details" v-if="selectedArea && selectedArea.overlapping_buffers.length > 0">
-            <div class="details-header">
-              <h4>Buffer Overlaps for {{ selectedArea.area_name }}</h4>
-              <div class="details-summary">
-                This area is affected by <strong>{{ selectedArea.overlapping_buffers.length }}</strong> safety
-                buffer(s),
-                reducing the available space by <strong>{{ selectedArea.area_reduction_percent.toFixed(1)
-                }}%</strong>.
-              </div>
+          <div class="layer-toggles">
+            <div class="toggle-item">
+              <label class="toggle">
+                <input type="checkbox" v-model="layerControls.facilities" @change="toggleLayer('facilities')">
+                <span class="toggle-slider"></span>
+              </label>
+              <span>Facilities</span>
+            </div>
+            <div class="toggle-item">
+              <label class="toggle">
+                <input type="checkbox" v-model="layerControls.bufferZones" @change="toggleLayer('bufferZones')">
+                <span class="toggle-slider"></span>
+              </label>
+              <span>Buffer Zones</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map and Analysis Section -->
+      <div class="map-analysis-container">
+        <div class="map-container">
+          <div id="map"></div>
+        </div>
+
+        <!-- Fixed Legend Below Map -->
+        <div class="fixed-legend">
+          <h4><i class="fas fa-map-signs"></i> Map Legend</h4>
+
+          <div class="legend-grid">
+            <!-- Buffer Zones -->
+            <div class="legend-section">
+              <h5>Buffer Zones</h5>
+              <ul>
+                <li>
+                  <div class="color-box"
+                    style="background-color: #FF4500; border: 1px solid rgba(0, 0, 0, 0.2); border-style: dashed;">
+                  </div>
+                  <span>People Safety Buffer</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #FFD700; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Flammable Liquids Buffer</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #FF0000; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Open Fire Buffer</span>
+                </li>
+              </ul>
             </div>
 
-            <div class="buffer-cards">
-              <div v-for="(buffer, index) in selectedArea.overlapping_buffers" :key="index" class="buffer-card">
-                <div class="buffer-card-header" :class="getHazardClass(buffer.hazard_type)">
-                  <span class="buffer-name">{{ buffer.buffer_id }}</span>
-                  <span class="buffer-type">{{ formatHazardType(buffer.hazard_type) }}</span>
+            <!-- Storage Areas -->
+            <div class="legend-section">
+              <h5>Storage Areas</h5>
+              <ul>
+                <li>
+                  <div class="color-box" style="background-color: #32CD32; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Free Space (Available)</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #006400; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Free Space (Insufficient)</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #FFB6C1; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Deicing (Available)</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #8B0000; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Deicing (Insufficient)</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Amenities -->
+            <div class="legend-section">
+              <h5>Amenities</h5>
+              <ul class="amenities-grid">
+                <li>
+                  <div class="color-box" style="background-color: #4169E1; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Cargo</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #DC143C; border: 1px solid rgba(0, 0, 0, 0.2);"></div>
+                  <span>Emergency Response</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #FFA500; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Fuel Farm</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #9370DB; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Lease</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #708090; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Maintenance</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #87CEEB; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Parking</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #00CED1; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Support</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #DAA520; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Transportation</span>
+                </li>
+                <li>
+                  <div class="color-box" style="background-color: #8B4513; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  </div>
+                  <span>Utilities</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buffer Analysis Section -->
+      <div class="analysis-section" v-if="bufferAnalysisResults.length">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-shield-alt"></i> Buffer Zone Impact Analysis</h3>
+            <div class="info-badge">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip">This analysis shows how safety buffer zones reduce available storage area</span>
+            </div>
+          </div>
+
+          <div class="analysis-tabs">
+            <button class="tab-button" :class="{ 'active': activeTab === 'table' }" @click="activeTab = 'table'">
+              <i class="fas fa-table"></i> Overview
+            </button>
+            <button class="tab-button" :class="{ 'active': activeTab === 'details' }" @click="activeTab = 'details'">
+              <i class="fas fa-search-plus"></i> Detailed Analysis
+            </button>
+          </div>
+
+          <!-- Table Tab -->
+          <div class="tab-content" v-show="activeTab === 'table'">
+            <div class="table-container">
+              <table class="buffer-analysis-table">
+                <thead>
+                  <tr>
+                    <th>Storage Area</th>
+                    <th>Original Area (ft²)</th>
+                    <th>Available Area (ft²)</th>
+                    <th>Reduction (%)</th>
+                    <th>Compliance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="result in bufferAnalysisResults" :key="result.area_id" :class="{
+                    'compliant': result.available_area_sqft >= storageStore.totalFootprint,
+                    'non-compliant': result.available_area_sqft < storageStore.totalFootprint
+                  }">
+                    <td>{{ result.area_name }}</td>
+                    <td>{{ $formatNumber(result.original_area_sqft) }}</td>
+                    <td>{{ $formatNumber(result.available_area_sqft) }}</td>
+                    <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
+                    <td>
+                      <span class="status-badge"
+                        :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
+                        {{ result.available_area_sqft >= storageStore.totalFootprint ? 'Sufficient' : 'Insufficient' }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Details Tab -->
+          <div class="tab-content" v-show="activeTab === 'details'">
+            <div class="area-selector-container">
+              <label for="area-select">Select Area for Detailed Analysis: </label>
+              <select id="area-select" v-model="selectedAreaId" class="select-control">
+                <option v-for="area in bufferAnalysisResults" :key="area.area_id" :value="area.area_id">
+                  {{ area.area_name }}
+                  ({{ area.overlapping_buffers.length }} buffer{{ area.overlapping_buffers.length !== 1 ? 's' : '' }})
+                </option>
+              </select>
+            </div>
+
+            <div class="buffer-details" v-if="selectedArea && selectedArea.overlapping_buffers.length > 0">
+              <div class="details-header">
+                <h4>Buffer Overlaps for {{ selectedArea.area_name }}</h4>
+                <div class="details-summary">
+                  This area is affected by <strong>{{ selectedArea.overlapping_buffers.length }}</strong> safety
+                  buffer(s),
+                  reducing the available space by <strong>{{ selectedArea.area_reduction_percent.toFixed(1)
+                  }}%</strong>.
                 </div>
-                <div class="buffer-card-body">
-                  <div class="buffer-stat">
-                    <span class="label">Overlap Area:</span>
-                    <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
+              </div>
+
+              <div class="buffer-cards">
+                <div v-for="(buffer, index) in selectedArea.overlapping_buffers" :key="index" class="buffer-card">
+                  <div class="buffer-card-header" :class="getHazardClass(buffer.hazard_type)">
+                    <span class="buffer-name">{{ buffer.buffer_id }}</span>
+                    <span class="buffer-type">{{ formatHazardType(buffer.hazard_type) }}</span>
                   </div>
-                  <div class="buffer-stat">
-                    <span class="label">Percentage of Total:</span>
-                    <span class="value">
-                      {{ $formatNumber(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100)) }}%
-                    </span>
-                  </div>
-                  <div class="impact-bar">
-                    <div class="impact-fill" :style="{
-                      width: `${Math.min(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100), 100)}%`,
-                      backgroundColor: getHazardColor(buffer.hazard_type)
-                    }"></div>
+                  <div class="buffer-card-body">
+                    <div class="buffer-stat">
+                      <span class="label">Overlap Area:</span>
+                      <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
+                    </div>
+                    <div class="buffer-stat">
+                      <span class="label">Percentage of Total:</span>
+                      <span class="value">
+                        {{ $formatNumber(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100)) }}%
+                      </span>
+                    </div>
+                    <div class="impact-bar">
+                      <div class="impact-fill" :style="{
+                        width: `${Math.min(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100), 100)}%`,
+                        backgroundColor: getHazardColor(buffer.hazard_type)
+                      }"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -391,7 +395,6 @@ const layerControls = ref({
   bufferZones: true
 });
 
-// Get hazard class for styling
 const getHazardClass = (hazardType) => {
   const classes = {
     "contains_people": "hazard-people",
@@ -401,7 +404,6 @@ const getHazardClass = (hazardType) => {
   return classes[hazardType] || "hazard-unknown";
 };
 
-// Get hazard color for progress bars
 const getHazardColor = (hazardType) => {
   const colors = {
     "contains_people": "#FF4500",
@@ -411,7 +413,6 @@ const getHazardColor = (hazardType) => {
   return colors[hazardType] || "#999";
 };
 
-// Compute unique functions for the dropdown filter
 const uniqueFunctions = computed(() => {
   if (!facilitiesGeoJsonData.value) return [];
   const functions = facilitiesGeoJsonData.value.features.map((feature) => feature.properties.amenity || "Unknown");
@@ -430,16 +431,13 @@ const handleFilterChange = (event) => {
 const filteredDropdownOptions = computed(() => {
   if (!facilitiesGeoJsonData.value) return [];
 
-  // Get all unique amenity types
   const amenityTypes = facilitiesGeoJsonData.value.features
     .map(feature => feature.properties.amenity || "Unknown")
     .filter(amenity => amenity !== "Free Space" && amenity !== "Deicing");
 
-  // Create a Set to remove duplicates and convert back to array
   return [...new Set(amenityTypes)].sort();
 });
 
-// Check if "Free Space" or "Deicing" buildings have enough space
 const freeSpaceStatus = computed(() => {
   if (!facilitiesGeoJsonData.value || !storageStore.totalFootprint) return "Data Unavailable";
   const freeSpace = facilitiesGeoJsonData.value.features.find(
@@ -460,14 +458,12 @@ const deicingStatus = computed(() => {
     : "Insufficient Space";
 });
 
-// Compute area from coordinates using Turf
 const computeFeatureArea = (feature) => {
   try {
     if (!feature.geometry || feature.geometry.type !== 'Polygon') {
       console.warn('Feature does not have valid polygon geometry:', feature);
       return 0;
     }
-    // Ensure the first and last coordinates are the same
     const coordinates = feature.geometry.coordinates[0];
     if (coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
       coordinates[0][1] !== coordinates[coordinates.length - 1][1]) {
@@ -475,7 +471,6 @@ const computeFeatureArea = (feature) => {
     }
     const poly = turfPolygon([coordinates]);
     const areaInSquareMeters = turfArea(poly);
-    // Convert square meters to square feet (1 sq meter = 10.764 sq ft)
     return areaInSquareMeters * 10.764;
   } catch (err) {
     console.error('Error computing area:', err);
@@ -504,16 +499,12 @@ const updateBufferAnalysisResults = () => {
   });
 };
 
-// Update the filtered facilities computed property
 const filteredFacilities = computed(() => {
   if (!facilitiesGeoJsonData.value?.features) return [];
   return facilitiesGeoJsonData.value.features.filter((feature) => {
     const functionType = feature.properties.amenity;
-    // First filter by Free Space or Deicing
     const isRelevantType = functionType === "Free Space" || functionType === "Deicing";
-    // Then apply the selected function filter if one is selected
     const matchesFilter = !selectedFunction.value || functionType === selectedFunction.value;
-    // Calculate area if feature passes filters
     if (isRelevantType && matchesFilter) {
       feature.properties.computed_area = computeFeatureArea(feature);
       return true;
@@ -534,18 +525,14 @@ const loadFacilitiesGeoJSON = async () => {
   }
 };
 
-
-// Update the loadBufferZones function
 const loadBufferZones = async () => {
   try {
     console.log("🚀 Fetching buffer zones...");
     bufferZonesGeoJsonData.value = await api.buffer_zones.getBuffers();
     console.log("✅ Buffer Zones data loaded:", bufferZonesGeoJsonData.value);
 
-    // Render the buffer zones
     renderBufferZonesGeoJSONLayer();
 
-    // Perform buffer analysis if facilities are loaded
     if (facilitiesGeoJsonData.value) {
       performBufferAnalysis();
     }
@@ -562,39 +549,30 @@ const performBufferAnalysis = () => {
   }
 
   try {
-    // Update buffer analysis results
     updateBufferAnalysisResults();
 
     console.log("✅ Buffer analysis complete:", bufferAnalysisResults.value);
 
-    // Auto-select first area
     if (bufferAnalysisResults.value.length > 0) {
       selectedAreaId.value = bufferAnalysisResults.value[0].area_id;
     }
 
-    // Update the facilities layer to show available areas
     updateFacilitiesWithAvailableAreas();
   } catch (err) {
     console.error("Error performing buffer analysis:", err);
   }
 };
 
-// Add a simplified version of calculateAvailableArea
 const calculateAvailableArea = (storageFeature, bufferFeatures) => {
   try {
-    // Calculate original area of the storage feature
     const originalArea = computeFeatureArea(storageFeature);
 
-    // Find buffers that might intersect with this storage area
     const potentialOverlaps = findPotentialOverlaps(storageFeature, bufferFeatures);
 
-    // Calculate total area reduction (simplified approach)
     let totalReduction = 0;
     const overlappingBuffers = [];
 
     potentialOverlaps.forEach(buffer => {
-      // Estimate overlap area (simplified)
-      // In a real implementation, you'd use proper geometric operations
       const overlapArea = estimateOverlapArea(storageFeature, buffer);
 
       if (overlapArea > 0) {
@@ -608,7 +586,6 @@ const calculateAvailableArea = (storageFeature, bufferFeatures) => {
       }
     });
 
-    // Calculate available area
     const availableArea = Math.max(0, originalArea - totalReduction);
 
     return {
@@ -616,7 +593,7 @@ const calculateAvailableArea = (storageFeature, bufferFeatures) => {
       available_area_sqft: availableArea,
       area_reduction_percent: originalArea > 0 ? ((originalArea - availableArea) / originalArea * 100) : 0,
       overlapping_buffers: overlappingBuffers,
-      available_geometry: storageFeature.geometry // Use original geometry
+      available_geometry: storageFeature.geometry
     };
   } catch (err) {
     console.error('Error calculating available area:', err);
@@ -630,28 +607,22 @@ const calculateAvailableArea = (storageFeature, bufferFeatures) => {
   }
 };
 
-// Helper function to find potential buffer overlaps using bounding box comparison
 const findPotentialOverlaps = (feature, buffers) => {
-  // Extract feature bounds
   const featureBounds = getFeatureBounds(feature);
 
-  // Find buffers that might overlap
   return buffers.filter(buffer => {
     const bufferBounds = getFeatureBounds(buffer);
     return boundsOverlap(featureBounds, bufferBounds);
   });
 };
 
-// Get bounding box of a feature
 const getFeatureBounds = (feature) => {
   if (!feature.geometry || !feature.geometry.coordinates || !feature.geometry.coordinates[0]) {
     return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
   }
 
-  // Get coordinates from the first ring
   const coords = feature.geometry.coordinates[0];
 
-  // Find min/max values
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
   coords.forEach(point => {
@@ -665,7 +636,6 @@ const getFeatureBounds = (feature) => {
   return { minX, minY, maxX, maxY };
 };
 
-// Check if two bounding boxes overlap
 const boundsOverlap = (bounds1, bounds2) => {
   return !(
     bounds1.maxX < bounds2.minX ||
@@ -675,16 +645,10 @@ const boundsOverlap = (bounds1, bounds2) => {
   );
 };
 
-// Estimate overlap area (simplified)
 const estimateOverlapArea = (feature, buffer) => {
-  // In a production environment, you would use proper geometric operations
-  // For this simplified version, we'll use a rough estimation
-
-  // Get feature and buffer bounds
   const featureBounds = getFeatureBounds(feature);
   const bufferBounds = getFeatureBounds(buffer);
 
-  // Calculate overlap area of bounds
   const overlapWidth = Math.min(featureBounds.maxX, bufferBounds.maxX) -
     Math.max(featureBounds.minX, bufferBounds.minX);
   const overlapHeight = Math.min(featureBounds.maxY, bufferBounds.maxY) -
@@ -692,54 +656,39 @@ const estimateOverlapArea = (feature, buffer) => {
 
   if (overlapWidth <= 0 || overlapHeight <= 0) return 0;
 
-  // Approximate overlap area (this is a very rough estimate)
-  // In geographic coordinates, this isn't accurate for area
-  // but we're just looking for a reasonable approximation
   const overlapArea = overlapWidth * overlapHeight;
 
-  // Convert to square feet using a rough approximation
-  // 1 degree of latitude ≈ 69 miles ≈ 364,320 feet
-  // 1 degree of longitude varies but around equator ≈ 69 miles
   const FEET_PER_DEGREE_LAT = 364320;
   const FEET_PER_DEGREE_LON = 364320 * Math.cos((featureBounds.minY + featureBounds.maxY) / 2 * Math.PI / 180);
 
   const overlapAreaFt2 = overlapArea * FEET_PER_DEGREE_LAT * FEET_PER_DEGREE_LON;
 
-  // Apply a correction factor since this is a rough estimate
-  // and account for the fact that the real overlap is likely smaller
-  // than the bounding box overlap
-  const CORRECTION_FACTOR = 0.5; // Assume 50% of bounding box overlap is actual overlap
+  const CORRECTION_FACTOR = 0.5;
 
   return overlapAreaFt2 * CORRECTION_FACTOR;
 };
 
-// Add a function to update facilities with available areas
 const updateFacilitiesWithAvailableAreas = () => {
   if (!facilitiesGeoJsonData.value || !bufferAnalysisResults.value.length) return;
 
-  // Update each facility with its available area information
   facilitiesGeoJsonData.value.features.forEach(feature => {
     const analysis = bufferAnalysisResults.value.find(
       result => result.area_id === (feature.properties.id || feature.id)
     );
 
     if (analysis) {
-      // Store analysis results in feature properties
       feature.properties.original_area = analysis.original_area_sqft;
       feature.properties.available_area = analysis.available_area_sqft;
       feature.properties.area_reduction = analysis.area_reduction_percent;
       feature.properties.overlapping_buffers = analysis.overlapping_buffers;
       feature.properties.available_geometry = analysis.available_geometry;
 
-      // Update computed area to reflect available space
       feature.properties.computed_area = analysis.available_area_sqft;
     }
   });
 
-  // Re-render the facilities layer
   renderFacilitiesGeoJSONLayer();
 };
-
 
 const evaluateCompliance = async (feature) => {
   const area = feature.properties.computed_area;
@@ -768,10 +717,7 @@ const evaluateCompliance = async (feature) => {
   return 'partially-compliant';
 };
 
-
-// Helper function to check if a point is inside a polygon
 const pointInPolygon = (point, polygon) => {
-  // Ray casting algorithm
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const xi = polygon[i][0], yi = polygon[i][1];
@@ -784,7 +730,6 @@ const pointInPolygon = (point, polygon) => {
   return inside;
 };
 
-// Helper function to return default result
 const defaultResult = () => ({
   original_area_sqft: 0,
   available_area_sqft: 0,
@@ -793,7 +738,6 @@ const defaultResult = () => ({
   available_geometry: null
 });
 
-// renderFacilitiesGeoJSONLayer function
 const renderFacilitiesGeoJSONLayer = () => {
   console.log("Rendering facilities with filter:", selectedFunction.value);
   console.log("Available filter options:", filteredDropdownOptions.value);
@@ -806,54 +750,42 @@ const renderFacilitiesGeoJSONLayer = () => {
     facilitiesGeoJsonLayer.value.remove();
   }
 
-  // Clear any existing available layers
   availableLayers.value.forEach(layer => {
     if (map.value) map.value.removeLayer(layer);
   });
   availableLayers.value = [];
 
-  // Filter features based on selected function
   const filteredFeatures = {
     type: "FeatureCollection",
     features: facilitiesGeoJsonData.value.features.filter(feature => {
       const amenity = feature.properties.amenity || "Unknown";
 
-      // Special case for "storage" to show only Free Space and Deicing
       if (selectedFunction.value === "storage") {
         return amenity === "Free Space" || amenity === "Deicing";
       }
 
-      // If no filter is selected (empty string), show all features
       if (!selectedFunction.value) {
         return true;
       }
 
-      // Otherwise, match the exact amenity type
       return amenity === selectedFunction.value;
     })
   };
 
-  // Update areas for all features
   filteredFeatures.features.forEach(feature => {
-    // Only process storage areas
     if (feature.properties.amenity === "Free Space" || feature.properties.amenity === "Deicing") {
-      // Calculate area without buffer consideration first
       feature.properties.computed_area = computeFeatureArea(feature);
 
-      // If buffer zones are loaded, calculate available area
       if (bufferZonesGeoJsonData.value) {
         const areaAnalysis = calculateAvailableArea(feature, bufferZonesGeoJsonData.value.features);
 
-        // Store analysis results in feature properties
         feature.properties.original_area = areaAnalysis.original_area_sqft;
         feature.properties.available_area = areaAnalysis.available_area_sqft;
         feature.properties.area_reduction = areaAnalysis.area_reduction_percent;
         feature.properties.overlapping_buffers = areaAnalysis.overlapping_buffers;
 
-        // Update computed area to be the available area
         feature.properties.computed_area = areaAnalysis.available_area_sqft;
 
-        // Store available geometry for visualization
         feature.properties.available_geometry = areaAnalysis.available_geometry;
       }
     }
@@ -878,11 +810,8 @@ const renderFacilitiesGeoJSONLayer = () => {
         Unknown: "black",
       };
 
-      // For storage areas, show different colors based on available area
       if (isStorageType) {
-        // Use a different color for available vs. unavailable portions
         if (feature.properties.available_geometry) {
-          // Create a separate layer for the available area
           const availableLayer = L.geoJSON(feature.properties.available_geometry, {
             style: {
               color: functionType === "Free Space" ? "limegreen" : "lightpink",
@@ -892,7 +821,6 @@ const renderFacilitiesGeoJSONLayer = () => {
             }
           }).addTo(map.value);
 
-          // Store reference to clean up later
           availableLayers.value.push(availableLayer);
         }
 
@@ -901,12 +829,11 @@ const renderFacilitiesGeoJSONLayer = () => {
           fillColor: colors[functionType] || "black",
           fillOpacity: 0.2,
           weight: 2,
-          dashArray: "5,5", // Dashed line to show original boundary
-          zIndex: isStorageType ? 1000 : 500 // Higher z-index for storage areas
+          dashArray: "5,5",
+          zIndex: isStorageType ? 1000 : 500
         };
       }
 
-      // Non-storage areas use normal styling
       return {
         color: colors[functionType] || "black",
         fillColor: colors[functionType] || "black",
@@ -988,13 +915,10 @@ const renderBufferZonesGeoJSONLayer = () => {
     bufferZonesGeoJsonLayer.value.remove();
   }
 
-  // Store all buffer features for click detection
   const bufferFeatures = [];
 
-  // Track if buffer popup was shown
   let bufferPopupShown = false;
 
-  // Create a layer group for all buffer zones
   const layerGroup = L.layerGroup();
 
   bufferZonesGeoJsonData.value.features.forEach(feature => {
@@ -1017,7 +941,6 @@ const renderBufferZonesGeoJSONLayer = () => {
       }
     });
 
-    // Store feature data for click detection
     bufferFeatures.push({
       geometry: feature.geometry,
       properties: {
@@ -1030,7 +953,6 @@ const renderBufferZonesGeoJSONLayer = () => {
     layerGroup.addLayer(layer);
   });
 
-  // Add click handler to map for buffer detection
   map.value.on('click', (e) => {
     if (!layerControls.value.bufferZones) return;
 
@@ -1059,7 +981,6 @@ const renderBufferZonesGeoJSONLayer = () => {
         .setContent(popupContent)
         .openOn(map.value);
 
-      // Prevent event from reaching the building boundaries handler
       e.originalEvent.stopPropagation();
       e.originalEvent.preventDefault();
     }
@@ -1080,7 +1001,6 @@ const formatHazardType = (hazardType) => {
   return displayNames[hazardType] || hazardType;
 };
 
-// Add toggle layer function
 const toggleLayer = (layerType) => {
   if (layerType === 'facilities' && facilitiesGeoJsonLayer.value) {
     if (layerControls.value.facilities) {
@@ -1097,9 +1017,7 @@ const toggleLayer = (layerType) => {
   }
 };
 
-// handleMapClick to check if buffer popup was shown
 const handleMapClick = async (event) => {
-  // Skip if clicking inside a buffer zone popup
   const popup = event.target.getContainer()?.querySelector('.buffer-zones-popup');
   if (popup) return;
 
@@ -1153,7 +1071,6 @@ const handleMapClick = async (event) => {
     }
   } catch (error) {
     console.error("Error fetching building boundaries:", error);
-    // Don't show alert if we're in a buffer zone
     if (!event.target.getContainer()?.querySelector('.buffer-zones-popup')) {
       alert("Failed to fetch building boundaries.");
     }
@@ -1162,7 +1079,7 @@ const handleMapClick = async (event) => {
 
 onMounted(async () => {
   const mapContainer = document.getElementById('map');
-  console.log("Map container:", mapContainer); // Should not be null.
+  console.log("Map container:", mapContainer);
   if (!mapContainer) {
     console.error("Map container not found!");
     return;
@@ -1181,14 +1098,12 @@ onMounted(async () => {
 
   if (!storageStore.totalH2VolumeGallons || !storageStore.totalFootprint) return;
 
-  // Move map click handler registration after buffer zones are loaded
   await loadFacilitiesGeoJSON();
   renderFacilitiesGeoJSONLayer();
 
   await loadBufferZones();
   renderBufferZonesGeoJSONLayer();
 
-  // Add click handler last to ensure proper event order
   map.value.on("click", handleMapClick);
 
   nextTick(() => {
@@ -1198,7 +1113,6 @@ onMounted(async () => {
   });
 });
 
-// Add this after your computed properties
 watch(selectedFunction, () => {
   console.log("Filter changed to:", selectedFunction.value);
   if (map.value && facilitiesGeoJsonData.value) {

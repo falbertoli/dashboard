@@ -1154,7 +1154,7 @@
         "description": "A facility for deicing operations.",
         "distance_requirements": {
           "contains_people": false,
-          "contains_flammable_liquids": true,
+          "contains_flammable_liquids": false,
           "contains_open_fire": false
         }
       },
@@ -1210,7 +1210,7 @@
         "description": "A facility for deicing operations.",
         "distance_requirements": {
           "contains_people": false,
-          "contains_flammable_liquids": true,
+          "contains_flammable_liquids": false,
           "contains_open_fire": false
         }
       },
