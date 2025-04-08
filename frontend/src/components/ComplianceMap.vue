@@ -326,11 +326,11 @@
                   </div>
                   <div class="buffer-card-body">
                     <div class="buffer-stat">
-                      <span class="label">Overlap Area:</span>
+                      <span class="label">Overlap Area: </span>
                       <span class="value">{{ $formatNumber(buffer.overlap_area_sqft) }} ft²</span>
                     </div>
                     <div class="buffer-stat">
-                      <span class="label">Percentage of Total:</span>
+                      <span class="label">Percentage of Total: </span>
                       <span class="value">
                         {{ $formatNumber(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100)) }}%
                       </span>
@@ -349,8 +349,152 @@
         </div>
       </div>
     </div>
-  </div>
 
+    <!-- Details Panel -->
+    <transition name="slide">
+      <div v-if="selectedFeature" class="details-panel">
+        <div class="details-header">
+          <button class="close-button" @click="selectedFeature = null">
+            <i class="fas fa-times"></i>
+          </button>
+          <h3>
+            <i :class="getFeatureIcon(selectedFeature)"></i>
+            {{ selectedFeature.properties.name || 'Location Details' }}
+          </h3>
+        </div>
+
+        <div class="details-content">
+          <!-- General Information (only for non-buffer zones) -->
+          <div v-if="!selectedFeature?.type" class="details-section">
+            <h4><i class="fas fa-info-circle"></i> General Information</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Type: </span>
+                <span class="value">{{ selectedFeature.properties.amenity || 'Unknown' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Total Area: </span>
+                <span class="value">{{ $formatArea(selectedFeature.properties.original_area ||
+                  selectedFeature.properties.computed_area) }}</span>
+              </div>
+              <div v-if="selectedFeature.properties.address" class="info-item">
+                <span class="label">Address: </span>
+                <span class="value">{{ selectedFeature.properties.address }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Storage Capability (only for storage areas) -->
+          <div v-if="isStorageArea(selectedFeature)" class="details-section">
+            <h4><i class="fas fa-warehouse"></i> Storage Capability</h4>
+            <div class="capability-stats">
+              <div class="stat-item">
+                <div class="stat-header">
+                  <span>Available Area</span>
+                  <span class="stat-value">{{ $formatArea(selectedFeature.properties.available_area) }}</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill"
+                    :style="{ width: `${Math.min((selectedFeature.properties.available_area / selectedFeature.properties.original_area) * 100, 100)}%` }"
+                    :class="{ 'sufficient': selectedFeature.properties.available_area >= storageStore.totalFootprint }">
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-header">
+                  <span>Space Required</span>
+                  <span class="stat-value">{{ $formatArea(storageStore.totalFootprint) }}</span>
+                </div>
+                <div class="space-indicator"
+                  :class="{ 'sufficient': selectedFeature.properties.available_area >= storageStore.totalFootprint }">
+                  {{ selectedFeature.properties.available_area >= storageStore.totalFootprint ? 'Sufficient Space' :
+                    'Insufficient Space' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buffer Impacts -->
+          <div v-if="selectedFeature.properties.overlapping_buffers" class="details-section">
+            <h4><i class="fas fa-shield-alt"></i> Buffer Zone Impacts</h4>
+            <div class="buffer-impacts">
+              <div v-for="(buffer, index) in selectedFeature.properties.overlapping_buffers" :key="index"
+                class="buffer-impact-card" :class="getHazardClass(buffer.hazard_type)">
+                <div class="impact-header">
+                  <span class="impact-title">{{ buffer.buffer_id }}</span>
+                  <span class="impact-type">{{ formatHazardType(buffer.hazard_type) }}</span>
+                </div>
+                <div class="impact-stats">
+                  <div class="impact-area">{{ $formatArea(buffer.overlap_area_sqft) }}</div>
+                  <div class="impact-percentage">
+                    {{ $formatNumber((buffer.overlap_area_sqft / selectedFeature.properties.original_area) * 100) }}%
+                    Impact
+                  </div>
+                </div>
+                <div class="impact-indicator">
+                  <div class="indicator-fill"
+                    :style="{ width: `${(buffer.overlap_area_sqft / selectedFeature.properties.original_area) * 100}%` }">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Safety Buffer Zones -->
+          <div v-if="selectedFeature?.type === 'buffer-zones'" class="details-section">
+            <h4><i class="fas fa-shield-alt"></i> Safety Buffer Zones</h4>
+            <div class="buffer-zones">
+              <div v-for="(buffer, index) in selectedFeature.properties.buffers" :key="index" class="buffer-zone-card"
+                :class="getHazardClass(buffer.properties.hazard_type)">
+                <div class="zone-header">
+                  <span class="zone-name">{{ buffer.properties.facility_name }}</span>
+                  <span class="zone-type">{{ formatHazardType(buffer.properties.hazard_type) }}</span>
+                </div>
+                <div class="zone-details">
+                  <div class="zone-stat">
+                    <span class="label">Required Distance: </span>
+                    <span class="value">{{ $formatNumber(buffer.properties.buffer_distance_ft) }} ft</span>
+                  </div>
+                  <div class="zone-indicator"
+                    :style="{ backgroundColor: getHazardColor(buffer.properties.hazard_type) }">
+                  </div>
+                </div>
+                <div>
+                  <!-- Add building information section -->
+                  <div class="building-info">
+                    <div class="building-header">
+                      <i class="fas fa-building"></i>
+                      <span>Protected Building</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">Name: </span>
+                      <span class="value">{{ buffer.properties.facility_name }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">Type: </span>
+                      <span class="value">{{ buffer.properties.facility_type || 'Not specified' }}</span>
+                    </div>
+                    <div class="info-item" v-if="buffer.properties.facility_address">
+                      <span class="label">Address: </span>
+                      <span class="value">{{ buffer.properties.facility_address }}</span>
+                    </div>
+                    <div class="info-item" v-if="buffer.properties.facility_area">
+                      <span class="label">Area: </span>
+                      <span class="value">{{ buffer.properties.facility_area }} ft²</span>
+                    </div>
+                    <div class="info-item" v-if="buffer.properties.facility_description">
+                      <span class="label">Description: </span>
+                      <span class="value">{{ buffer.properties.facility_description }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <script setup>
@@ -385,6 +529,10 @@ const selectedFunction = ref("storage"); // Special value to indicate Free Space
 
 const formatters = ref(null);
 
+// Add this with other refs
+const selectedBuffers = ref([]);
+const facilitiesMap = ref(new Map());
+
 // Computed property for selected area
 const selectedArea = computed(() => {
   if (!selectedAreaId.value || !bufferAnalysisResults.value.length) return null;
@@ -396,6 +544,28 @@ const layerControls = ref({
   facilities: true,
   bufferZones: true
 });
+
+const selectedFeature = ref(null);
+
+const getFeatureIcon = (feature) => {
+  const amenityIcons = {
+    'Free Space': 'fas fa-square',
+    'Deicing': 'fas fa-snowflake',
+    'Cargo': 'fas fa-box',
+    'Emergency Response': 'fas fa-ambulance',
+    'Fuel Farm': 'fas fa-gas-pump',
+    'Maintenance': 'fas fa-wrench',
+    'Parking': 'fas fa-parking',
+    'Support': 'fas fa-tools',
+    'Transportation': 'fas fa-truck',
+    'Utilities': 'fas fa-bolt'
+  };
+  return amenityIcons[feature.properties.amenity] || 'fas fa-building';
+};
+
+const isStorageArea = (feature) => {
+  return feature.properties.amenity === 'Free Space' || feature.properties.amenity === 'Deicing';
+};
 
 const getHazardClass = (hazardType) => {
   const classes = {
@@ -522,6 +692,18 @@ const loadFacilitiesGeoJSON = async () => {
   try {
     console.log("🚀 Fetching facilities.geojson...");
     facilitiesGeoJsonData.value = await api.map.getFacilities();
+
+    // Create a map of facility information
+    facilitiesGeoJsonData.value.features.forEach(facility => {
+      facilitiesMap.value.set(facility.properties.name, {
+        id: facility.properties.id,
+        amenity: facility.properties.amenity,
+        address: facility.properties.address,
+        sq_ft: facility.properties.sq_ft,
+        description: facility.properties.description
+      });
+    });
+
     console.log("✅ Facilities data loaded:", facilitiesGeoJsonData.value);
     renderFacilitiesGeoJSONLayer();
   } catch (err) {
@@ -850,60 +1032,9 @@ const renderFacilitiesGeoJSONLayer = () => {
       };
     },
     onEachFeature: (feature, layer) => {
-      const props = feature.properties;
-      const computedArea = props.computed_area != null ? props.computed_area : 0;
-      const isRelevant = props.amenity === "Free Space" || props.amenity === "Deicing";
-      const storageUtilization = isRelevant && computedArea > 0 ?
-        ((storageStore.totalFootprint / computedArea) * 100).toFixed(1) : null;
-
-      const popupContent = `
-          <div class="custom-popup">
-            <h3>${props.name || "Unknown Building"}</h3>
-            <div class="popup-section">
-              <h4>General Information</h4>
-              <p><strong>Amenity:</strong> ${props.amenity || "Unknown"}</p>
-              <p><strong>Total Area:</strong> ${formatters.value.$formatArea(props.original_area != null ? props.original_area : computedArea)}</p>
-              ${props.address ? `<p><strong>Address:</strong> ${props.address}</p>` : ''}
-            </div>
-            ${isRelevant ? `
-              <div class="popup-section storage-info">
-                <h4>Storage Capability</h4>
-                <p><strong>Original Area:</strong> ${formatters.value.$formatArea(props.original_area != null ? props.original_area : computedArea)}</p>
-                <p><strong>Available Area:</strong> ${formatters.value.$formatArea(props.available_area)}</p>
-                <p><strong>Area Reduction:</strong> ${formatters.value.$formatNumber(props.area_reduction)}%</p>
-                <p><strong>Can Store:</strong> ${props.available_area >= storageStore.totalFootprint ?
-            '<span class="success">Yes</span>' : '<span class="error">No</span>'}</p>
-                ${props.available_area != null && props.available_area > 0 ? `
-                  <p><strong>Space Utilization:</strong> ${formatters.value.$formatNumber((storageStore.totalFootprint / props.available_area) * 100)}%</p>
-                  <div class="utilization-bar">
-                    <div class="fill" style="width: ${Math.min((storageStore.totalFootprint / props.available_area) * 100, 100)}%"></div>
-                  </div>
-                ` : ''}
-              </div>
-            ` : ''}
-            ${props.overlapping_buffers && props.overlapping_buffers.length > 0 ? `
-              <div class="popup-section buffer-info">
-                <h4>Buffer Zone Impacts</h4>
-                <p><strong>Overlapping Buffers:</strong> ${props.overlapping_buffers.length}</p>
-                <ul>
-                  ${props.overlapping_buffers.map(buffer => `
-                    <li>
-                      <strong>${buffer.buffer_id}</strong>: 
-                      ${formatHazardType(buffer.hazard_type)} - 
-                      ${formatters.value.$formatArea(buffer.overlap_area_sqft)}
-                    </li>
-                  `).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      const popupOptions = {
-        maxWidth: 300,
-        className: 'custom-popup-container'
-      };
-
-      layer.bindPopup(popupContent, popupOptions);
+      layer.on('click', () => {
+        selectedFeature.value = feature;
+      });
     }
   });
 
@@ -932,6 +1063,24 @@ const renderBufferZonesGeoJSONLayer = () => {
     const hazardType = feature.properties.hazard_categories[0];
     const facilityName = feature.properties.facility_name;
 
+    // Look up facility info from facilitiesMap
+    const facilityInfo = facilitiesMap.value.get(facilityName) || {};
+
+    bufferFeatures.push({
+      geometry: feature.geometry,
+      properties: {
+        facility_name: facilityName,
+        hazard_type: hazardType,
+        buffer_distance_ft: feature.properties.buffer_distance_ft,
+        // Use facility info from facilities.geojson
+        facility_type: facilityInfo.amenity || 'Unknown',
+        facility_address: facilityInfo.address || 'Not specified',
+        facility_area: facilityInfo.sq_ft || 'Unknown',
+        facility_description: facilityInfo.description || '',
+        facility_id: facilityInfo.id
+      }
+    });
+
     const hazardColors = {
       "contains_people": "#FF4500",
       "contains_flammable_liquids": "#FFD700",
@@ -948,15 +1097,6 @@ const renderBufferZonesGeoJSONLayer = () => {
       }
     });
 
-    bufferFeatures.push({
-      geometry: feature.geometry,
-      properties: {
-        facility_name: facilityName,
-        hazard_type: hazardType,
-        buffer_distance_ft: feature.properties.buffer_distance_ft
-      }
-    });
-
     layerGroup.addLayer(layer);
   });
 
@@ -969,27 +1109,28 @@ const renderBufferZonesGeoJSONLayer = () => {
     );
 
     if (overlappingBuffers.length > 0) {
-      bufferPopupShown = true;
-      const popupContent = `
-        <div class="custom-popup buffer-zones-popup">
-          <h3>Safety Buffer Zones</h3>
-          ${overlappingBuffers.map(buffer => `
-            <div class="popup-section">
-              <h4>${buffer.properties.facility_name}</h4>
-              <p><strong>Type:</strong> ${formatHazardType(buffer.properties.hazard_type)}</p>
-              <p><strong>Required Distance:</strong> ${formatters.value.$formatNumber(buffer.properties.buffer_distance_ft)} ft</p>
-            </div>
-          `).join('')}
-        </div>
-      `;
-
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(popupContent)
-        .openOn(map.value);
-
-      e.originalEvent.stopPropagation();
-      e.originalEvent.preventDefault();
+      selectedBuffers.value = overlappingBuffers;
+      selectedFeature.value = {
+        type: 'buffer-zones',
+        properties: {
+          name: 'Safety Buffer Zones',
+          amenity: 'Buffer',
+          buffers: overlappingBuffers.map(buffer => ({
+            geometry: buffer.geometry,
+            properties: {
+              ...buffer.properties,
+              // Use complete facility information
+              facility_name: buffer.properties.facility_name,
+              facility_type: buffer.properties.facility_type,
+              facility_address: buffer.properties.facility_address,
+              facility_area: buffer.properties.facility_area,
+              facility_description: buffer.properties.facility_description,
+              buffer_distance_ft: buffer.properties.buffer_distance_ft,
+              hazard_type: buffer.properties.hazard_type
+            }
+          }))
+        }
+      };
     }
   });
 
@@ -1020,75 +1161,6 @@ const toggleLayer = (layerType) => {
       bufferZonesGeoJsonLayer.value.addTo(map.value);
     } else {
       bufferZonesGeoJsonLayer.value.remove();
-    }
-  }
-};
-
-const handleMapClick = async (event) => {
-  const popup = event.target.getContainer()?.querySelector('.buffer-zones-popup');
-  if (popup) return;
-
-  const { lat, lng } = event.latlng;
-  console.log("Map clicked at:", lat, lng);
-
-  try {
-    const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];way(around:50,${lat},${lng})["building"];out geom;`;
-    const response = await fetch(overpassUrl);
-    const data = await response.json();
-    console.log("Overpass API result:", data);
-
-    if (data.elements && data.elements.length > 0) {
-      const building = data.elements[0];
-      const boundaries = building.geometry.map((point) => [point.lat, point.lon]);
-      console.log("Building boundaries:", boundaries);
-
-      // Calculate area using turf.js
-      const coordinates = boundaries.map(point => [point[1], point[0]]);
-      coordinates.push(coordinates[0]); // Close the polygon
-      const poly = turfPolygon([coordinates]);
-      const areaInSquareMeters = turfArea(poly);
-      const areaInSquareFeet = areaInSquareMeters * 10.764; // Convert to square feet
-
-      const buildingInfo = {
-        name: building.tags?.name || "Unknown",
-        address: building.tags?.addr_full || null,
-        amenity: building.tags?.amenity || "Unknown",
-        safetyInfo: building.tags?.["fire_hydrant:position"]
-          ? "Fire hydrant nearby"
-          : "No specific safety information available",
-        area: areaInSquareFeet
-      };
-
-      if (!buildingInfo.address) {
-        const geocodeResponse = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-        );
-        const geocodeData = await geocodeResponse.json();
-        buildingInfo.address = geocodeData.display_name || "Unknown";
-      }
-
-      const polygon = L.polygon(boundaries, {
-        color: "blue",
-        weight: 2,
-        fillOpacity: 0.3,
-      }).addTo(map.value);
-
-      polygon.bindPopup(`
-        <b>Building Name:</b> ${buildingInfo.name}<br>
-        <b>Address:</b> ${buildingInfo.address}<br>
-        <b>Amenity:</b> ${buildingInfo.amenity}<br>
-        <b>Area:</b> ${formatters.value.$formatArea(buildingInfo.area)}<br>
-        <b>Safety Info:</b> ${buildingInfo.safetyInfo}
-      `).openPopup();
-
-      map.value.fitBounds(polygon.getBounds());
-    } else {
-      alert("No building boundaries found at this location.");
-    }
-  } catch (error) {
-    console.error("Error fetching building boundaries:", error);
-    if (!event.target.getContainer()?.querySelector('.buffer-zones-popup')) {
-      alert("Failed to fetch building boundaries.");
     }
   }
 };
@@ -1129,7 +1201,8 @@ onMounted(async () => {
       await loadFacilitiesGeoJSON();
       await loadBufferZones();
 
-      map.value.on("click", handleMapClick);
+      // Comment out the map click handler
+      // map.value.on("click", handleMapClick);
 
       nextTick(() => {
         map.value.invalidateSize();
@@ -1974,6 +2047,302 @@ input:checked+.toggle-slider:before {
   border-radius: 6px;
   padding: 10px;
   margin: 8px 0;
+}
+
+/* Details Panel */
+.details-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: rgba(22, 28, 36, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow-y: auto;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.details-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background: inherit;
+  backdrop-filter: blur(10px);
+}
+
+.close-button {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #fff;
+}
+
+.details-content {
+  padding: 20px;
+}
+
+.details-section {
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.details-section h4 {
+  color: #64ffda;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.info-item .label {
+  color: #aaa;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.info-item .value {
+  color: #fff;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+  max-width: 60%;
+}
+
+.capability-stats {
+  display: grid;
+  gap: 16px;
+}
+
+.stat-item {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #aaa;
+}
+
+.stat-value {
+  color: #64ffda;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #ff9f43;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.sufficient {
+  background: #64ffda;
+}
+
+.space-indicator {
+  text-align: center;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.space-indicator.sufficient {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.buffer-impacts {
+  display: grid;
+  gap: 12px;
+}
+
+.buffer-impact-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid;
+}
+
+.buffer-impact-card.hazard-people {
+  border-color: #FF4500;
+}
+
+.buffer-impact-card.hazard-flammable {
+  border-color: #FFD700;
+}
+
+.buffer-impact-card.hazard-fire {
+  border-color: #FF0000;
+}
+
+.impact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.impact-title {
+  font-weight: 500;
+  color: #fff;
+}
+
+.impact-type {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.impact-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.impact-area {
+  color: #64ffda;
+  font-weight: 500;
+}
+
+.impact-percentage {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.impact-indicator {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.indicator-fill {
+  height: 100%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Buffer Zone Card */
+.buffer-zone-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 3px solid;
+}
+
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.zone-name {
+  font-weight: 500;
+  color: #fff;
+}
+
+.zone-type {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.zone-details {
+  margin: 8px 0;
+}
+
+.zone-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.zone-indicator {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
+/* Building Info */
+.building-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.building-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64ffda;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.building-info .info-item {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+/* Slide animation */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
 }
 
 /* Responsive adjustments */
