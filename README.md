@@ -1,120 +1,307 @@
-FLIGHT Future Logistics in Green Hydrogen Transport
-•        Comprehensive Hydrogen Storage Analysis Use Case
-•        Demand, Storage, Regulatory Compliance, Sustainability, and Economic Impact
- Introduction
-•        Presentation Topic: Integrated H2 Infrastructure Analysis for the Atlanta Airport
-•        H2 airport adoption Problem statement:
-•        Uncertain H2 demand (flights/GSE ops)
-•        Storage constraints (land, safety distances).
-•        Regulatory maze (OSHA, DOT, NFPA, SAE).
-•        Economic viability.
-•        Purpose:
-•        Enable stakeholders to analyze hydrogen storage requirements comprehensively.
-•        Evaluate demand, storage needs, regulatory compliance, sustainability impacts, and economic feasibility of hydrogen infrastructure.
-•        Stakeholders:
-•        Airport developers
-•        Airline stakeholders
-Comprehensive Use Case Overview
-•        Goal of Analysis:
-•        Accurately estimate hydrogen demand for aircraft and ground support equipment (GSE).
-•        Evaluate hydrogen storage infrastructure requirements.
-•        Ensure regulatory compliance with safety standards.
-•        Analyze sustainability impacts.
-•        Provide detailed economic feasibility assessments.
-Key Steps
-User Input
-Hydrogen Consumption Data Input
-Hydrogen Demand and Storage Calculation
-Infrastructure Requirements & Land Area
-Regulatory Compliance Evaluation
-Sustainability Assessment
-Economic Impact Analysis
-Step 1 – User Input
-•        Inputs:
-•        Aircraft transition percentage: Proportion of aircraft adopting hydrogen technology
-•        Types of  GSE vehicles (e.g., buses, forklifts, …): GSE transitioning to H2
-•        Projection year: Selected year for forecasting H2 transition impacts
-Example Screenshot - UI Mockup
-Step 2 – Hydrogen Consumption Data sources
-•        Fleet Data Required:
-•        Growth rate
-•        Aircraft type and frequency of operations
-•        GSE types, quantities and operating patterns
-•        Aircraft data (aircraft_data.csv)
-•        GSE data (gse_data.csv)
-Step 3 – Hydrogen Demand Calculation – Aircraft
-Step 3 – Hydrogen Demand Calculation – GSE
-•        Hydrogen Demand Output
-•        Aircraft H2 volume
-•        GSE H2 volume
-•        Total H2 demand
-•        GSE chosen information
-•        Charts
-Example Screenshot
- Step 4: Storage Capacity & Land Calculation
-•        total_storage_volume = aircraft_H2_volume + GSE_H2_Volume
-•        usable_volume_of_LH2 = water_volume * (1-ullage)*(1-evaporation_rate)
-•        #_of_tanks = H2_demand_volume_per_day/usable_volume_of_LH2
-•        tank_footprint = width * length
-•        H2_stockage_area = tank_footprint * #_of_tanks
-•        Storage Capacity & Land Calculation Output
-•        # of tanks
-•        Storage area required
-•        Charts
-Example Screenshot
-•        Step 5: Regulatory Compliance – Distance
-•        Checking Compliance
-•        Convert storage volume (ft^3) à gallons
-•        Compare capacity to regulations
-•        Verify Safety distance and tank requirements
- Step 5: Regulatory Compliance - Requirement
-•        Output – Regulatory Compliance
-•        Map
-•        Color Schemes
-•        Applicable regulations
-Example Screenshot
-Step 6: Sustainability Analysis
-•        Emission Reductions:
-•        Calculate CO₂ emissions reductions from replacing Jet A, Diesel, and Gasoline with Hydrogen
-•        total_emissions = jetA_emissions + diesel_emissions + gasoline_emissions
-•        Emission Factors:
-•        Jet A: 9.57 kg CO₂/lb
-•        Diesel: 22.38 kg CO₂/lb
-•        Gasoline: 19.64 kg CO₂/lb
-•        Environmental Benefits:
-•        Improved air quality
-•        Lower operational carbon footprint
-•        Output - Sustainability Analysis
-•        Charts
-•        Time series
-Step 7:
+# FLIGHT Dashboard: Hydrogen Infrastructure Analysis Tool
 
-### **EconomicService**
-- **Revenue Impact**:
-  - Calculates revenue loss due to hydrogen adoption (e.g., increased turnaround times).
-  - Compares baseline revenue (Jet A operations) and revised revenue (hydrogen operations).
-- **Hydrogen Utilization Impact**:
-  - Models the reduction in aircraft utilization hours after hydrogen adoption.
-- **Tax Credit Calculation**:
-  - Computes the tax credit required per gallon of hydrogen to offset revenue loss.
-- **Baseline vs. New Revenue**:
-  - Provides a comparison of baseline revenue and hydrogen-adjusted revenue.
+_Future Logistics in Green Hydrogen Transport_
 
----
+## 1. Dashboard Overview
 
-### **StorageService**
-- **Construction Cost Modeling**:
-  - Calculates the cost of constructing hydrogen storage tanks based on footprint and cost per square foot.
-- **Insulation Cost Modeling**:
-  - Computes insulation costs based on tank volume and insulation cost per cubic foot.
-- **Total Infrastructure Costs**:
-  - Combines construction and insulation costs to provide total hydrogen storage infrastructure costs.
-- **Scalable Storage Design**:
-  - Supports calculations for multiple tanks and evaluates the required storage footprint.
+_Interactive analysis tool for hydrogen infrastructure planning_
 
-Key Takeaways
-•        Clear hydrogen infrastructure planning guidance
-•        Regulatory compliance requirements
-•        Sustainability benefits
-•        Economic feasibility
+### Home Screen
 
+- **Welcome & Purpose**
+
+  - Hydrogen transition planning for airports
+  - Infrastructure requirement analysis
+  - Economic impact assessment
+  - Regulatory compliance verification
+
+- **Key Benefits**
+  - Data-driven decision making
+  - Comprehensive scenario analysis
+  - Real-time calculations
+  - Risk mitigation support
+
+## 2. Input Configuration Screen
+
+_Where planning begins_
+
+### User Inputs
+
+- **Fleet Transition Parameters**
+
+  - Fleet transition percentage (configurable):
+
+    - Impact on total flights: Based on ATL departure data
+    - Current baseline: 531,558 annual Delta departures
+    - Example: 20% transition = ~106,311 H2 flights
+
+  - Timeline configuration:
+    - Start year (2024-2030)
+    - End year (up to 2050)
+    - Transition milestones
+  - Growth rate modeling:
+    - Historical growth patterns from ac_data.csv
+    - User-adjustable (1-5% annual)
+    - Impact on infrastructure sizing
+
+- **Operational Parameters**
+
+  - Extra turnaround time:
+
+    - Current data shows 10-30 minutes additional
+    - Impact on daily operations
+    - Revenue hour calculations
+
+  - Route prioritization:
+    - Based on actual flight distances from ac_data.csv
+    - Focus on routes < 1,000 miles initially
+    - Gradual expansion to longer routes
+
+### What This Answers
+
+- **"How do we start the transition?"**
+
+  - Strategic Insights from Data:
+    - Most viable routes for initial transition (based on flight data showing 67-406 mile routes from ATL)
+    - Optimal fleet segment to convert (based on aircraft utilization patterns)
+    - Infrastructure capacity needed (derived from actual fuel consumption data)
+    - Revenue impact estimates (calculated from real operational data)
+
+- **"What parameters matter most?"**
+  Delta Airlines Decision Support:
+
+  - Revenue Impact Analysis:
+
+    - Actual flight schedule disruption costs
+    - Real utilization changes from extended turnaround
+    - Route-specific profitability impacts
+
+  - Fleet Planning Insights:
+    - High-frequency routes suitable for H2
+    - Aircraft type transition priorities
+    - Maintenance schedule implications
+
+  Airport Authority Decision Support:
+
+  - Infrastructure Planning:
+    - Land use optimization (based on current facility data)
+    - Storage capacity requirements (from actual fuel demand)
+    - Safety compliance requirements
+    - Phasing approach based on airline needs
+
+- **"How can we phase the implementation?"**
+  Data-Driven Implementation Strategy:
+
+  - Initial Phase Focus:
+
+    - Routes showing highest H2 conversion viability
+    - Minimal infrastructure impact
+    - Manageable revenue effects
+
+  - Scaling Triggers:
+
+    - Infrastructure utilization thresholds
+    - Revenue impact tolerance levels
+    - Operational efficiency metrics
+
+  - Risk Management:
+    - Early warning indicators from operational data
+    - Adjustment points based on performance metrics
+    - Compliance milestone tracking
+
+### Impact Analysis
+
+Each parameter is linked to specific stakeholder decisions:
+
+- Airlines:
+  - Route network optimization
+  - Fleet modernization timing
+  - Revenue protection strategies
+- Airport:
+  - Infrastructure investment timing
+  - Land use planning
+  - Safety compliance roadmap
+
+## 3. Demand Analysis Screen
+
+_Understanding hydrogen requirements_
+
+### Calculations Performed
+
+- Aircraft H2 demand based on:
+  - Flight volumes
+  - Aircraft types
+  - Route patterns
+- GSE H2 requirements
+- Total demand forecasting
+
+### What This Answers
+
+For Airlines:
+
+- Fuel logistics planning based on actual flight schedules
+- Peak demand periods from historical patterns
+- Route-specific hydrogen requirements
+- Fleet transition impact on fuel needs
+
+For Airport:
+
+- Total hydrogen storage requirements
+- Daily/monthly throughput planning
+- Infrastructure sizing requirements
+- Supply chain planning needs
+
+### Key Outputs
+
+- Monthly demand forecasts
+- Peak usage patterns
+- Growth trajectories
+
+## 4. Infrastructure Requirements Screen
+
+_Planning storage and facilities_
+
+### Analysis Provided
+
+- Storage tank requirements
+- Land area needs
+- Safety buffer calculations
+- Facility layout recommendations
+
+### What This Answers
+
+For Airport Planning:
+
+- Land use optimization strategies
+- Storage facility placement options
+- Future expansion planning
+- Safety compliance requirements
+
+For Airlines:
+
+- Aircraft parking and fueling logistics
+- Ground operations adaptation needs
+- Maintenance facility requirements
+- Operational constraint identification
+
+## 5. Economic Impact Screen
+
+_Financial analysis and optimization_
+
+### What This Answers
+
+For Financial Planning:
+
+- Capital investment requirements
+- Operating cost changes
+- Revenue impact mitigation
+- Tax incentive opportunities
+
+For Operations:
+
+- Resource allocation efficiency
+- Cost optimization opportunities
+- Performance metrics impacts
+- ROI optimization strategies
+
+### Key Metrics Shown
+
+- Revenue projections
+- Infrastructure costs
+- Tax credit requirements
+- Payback periods
+
+## 6. Regulatory Compliance Screen
+
+_Safety and standards verification_
+
+### Features
+
+- Automated compliance checking
+- Safety distance validation
+- Regulatory requirement tracking
+- Risk assessment display
+
+### What This Answers
+
+For Safety/Compliance Teams:
+
+- Specific regulation adherence status
+- Required safety measure implementations
+- Permit application requirements
+- Risk mitigation strategies
+
+For Management:
+
+- Compliance timeline planning
+- Resource allocation needs
+- Risk assessment insights
+- Implementation priorities
+
+## 7. Sustainability Impact Screen
+
+_Environmental benefit tracking_
+
+### Metrics Displayed
+
+- CO2 emissions reduction
+- Environmental benefits
+- Progress towards goals
+- Impact visualization
+
+### What This Answers
+
+For Environmental Teams:
+
+- Carbon reduction quantification
+- Environmental compliance tracking
+- Green initiative progress
+- Sustainability goal achievements
+
+For Stakeholder Relations:
+
+- Environmental impact reporting
+- Public relations metrics
+- Sustainability milestone tracking
+- Green funding qualification data
+
+## 8. Results & Recommendations
+
+_Final analysis and next steps_
+
+### Output Summary
+
+- Comprehensive analysis results
+- Implementation recommendations
+- Risk mitigation strategies
+- Timeline proposals
+
+### Output Value
+
+For Executive Decision Making:
+
+- Strategic implementation roadmap
+- Resource allocation guidance
+- Risk mitigation priorities
+- Performance optimization paths
+
+For Project Teams:
+
+- Detailed action items
+- Timeline synchronization
+- Resource coordination needs
+- Success metrics definition
+
+### Action Items
+
+- Key decisions needed
+- Implementation phases
+- Resource requirements
+- Timeline milestones
+
+## Contact Information
+
+For detailed demonstrations and analysis:
+
+- Email: [contact@flightdashboard.com]
+- Phone: [555-0123]
