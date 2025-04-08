@@ -5,7 +5,7 @@
         <button class="menu-toggle" @click="$emit('toggle-sidebar')">
           <i class="fas fa-bars"></i>
         </button>
-        <img src="@/assets/images/flight-logo.png" alt="FLIGHT Logo" class="header-logo" />
+        <img src="@/assets/images/gt-asdl-logo.png" alt="ASDL Logo" class="header-logo" />
         <h1>Hydrogen Infrastructure</h1>
       </div>
       <div class="header-right">
