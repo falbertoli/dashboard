@@ -1719,6 +1719,22 @@
               33.6266
             ],
             [
+              -84.45151899184019,
+              33.62658900815981
+            ],
+            [
+              -84.45151899184019,
+              33.62644899184019
+            ],
+            [
+              -84.45165900815981,
+              33.62644899184019
+            ],
+            [
+              -84.45165900815981,
+              33.62658900815981
+            ],
+            [
               -84.44879,
               33.62576
             ]
@@ -2864,11 +2880,11 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Candidate Free Space 1",
+        "name": "Free Space 2",
         "amenity": "Free Space",
-        "sq_ft": "0",
+        "sq_ft": 120000,
         "address": null,
-        "description": "Alternate North Cargo Relocation from Master plan",
+        "description": "An open space available for future use.",
         "distance_requirements": {
           "contains_people": false,
           "contains_flammable_liquids": false,
@@ -2880,36 +2896,24 @@
         "coordinates": [
           [
             [
-              -84.40866,
-              33.6236
+              -84.4279,
+              33.6406
             ],
             [
-              -84.40269,
-              33.62355
+              -84.4239,
+              33.6406
             ],
             [
-              -84.40247,
-              33.62433
+              -84.4239,
+              33.6386
             ],
             [
-              -84.40173,
-              33.62565
+              -84.4279,
+              33.6386
             ],
             [
-              -84.40196,
-              33.62693
-            ],
-            [
-              -84.40301,
-              33.62825
-            ],
-            [
-              -84.40986,
-              33.62833
-            ],
-            [
-              -84.40866,
-              33.6236
+              -84.4279,
+              33.6406
             ]
           ]
         ]
@@ -2918,11 +2922,11 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Candidate Free Space 2",
+        "name": "Free Space 3",
         "amenity": "Free Space",
-        "sq_ft": "0",
+        "sq_ft": 80000,
         "address": null,
-        "description": "Airport maintenance consolidation from Master plan",
+        "description": "An open space available for future use.",
         "distance_requirements": {
           "contains_people": false,
           "contains_flammable_liquids": false,
@@ -2934,24 +2938,24 @@
         "coordinates": [
           [
             [
-              -84.40939,
-              33.62626
+              -84.4231,
+              33.6357
             ],
             [
-              -84.40865,
-              33.62358
+              -84.4201,
+              33.6357
             ],
             [
-              -84.41279,
-              33.62353
+              -84.4201,
+              33.6347
             ],
             [
-              -84.4129,
-              33.62618
+              -84.4231,
+              33.6347
             ],
             [
-              -84.40939,
-              33.62626
+              -84.4231,
+              33.6357
             ]
           ]
         ]
@@ -2960,11 +2964,11 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Candidate free Space 3",
+        "name": "Free Space 4",
         "amenity": "Free Space",
-        "sq_ft": "0",
+        "sq_ft": 100000,
         "address": null,
-        "description": "South Cargo Expansion Master Plan",
+        "description": "An open space available for future use.",
         "distance_requirements": {
           "contains_people": false,
           "contains_flammable_liquids": false,
@@ -2976,28 +2980,24 @@
         "coordinates": [
           [
             [
-              -84.41937,
-              33.62985
+              -84.429,
+              33.6303
             ],
             [
-              -84.41822,
-              33.62825
+              -84.425,
+              33.6303
             ],
             [
-              -84.42034,
-              33.62701
+              -84.425,
+              33.6283
             ],
             [
-              -84.42092,
-              33.62724
+              -84.429,
+              33.6283
             ],
             [
-              -84.42091,
-              33.62978
-            ],
-            [
-              -84.41937,
-              33.62985
+              -84.429,
+              33.6303
             ]
           ]
         ]
@@ -3006,11 +3006,11 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Candidate free space 4",
+        "name": "Free Space 5",
         "amenity": "Free Space",
-        "sq_ft": "0",
+        "sq_ft": 90000,
         "address": null,
-        "description": "Support Facility Relocation Master Plan",
+        "description": "An open space available for future use.",
         "distance_requirements": {
           "contains_people": false,
           "contains_flammable_liquids": false,
@@ -3022,72 +3022,24 @@
         "coordinates": [
           [
             [
-              -84.40014,
-              33.63926
+              -84.435,
+              33.637
             ],
             [
-              -84.39798,
-              33.63908
+              -84.432,
+              33.637
             ],
             [
-              -84.39798,
-              33.63708
+              -84.432,
+              33.6355
             ],
             [
-              -84.39767,
-              33.63706
+              -84.435,
+              33.6355
             ],
             [
-              -84.39762,
-              33.63664
-            ],
-            [
-              -84.39665,
-              33.63661
-            ],
-            [
-              -84.39632,
-              33.63573
-            ],
-            [
-              -84.39583,
-              33.63507
-            ],
-            [
-              -84.39732,
-              33.63379
-            ],
-            [
-              -84.39734,
-              33.63384
-            ],
-            [
-              -84.39761,
-              33.63364
-            ],
-            [
-              -84.39875,
-              33.63482
-            ],
-            [
-              -84.39987,
-              33.63558
-            ],
-            [
-              -84.40039,
-              33.63602
-            ],
-            [
-              -84.40077,
-              33.63691
-            ],
-            [
-              -84.40053,
-              33.63795
-            ],
-            [
-              -84.40014,
-              33.63926
+              -84.435,
+              33.637
             ]
           ]
         ]
@@ -3096,11 +3048,11 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Candidate free space 5",
+        "name": "Free Space 6",
         "amenity": "Free Space",
-        "sq_ft": "0",
+        "sq_ft": 200000,
         "address": null,
-        "description": "Support Facility Relocation, Phase 2 Master Plan",
+        "description": "An open space available for future use.",
         "distance_requirements": {
           "contains_people": false,
           "contains_flammable_liquids": false,
@@ -3112,148 +3064,24 @@
         "coordinates": [
           [
             [
-              -84.39445,
-              33.63441
+              -84.4205,
+              33.6385
             ],
             [
-              -84.39444,
-              33.6323
+              -84.4165,
+              33.6385
             ],
             [
-              -84.39534,
-              33.63231
-            ],
-            [
-              -84.39659,
-              33.63277
-            ],
-            [
-              -84.39787,
-              33.63374
-            ],
-            [
-              -84.3976,
-              33.63392
-            ],
-            [
-              -84.39736,
-              33.63376
-            ],
-            [
-              -84.39571,
-              33.63489
-            ],
-            [
-              -84.39445,
-              33.63441
-            ]
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Candidate free space 6",
-        "amenity": "Free Space",
-        "sq_ft": "0",
-        "address": null,
-        "description": "Support Facility Relocation Phase 2 Master Plan",
-        "distance_requirements": {
-          "contains_people": false,
-          "contains_flammable_liquids": false,
-          "contains_open_fire": false
-        }
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -84.39794,
-              33.63815
-            ],
-            [
-              -84.39606,
-              33.63809
-            ],
-            [
-              -84.39656,
-              33.63665
-            ],
-            [
-              -84.3977,
-              33.63665
-            ],
-            [
-              -84.39773,
-              33.6371
-            ],
-            [
-              -84.39796,
-              33.63713
-            ],
-            [
-              -84.39794,
-              33.63815
-            ]
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Candidate Free Space 7",
-        "amenity": "Free Space",
-        "sq_ft": "0",
-        "address": null,
-        "description": "Support Facility Relocation Phase 2 Master Plan",
-        "distance_requirements": {
-          "contains_people": false,
-          "contains_flammable_liquids": false,
-          "contains_open_fire": false
-        }
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -84.39589,
-              33.6379
-            ],
-            [
-              -84.39348,
-              33.63799
-            ],
-            [
-              -84.39348,
-              33.63459
-            ],
-            [
-              -84.39454,
-              33.6346
-            ],
-            [
-              -84.39434,
-              33.6349
-            ],
-            [
-              -84.3959,
-              33.63543
-            ],
-            [
-              -84.39612,
-              33.63575
-            ],
-            [
-              -84.39628,
+              -84.4165,
               33.6367
             ],
             [
-              -84.39589,
-              33.6379
+              -84.4205,
+              33.6367
+            ],
+            [
+              -84.4205,
+              33.6385
             ]
           ]
         ]

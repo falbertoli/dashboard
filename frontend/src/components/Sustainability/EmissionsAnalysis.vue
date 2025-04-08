@@ -98,7 +98,7 @@
             <i class="fas fa-atom"></i>
           </div>
           <div class="card-content">
-            <div class="card-title">Hydrogen Operations</div>
+            <div class="card-title">Hybrid Operations</div>
             <div class="card-value">{{ formatNumber(totalHydrogenEmissions) }} metric tons CO₂</div>
             <div class="card-percentage">Hydrogen transition scenario</div>
           </div>
