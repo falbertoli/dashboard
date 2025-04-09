@@ -46,6 +46,16 @@
           </div>
 
           <div v-else-if="storageStore.results" class="card">
+            <div class="data-consistency-indicator">
+              <div class="calculation-timestamp" v-if="storageStore.lastCalculationTime">
+                <i class="fas fa-clock"></i>
+                <span>Last calculated: {{ formatTimestamp(storageStore.lastCalculationTime) }}</span>
+              </div>
+              <div class="indicator" :class="{ 'consistent': isDataConsistent, 'inconsistent': !isDataConsistent }">
+                <i :class="isDataConsistent ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+                <span>Data {{ isDataConsistent ? 'is consistent' : 'has changed' }}</span>
+              </div>
+            </div>
             <StorageResults />
           </div>
 
@@ -62,6 +72,7 @@
 </template>
 
 <script setup>
+import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHydrogenStore } from '@/store/hydrogenStore';
 import { useStorageStore } from '@/store/storageStore';
@@ -76,12 +87,44 @@ const { isLoading } = storeToRefs(storageStore);
 // Calculate storage requirements
 const calculateStorage = () => {
   storageStore.calculateRequirements();
+  storageStore.lastCalculationTime = new Date();
 };
 
 // Reset storage calculations
 const resetStorage = () => {
   storageStore.reset();
 };
+
+// Format timestamp helper
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return 'Never';
+  const date = new Date(timestamp);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
+// Check if data is consistent
+const isDataConsistent = computed(() => {
+  if (!storageStore.results || !storageStore.lastParams) return true;
+
+  const currentTotalH2Demand = parseFloat(hydrogenStore.totalH2Demand || 0);
+  return currentTotalH2Demand === storageStore.lastParams.totalH2Demand;
+});
+
+// Check for data consistency on component mount
+onMounted(() => {
+  if (storageStore.results && storageStore.lastParams) {
+    const currentTotalH2Demand = parseFloat(hydrogenStore.totalH2Demand || 0);
+    if (currentTotalH2Demand !== storageStore.lastParams.totalH2Demand) {
+      storageStore.reset();
+    }
+  }
+});
 </script>
 
 <style scoped>
@@ -243,6 +286,59 @@ const resetStorage = () => {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.data-consistency-indicator {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 12px 15px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #ddd;
+}
+
+.calculation-timestamp {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-right: auto;
+}
+
+.calculation-timestamp i {
+  color: #64ffda;
+  margin-right: 8px;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.indicator i {
+  margin-right: 8px;
+}
+
+.indicator.consistent {
+  color: #64ffda;
+}
+
+.indicator.consistent i {
+  color: #64ffda;
+}
+
+.indicator.inconsistent {
+  color: #ff9800;
+}
+
+.indicator.inconsistent i {
+  color: #ff9800;
 }
 
 /* Responsive adjustments */

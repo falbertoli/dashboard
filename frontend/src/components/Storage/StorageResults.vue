@@ -78,7 +78,7 @@
               results.total_infrastructure_cost * 100) }}</div>
           </div>
           <div class="cost-item">
-            <div class="cost-label">Insulation Cost</div>
+            <div class="cost-label">Tank Cost</div>
             <div class="cost-value">${{ $formatNumber(results.insulation_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.insulation_cost / results.total_infrastructure_cost
               * 100) }}</div>
