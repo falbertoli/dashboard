@@ -113,7 +113,7 @@ def hydrogen_uti_rev(
     # Revenue drop and percentage drop
     revenue_drop_m = baseline_revenue_m - new_h2_revenue_m
     print(f"revenue_drop_m = baseline_revenue_m - new_h2_revenue_m: {revenue_drop_m} = {baseline_revenue_m} - {new_h2_revenue_m}")
-    pct_drop = 0.0 if baseline_revenue_m == 0.0 else 100.0 * (revenue_drop_m / baseline_revenue_m)
+    pct_drop = 0.0 if baseline_revenue_m == 0.0 else -100.0 * (revenue_drop_m / baseline_revenue_m)
     print(f"pct_drop = 0.0 if baseline_revenue_m == 0.0 else 100.0 * (revenue_drop_m / baseline_revenue_m): {pct_drop} = 0.0 if {baseline_revenue_m} == 0.0 else 100.0 * ({revenue_drop_m} / {baseline_revenue_m})")
 
 
