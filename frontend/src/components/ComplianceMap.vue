@@ -753,8 +753,11 @@ const performBufferAnalysis = () => {
 const calculateAvailableArea = (storageFeature, bufferFeatures) => {
   try {
     const originalArea = computeFeatureArea(storageFeature);
+    const storageFeatureName = storageFeature.properties?.name || 'Unknown';
 
-    const potentialOverlaps = findPotentialOverlaps(storageFeature, bufferFeatures);
+    const potentialOverlaps = findPotentialOverlaps(storageFeature, bufferFeatures).filter(
+      buffer => buffer.properties?.facility_name !== storageFeatureName
+    );
 
     let totalReduction = 0;
     const overlappingBuffers = [];
@@ -778,7 +781,7 @@ const calculateAvailableArea = (storageFeature, bufferFeatures) => {
     return {
       original_area_sqft: originalArea,
       available_area_sqft: availableArea,
-      area_reduction_percent: originalArea > 0 ? ((originalArea - availableArea) / originalArea * 100) : 0,
+      area_reduction_percent: originalArea > 0 ? ((totalReduction / originalArea) * 100) : 0,
       overlapping_buffers: overlappingBuffers,
       available_geometry: storageFeature.geometry
     };

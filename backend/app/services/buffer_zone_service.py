@@ -138,6 +138,7 @@ def calculate_available_storage_areas(storage_volume_gal=None):
         area_geom = area["geometry"]
         area_props = area["properties"]
         area_id = area_props["id"]
+        area_name = area_props.get("name", area_props.get("id"))
         original_area_sqft = calculate_area_sqft(area_geom)
         
         # Initialize with full area
@@ -147,7 +148,12 @@ def calculate_available_storage_areas(storage_volume_gal=None):
         
         # Step 3: Check for overlaps with each buffer zone
         for buffer in buffer_zones:
+            buffer_props = buffer["properties"]
             buffer_geom = buffer["geometry"]
+            
+            # Skip if this buffer belongs to the current area
+            if buffer_props["facility_name"] == area_name:
+                continue
             
             # Check if buffer intersects with the area
             if geometries_intersect(buffer_geom, area_geom):
@@ -161,8 +167,8 @@ def calculate_available_storage_areas(storage_volume_gal=None):
                 
                 # Record the overlapping buffer
                 overlapping_buffers.append({
-                    "buffer_id": buffer["properties"]["facility_name"],
-                    "hazard_type": buffer["properties"]["hazard_categories"][0],
+                    "buffer_id": buffer_props["facility_name"],
+                    "hazard_type": buffer_props["hazard_categories"][0],
                     "overlap_area_sqft": overlap_area_sqft
                 })
         
