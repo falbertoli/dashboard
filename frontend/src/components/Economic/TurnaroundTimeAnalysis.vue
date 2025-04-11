@@ -110,7 +110,7 @@
             <label :for="`scenario${index}`">Scenario {{ index + 1 }}:</label>
             <input :id="`scenario${index}`" type="number" v-model.number="turnTimeDecreaseRates[index]" min="0" max="10"
               step="1" />
-            <span>min/year</span>
+            <span>annual min/ops</span>
             <button v-if="index > 0" @click="removeScenario(index)" class="btn remove" title="Remove scenario">
               ✕
             </button>
@@ -149,7 +149,7 @@
         <div class="comparison-cards">
           <div v-for="scenario in economicsStore.scenarioComparison" :key="scenario.rate" class="comparison-card"
             :class="{ 'selected': selectedScenario === scenario.rate }" @click="selectScenario(scenario.rate)">
-            <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} min/year</h3>
+            <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual min/ops</h3>
             <div class="card-metrics">
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Tax Credit</span>
@@ -170,7 +170,7 @@
 
       <!-- Selected Scenario Summary -->
       <section class="scenario-summary">
-        <h2><i class="fas fa-chart-pie"></i> {{ selectedScenario }} min/year Scenario Summary</h2>
+        <h2><i class="fas fa-chart-pie"></i> {{ selectedScenario }} annual min/ops Scenario Summary</h2>
         <div class="summary-metrics">
           <div class="metric-card">
             <h3><i class="fas fa-dollar-sign"></i> Peak Tax Credit</h3>
@@ -205,7 +205,7 @@
 
       <!-- Detailed Results Table -->
       <section v-if="activeTab === 'details'" class="details-section">
-        <h2><i class="fas fa-table"></i> Detailed Results for {{ selectedScenario }} min/year Scenario</h2>
+        <h2><i class="fas fa-table"></i> Detailed Results for {{ selectedScenario }} annual min/ops Scenario</h2>
         <div class="table-container details-table">
           <div class="table-header">
             <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
@@ -231,7 +231,7 @@
 
       <!-- Tax Credits Table -->
       <section v-if="activeTab === 'taxCredits'" class="taxCredits-section">
-        <h2><i class="fas fa-receipt"></i> Tax Credits for {{ selectedScenario }} min/year Scenario</h2>
+        <h2><i class="fas fa-receipt"></i> Tax Credits for {{ selectedScenario }} annual min/ops Scenario</h2>
         <div class="table-container taxCredits-table">
           <div class="table-header">
             <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
@@ -310,7 +310,7 @@ export default {
     const economicsStore = useEconomicsStore();
     const hydrogenStore = useHydrogenStore();
     const notificationStore = useNotificationStore();
-    const selectedScenario = ref(3); // Default to 3 min/year reduction
+    const selectedScenario = ref(3); // Default to 3 annual min/ops reduction
     const activeTab = ref('details'); // Default active tab
 
     // Only allow user to modify turnaround time parameters
@@ -354,7 +354,7 @@ export default {
       const nextValue = turnTimeDecreaseRates.value.length > 0
         ? Math.max(...turnTimeDecreaseRates.value) + 1
         : 0;
-      turnTimeDecreaseRates.value.push(Math.min(nextValue, 10)); // Cap at 10 min/year
+      turnTimeDecreaseRates.value.push(Math.min(nextValue, 10)); // Cap at 10 annual min/ops
     };
 
     const removeScenario = (index) => {
@@ -528,12 +528,12 @@ export default {
     // Function to get colors for different rates
     const getColorForRate = (rate, alpha = 1) => {
       const colors = [
-        `rgba(255, 99, 132, ${alpha})`,   // 0 min/year
-        `rgba(54, 162, 235, ${alpha})`,   // 1 min/year
-        `rgba(255, 206, 86, ${alpha})`,   // 2 min/year
-        `rgba(75, 192, 192, ${alpha})`,   // 3 min/year
-        `rgba(153, 102, 255, ${alpha})`,  // 4 min/year
-        `rgba(255, 159, 64, ${alpha})`    // 5 min/year
+        `rgba(255, 99, 132, ${alpha})`,   // 0 annual min/ops
+        `rgba(54, 162, 235, ${alpha})`,   // 1 annual min/ops
+        `rgba(255, 206, 86, ${alpha})`,   // 2 annual min/ops
+        `rgba(75, 192, 192, ${alpha})`,   // 3 annual min/ops
+        `rgba(153, 102, 255, ${alpha})`,  // 4 annual min/ops
+        `rgba(255, 159, 64, ${alpha})`    // 5 annual min/ops
       ];
       return colors[rate] || `rgba(0, 0, 0, ${alpha})`;
     };
@@ -547,7 +547,7 @@ export default {
       const labels = firstScenario.map(item => item.Year);
 
       const datasets = Object.entries(scenarios).map(([rate, data]) => ({
-        label: `${rate} min/year reduction`,
+        label: `${rate} annual min/ops reduction`,
         data: data.map(item => item.Pct_Drop),
         borderColor: getColorForRate(parseInt(rate)),
         backgroundColor: getColorForRate(parseInt(rate), 0.2),
@@ -567,7 +567,7 @@ export default {
 
       const datasets = Object.entries(scenarios).map(([rate, data]) => {
         return {
-          label: `${rate} min/year reduction`,
+          label: `${rate} annual min/ops reduction`,
           data: data.map(item => item.Req_Tax_Credit_per_gal || 0),
           borderColor: getColorForRate(parseInt(rate)),
           backgroundColor: getColorForRate(parseInt(rate), 0.2),
@@ -583,7 +583,7 @@ export default {
       if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
 
       const scenarios = economicsStore.results.scenarios;
-      const labels = Object.keys(scenarios).map(rate => `${rate} min/year`);
+      const labels = Object.keys(scenarios).map(rate => `${rate} annual min/ops`);
 
       const cumulativeCosts = Object.entries(scenarios).map(([rate, data]) => {
         return data.reduce((sum, item) => {
