@@ -425,6 +425,8 @@
         <!-- Revenue Drop Chart -->
         <div class="chart-wrapper">
           <h3><i class="fas fa-chart-line"></i> Revenue Drop by Scenario</h3>
+          <p class="chart-description">Shows how revenue decreases over time for different turnaround time improvement
+            rates. Higher reduction rates lead to lower revenue impact.</p>
           <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
             :chartOptions="revenueChartOptions" />
         </div>
@@ -432,6 +434,8 @@
         <!-- Tax Credit Chart -->
         <div class="chart-wrapper">
           <h3><i class="fas fa-file-invoice-dollar"></i> Tax Credits by Scenario</h3>
+          <p class="chart-description">Required tax credit per gallon of hydrogen over time. Credits decrease as
+            refueling efficiency improves.</p>
           <ChartComponent chartId="taxCreditChart" chartType="line" :chartData="taxCreditChartData"
             :chartOptions="taxCreditChartOptions" />
         </div>
@@ -439,6 +443,8 @@
         <!-- Cumulative Cost Chart -->
         <div class="chart-wrapper">
           <h3><i class="fas fa-coins"></i> Cumulative Cost Comparison</h3>
+          <p class="chart-description">Total revenue loss through {{ hydrogenStore.year }} for each scenario. Shows the
+            long-term financial impact of different improvement rates.</p>
           <ChartComponent chartId="cumulativeCostChart" chartType="bar" :chartData="cumulativeCostChartData"
             :chartOptions="cumulativeCostChartOptions" />
         </div>
@@ -1512,6 +1518,14 @@ h3 {
 .chart-wrapper h3 {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.chart-description {
+  color: #aaa;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: -15px 0 20px 0;
+  font-style: italic;
 }
 
 /* =========================
