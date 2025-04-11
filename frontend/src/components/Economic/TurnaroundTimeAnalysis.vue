@@ -29,6 +29,146 @@
   </div>
 
   <div v-else>
+    <!-- Add description section -->
+    <div class="explanation-section">
+      <h2><i class="fas fa-info-circle"></i> About Turnaround Time Analysis</h2>
+
+      <div class="explanation-tabs">
+        <button v-for="(tab, index) in explanationTabs" :key="index"
+          :class="['explanation-tab', { active: activeExplanationTab === index }]"
+          @click="activeExplanationTab = index">
+          <i :class="tab.icon"></i>
+          {{ tab.title }}
+          <span class="tab-indicator"></span>
+        </button>
+      </div>
+
+      <div class="explanation-content">
+        <!-- Time Impact Tab -->
+        <div v-show="activeExplanationTab === 0" class="explanation-panel">
+          <div class="explanation-item">
+            <div class="item-header">
+              <i class="fas fa-clock"></i>
+              <h3>Extra Turnaround Time</h3>
+            </div>
+            <div class="item-content">
+              <p>The additional time (in minutes) required for hydrogen aircraft refueling compared to conventional jet
+                fuel.
+                This represents the initial technology maturity level in the start year.</p>
+              <div class="visual-indicator">
+                <i class="fas fa-level-up-alt"></i>
+                <span>Initial Impact</span>
+              </div>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <h3><i class="fas fa-chart-line"></i> Annual Reduction Rate</h3>
+            <p>Measured in minutes per operation annually (annual min/ops), this rate represents how quickly refueling
+              technology improves. For example, a rate of 3 annual min/ops means the extra turnaround time decreases by
+              3
+              minutes per operation each year as efficiency improves.</p>
+          </div>
+        </div>
+
+        <!-- Financial Impact Tab -->
+        <div v-show="activeExplanationTab === 1" class="explanation-panel">
+          <div class="explanation-item">
+            <h3><i class="fas fa-percent"></i> Revenue Impact</h3>
+            <p>Shows the percentage decrease in revenue due to longer turnaround times.
+              This is calculated based on reduced daily flight capacity and fleet percentage
+              ({{ hydrogenStore.fleetPercentage }}%).</p>
+          </div>
+          <div class="explanation-item">
+            <h3><i class="fas fa-dollar-sign"></i> Tax Credit Requirements</h3>
+            <p>The required tax credit ($/gallon) to offset revenue losses.
+              Based on hydrogen demand ({{ $formatNumber(hydrogenStore.totalH2Demand) }} ft³/day) and revenue impact.
+            </p>
+          </div>
+        </div>
+
+        <!-- Key Metrics Tab -->
+        <div v-show="activeExplanationTab === 2" class="explanation-panel">
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <h4><i class="fas fa-star"></i> Peak Tax Credit</h4>
+              <p>Maximum tax credit needed per gallon of hydrogen fuel during the transition period</p>
+            </div>
+            <div class="metric-item">
+              <h4><i class="fas fa-chart-line"></i> Peak Revenue Impact</h4>
+              <p>Largest percentage drop in revenue across the analysis period</p>
+            </div>
+            <div class="metric-item">
+              <h4><i class="fas fa-coins"></i> Cumulative Cost</h4>
+              <p>Total revenue loss in millions of dollars through {{ hydrogenStore.year }}</p>
+            </div>
+            <div class="metric-item">
+              <h4><i class="fas fa-percentage"></i> Cost Recovery</h4>
+              <p>Percentage of revenue loss offset by tax credits</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add assumptions section -->
+    <div class="assumptions-section">
+      <h2><i class="fas fa-clipboard-check"></i> Model Assumptions</h2>
+      <div class="assumptions-tabs">
+        <button v-for="(tab, index) in assumptionTabs" :key="index"
+          :class="['assumption-tab', { active: activeAssumptionTab === index }]" @click="activeAssumptionTab = index">
+          <i :class="tab.icon"></i>
+          {{ tab.title }}
+        </button>
+      </div>
+
+      <div class="assumptions-content">
+        <div v-show="activeAssumptionTab === 0" class="assumption-list">
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Only extra turnaround time impact on revenue considered</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Total utilization is scalable</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Revenue is Scalable</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Extra turnaround from the destination airport considered</span>
+          </div>
+        </div>
+
+        <div v-show="activeAssumptionTab === 1" class="assumption-list">
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Average Extra Turnaround Time for all hydrogen powered aircrafts</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Required Tax credits to compensate only for the turnaround time impact</span>
+          </div>
+        </div>
+
+        <div v-show="activeAssumptionTab === 2" class="assumption-list">
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Fixed Tax Credit Rate</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>No maximum credit limit</span>
+          </div>
+          <div class="assumption-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Annual reduction in turnaround time per flight until Jet A aircraft levels</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Add auto-recalculate option here -->
     <div class="auto-recalculate-option">
       <label class="toggle-switch">
@@ -192,14 +332,10 @@
 
       <!-- Tabs for different data views -->
       <div class="data-tabs">
-        <button class="tab-button" :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'">
-          <i class="fas fa-table"></i> Yearly Details
-        </button>
-        <button class="tab-button" :class="{ active: activeTab === 'taxCredits' }" @click="activeTab = 'taxCredits'">
-          <i class="fas fa-receipt"></i> Tax Credits
-        </button>
-        <button class="tab-button" :class="{ active: activeTab === 'charts' }" @click="activeTab = 'charts'">
-          <i class="fas fa-chart-bar"></i> Charts
+        <button v-for="tab in dataTabs" :key="tab.id" :class="['tab-button', { active: activeTab === tab.id }]"
+          @click="activeTab = tab.id">
+          <i :class="tab.icon"></i>
+          <span>{{ tab.label }}</span>
         </button>
       </div>
 
@@ -759,6 +895,28 @@ export default {
       }
     });
 
+    // Add these new reactive references
+    const activeAssumptionTab = ref(0);
+
+    const assumptionTabs = [
+      { title: 'Operational', icon: 'fas fa-plane' },
+      { title: 'Technical', icon: 'fas fa-cogs' },
+      { title: 'Financial', icon: 'fas fa-dollar-sign' }
+    ];
+
+    const activeExplanationTab = ref(0);
+    const explanationTabs = [
+      { title: 'Time Impact', icon: 'fas fa-clock' },
+      { title: 'Financial Impact', icon: 'fas fa-dollar-sign' },
+      { title: 'Key Metrics', icon: 'fas fa-chart-bar' }
+    ];
+
+    const dataTabs = [
+      { id: 'details', label: 'Yearly Details', icon: 'fas fa-table' },
+      { id: 'taxCredits', label: 'Tax Credits', icon: 'fas fa-receipt' },
+      { id: 'charts', label: 'Charts', icon: 'fas fa-chart-bar' }
+    ];
+
     return {
       economicsStore,
       hydrogenStore,
@@ -800,7 +958,12 @@ export default {
       calculateTotalSubsidies,
       calculateAverageCostRecovery,
       handleAutoRecalculateChange,
-      formatTimestamp
+      formatTimestamp,
+      activeAssumptionTab,
+      assumptionTabs,
+      activeExplanationTab,
+      explanationTabs,
+      dataTabs
     };
   }
 }
@@ -1223,37 +1386,41 @@ h3 {
    ========================= */
 .data-tabs {
   display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
   margin-bottom: 20px;
 }
 
 .tab-button {
-  padding: 10px 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
   background: none;
   border: none;
   color: #aaa;
   cursor: pointer;
-  font-size: 1rem;
-  position: relative;
-  transition: color 0.2s;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .tab-button:hover {
   color: #ddd;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .tab-button.active {
+  background-color: rgba(100, 255, 218, 0.1);
   color: #64ffda;
 }
 
-.tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #64ffda;
+.tab-button i {
+  font-size: 0.9rem;
 }
 
 /* =========================
@@ -1362,6 +1529,24 @@ h3 {
 
   .table-container {
     overflow-x: auto;
+  }
+
+  .assumptions-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .assumption-tab {
+    justify-content: flex-start;
+  }
+
+  .data-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tab-button {
+    justify-content: flex-start;
   }
 }
 
@@ -1576,5 +1761,281 @@ input:checked+.toggle-slider:before {
   color: #aaa;
   font-size: 0.8rem;
   font-style: italic;
+}
+
+/* Add these new styles */
+.assumptions-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.assumptions-tabs {
+  display: flex;
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.assumption-tab {
+  flex: 1;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.assumption-tab:hover {
+  color: #ddd;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.assumption-tab.active {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+}
+
+.assumptions-content {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.assumption-list {
+  display: grid;
+  gap: 15px;
+}
+
+.assumption-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ddd;
+  font-size: 0.95rem;
+}
+
+.assumption-item i {
+  color: #64ffda;
+  font-size: 0.9rem;
+}
+
+/* Update the data-tabs styling */
+.data-tabs {
+  display: flex;
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #ddd;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+}
+
+.tab-button i {
+  font-size: 0.9rem;
+}
+
+/* Add responsive styles */
+@media (max-width: 768px) {
+  .assumptions-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .assumption-tab {
+    justify-content: flex-start;
+  }
+
+  .data-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tab-button {
+    justify-content: flex-start;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.explanation-section {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.explanation-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 5px;
+  border-radius: 8px;
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.explanation-tab {
+  flex: 1;
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.explanation-tab:hover {
+  color: #fff;
+  background: rgba(100, 255, 218, 0.05);
+}
+
+.explanation-tab.active {
+  color: #64ffda;
+  background: rgba(100, 255, 218, 0.1);
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: transparent;
+  transition: transform 0.3s ease;
+}
+
+.explanation-tab.active .tab-indicator {
+  background: #64ffda;
+  transform: scaleX(1);
+}
+
+.explanation-content {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 25px;
+  transition: all 0.3s ease;
+}
+
+.explanation-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.explanation-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(100, 255, 218, 0.2);
+  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.1);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.item-header i {
+  color: #64ffda;
+  font-size: 1.2rem;
+  background: rgba(100, 255, 218, 0.1);
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.item-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.1rem;
+  border: none;
+  padding: 0;
+}
+
+.item-content {
+  color: #aaa;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.visual-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 0.9rem;
+}
+
+.visual-indicator i {
+  font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .explanation-tabs {
+    flex-direction: column;
+  }
+
+  .explanation-tab {
+    justify-content: flex-start;
+  }
+
+  .item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
