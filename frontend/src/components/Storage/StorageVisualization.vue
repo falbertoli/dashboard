@@ -30,6 +30,9 @@
       </div>
 
       <div class="pagination" v-if="viewMode === 'grid' && totalPages > 1">
+        <button @click="currentPage = 1" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
         <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1" class="page-btn">
           <i class="fas fa-chevron-left"></i>
         </button>
@@ -37,6 +40,9 @@
         <button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
           class="page-btn">
           <i class="fas fa-chevron-right"></i>
+        </button>
+        <button @click="currentPage = totalPages" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-double-right"></i>
         </button>
       </div>
     </div>
@@ -90,7 +96,7 @@
         </div>
         <div class="tooltip-row" v-if="tooltipTankIndex === count && lastTankFill !== undefined">
           <span class="tooltip-label">Fill Level:</span>
-          <span class="tooltip-value">{{ lastTankFill.toFixed(2) }}%</span>
+          <span class="tooltip-value partial-fill">{{ lastTankFill.toFixed(2) }}%</span>
         </div>
         <div class="tooltip-row" v-else>
           <span class="tooltip-label">Fill Level:</span>
@@ -219,7 +225,7 @@ const formatNumber = (value) => {
 .view-options {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.2rem;
 }
 
 .view-label {
@@ -306,6 +312,7 @@ h4 {
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
 .tank {
@@ -450,6 +457,10 @@ h4 {
 .tooltip-value {
   color: #ddd;
   font-weight: 600;
+}
+
+.tooltip-value.partial-fill {
+  color: #ff9f43;
 }
 
 .legend {
