@@ -200,6 +200,70 @@
               </section>
             </div>
           </div>
+
+          <div v-show="activeTab === 'data'" class="tab-pane">
+            <section class="dashboard-section">
+              <h2><i class="fas fa-database"></i> Backend Data Structure</h2>
+              <div class="data-structure-grid">
+                <div class="data-category">
+                  <div class="card-header">
+                    <i class="fas fa-table"></i>
+                    <h3>CSV Data Files</h3>
+                  </div>
+                  <ul>
+                    <li><strong>ac_data.csv</strong> - Aircraft operations and fuel consumption data</li>
+                    <li><strong>gse_data.csv</strong> - Ground vehicles details and fuel usage</li>
+                    <li><strong>regulations.csv</strong> - Safety regulations and requirements</li>
+                    <li><strong>distances_requirements.csv</strong> - Safety distance specifications</li>
+                    <li><strong>utilization_data.csv</strong> - Fleet utilization statistics</li>
+                    <li><strong>operations_data.csv</strong> - Carrier operations data</li>
+                    <li><strong>income_data.csv</strong> - Revenue and financial metrics</li>
+                  </ul>
+                </div>
+
+                <div class="data-category">
+                  <div class="card-header">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>GeoJSON Files</h3>
+                  </div>
+                  <ul>
+                    <li><strong>facilities.geojson</strong> - Airport facilities and structures</li>
+                    <li><strong>buffer_zones.geojson</strong> - Safety buffer zones around facilities</li>
+                  </ul>
+                </div>
+
+                <div class="data-category">
+                  <div class="card-header">
+                    <i class="fas fa-sliders-h"></i>
+                    <h3>Constants & Parameters</h3>
+                  </div>
+                  <ul>
+                    <li><strong>Storage Tank</strong>
+                      <ul>
+                        <li>Dimensions: 10.17ft × 56.5ft</li>
+                        <li>Water Capacity: 18,014 gallons</li>
+                        <li>Ullage: 5%</li>
+                      </ul>
+                    </li>
+                    <li><strong>Operational</strong>
+                      <ul>
+                        <li>Delta Flight Share: 67%</li>
+                        <li>Domestic Share: 89%</li>
+                        <li>Base Growth Rate: 2%</li>
+                      </ul>
+                    </li>
+                    <li><strong>Emissions Factors</strong>
+                      <ul>
+                        <li>Jet A: 9.57 kg CO₂/lb</li>
+                        <li>Diesel: 22.38 kg CO₂/lb</li>
+                        <li>Gasoline: 19.64 kg CO₂/lb</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>
@@ -214,7 +278,8 @@ export default {
       tabs: [
         { id: 'overview', name: 'Overview', icon: 'fas fa-chart-pie' },
         { id: 'guide', name: 'User Guide', icon: 'fas fa-book-reader' },
-        { id: 'info', name: 'Information', icon: 'fas fa-info-circle' }
+        { id: 'info', name: 'Information', icon: 'fas fa-info-circle' },
+        { id: 'data', name: 'Backend Data', icon: 'fas fa-database' }
       ]
     }
   }
@@ -785,5 +850,73 @@ export default {
   .tab-content {
     padding: 20px;
   }
+}
+
+/* Data Structure Grid */
+.data-structure-grid {
+  display: grid;
+  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.data-category {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s ease;
+}
+
+.data-category:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(100, 255, 218, 0.3);
+  transform: translateY(-2px);
+}
+
+.data-category ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 15px 0 0 0;
+}
+
+.data-category ul ul {
+  padding-left: 20px;
+  margin: 5px 0 10px 0;
+}
+
+.data-category li {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.data-category li strong {
+  color: #64ffda;
+  font-weight: 500;
+}
+
+.data-category li ul li {
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 6px;
+  font-size: 0.95em;
+}
+
+.data-category .card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.data-category .card-header i {
+  color: #64ffda;
+  font-size: 1.4rem;
+}
+
+.data-category .card-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
 }
 </style>
