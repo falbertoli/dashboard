@@ -1,3 +1,58 @@
+# [Your Project Name] - Quick Start
+
+## Prerequisites
+
+- Python & pip
+- Node.js & npm
+- Git
+
+## Running the Project
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/falbertoli/dashboard.git
+    cd hydrogen
+    ```
+
+2.  **Run Backend (Flask):**
+
+    - Open a terminal.
+    - Navigate to backend:
+      ```bash
+      cd backend
+      ```
+    - (First time) Install dependencies:
+      ```bash
+      # Optional: Create/activate virtual environment first
+      # python -m venv venv
+      # source venv/bin/activate  (or .\venv\Scripts\activate on Windows)
+      pip install -r requirements.txt
+      ```
+    - Run the server:
+      ```bash
+      python run.py
+      ```
+
+3.  **Run Frontend (Vue + Vite):**
+
+    - Open a **new** terminal.
+    - Navigate to frontend:
+      ```bash
+      cd frontend
+      ```
+    - (First time) Install dependencies:
+      ```bash
+      npm install
+      ```
+    - Run the development server:
+      ```bash
+      npm run dev
+      ```
+
+4.  **Access:**
+    - Open your browser to the frontend URL provided in the terminal.
+
 # FLIGHT Dashboard: Hydrogen Infrastructure Analysis Tool
 
 _Future Logistics in Green Hydrogen Transport_
