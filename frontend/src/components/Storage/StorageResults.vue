@@ -15,7 +15,7 @@
         <div class="summary-grid">
           <div class="summary-item">
             <div class="summary-label">Total Storage Area</div>
-            <div class="summary-value">{{ $formatNumber(results.footprint_total) }} ft²</div>
+            <div class="summary-value">{{ $formatArea(results.footprint_total) }}</div>
           </div>
           <div class="summary-item">
             <div class="summary-label">Total Infrastructure Cost</div>

@@ -14,8 +14,8 @@ export function formatArea(sqft) {
   return (
     new Intl.NumberFormat("en-US", {
       style: "decimal",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
       useGrouping: true,
     }).format(sqft) + " ft²"
   );

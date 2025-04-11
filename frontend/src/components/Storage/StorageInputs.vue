@@ -105,14 +105,6 @@
               </div>
 
               <div class="spec-card">
-                <div class="spec-icon"><i class="fas fa-cube"></i></div>
-                <div class="spec-content">
-                  <div class="spec-label">Usable Volume per Tank</div>
-                  <div class="spec-value">{{ $formatNumber(usableVolumePerTank) }} ft³</div>
-                </div>
-              </div>
-
-              <div class="spec-card">
                 <div class="spec-icon"><i class="fas fa-snowflake"></i></div>
                 <div class="spec-content">
                   <div class="spec-label">Insulation Volume</div>
@@ -135,20 +127,13 @@
             <div class="panel-content">
               <div class="summary-grid">
                 <div class="summary-item">
-                  <div class="summary-label">Total Storage Capacity</div>
-                  <div class="summary-value">{{ $formatNumber(usableVolumePerTank * recommendedTankCount) }} ft³</div>
+                  <div class="summary-label">Usable Volume per Tank</div>
+                  <div class="summary-value">{{ $formatNumber(usableVolumePerTank) }} ft³</div>
                 </div>
 
                 <div class="summary-item">
                   <div class="summary-label">Days of Supply</div>
-                  <div class="summary-value">{{ $formatNumber((usableVolumePerTank * recommendedTankCount) /
-                    totalH2Volume) }} days</div>
-                </div>
-
-                <div class="summary-item">
-                  <div class="summary-label">Storage Efficiency</div>
-                  <div class="summary-value">{{ $formatNumber((usableVolumePerTank * recommendedTankCount) / (Math.PI *
-                    Math.pow(tankDiameter / 2, 2) * tankLength * recommendedTankCount) * 100) }}%</div>
+                  <div class="summary-value">12 days</div>
                 </div>
               </div>
             </div>

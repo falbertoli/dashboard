@@ -56,7 +56,7 @@
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft³</span>
+              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft3</span>
             </div>
             <div class="metric">
               <span class="metric-label">Projected Fuel Weight:</span>
@@ -71,7 +71,7 @@
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft³</span>
+              <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft3</span>
             </div>
             <div class="metric">
               <span class="metric-label">Total Diesel Used:</span>
@@ -90,7 +90,7 @@
           <div class="metric-card highlight">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft³</span>
+              <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft3</span>
             </div>
           </div>
         </div>
