@@ -1,4 +1,4 @@
-# [Your Project Name] - Quick Start
+# Quick Start
 
 ## Prerequisites
 

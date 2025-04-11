@@ -21,7 +21,18 @@
 
       <!-- GSE Selection -->
       <div class="form-group">
-        <CheckboxGroup label="Ground vehicles to Transition:" :options="gseOptionsFormatted" v-model="gseList" />
+        <div class="gse-header">
+          <label>Ground vehicles to Transition:</label>
+          <div class="gse-actions">
+            <button class="action-button" @click="selectAllGse">
+              <i class="fas fa-check-square"></i> Select All
+            </button>
+            <button class="action-button" @click="deselectAllGse">
+              <i class="fas fa-square"></i> Deselect All
+            </button>
+          </div>
+        </div>
+        <CheckboxGroup :options="gseOptionsFormatted" v-model="gseList" />
       </div>
     </div>
 
@@ -357,6 +368,14 @@ const hydrogenDemandPieOptions = computed(() => ({
 
 const activeTab = ref('demand');
 
+const selectAllGse = () => {
+  gseList.value = [...gseOptions.value];
+};
+
+const deselectAllGse = () => {
+  gseList.value = [];
+};
+
 watch(fleetPercentage, (newFleetPercentage) => {
   console.log('Setting fleetPercentage in store:', newFleetPercentage);
   store.setFleetPercentage(newFleetPercentage);
@@ -411,6 +430,41 @@ h3 {
 
 .form-group {
   margin-bottom: 20px;
+}
+
+.gse-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.gse-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+}
+
+.action-button i {
+  font-size: 0.8rem;
 }
 
 /* Results Container */
