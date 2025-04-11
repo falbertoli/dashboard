@@ -5,7 +5,7 @@
     <div class="page-header">
       <h1>Turnaround Time Analysis</h1>
       <p class="description">
-        Analyze the turnaround time for aircraft and ground support equipment (GSE) based on fleet
+        Analyze the turnaround time for aircraft and ground vehicles based on fleet
         size and operational parameters.
       </p>
     </div>

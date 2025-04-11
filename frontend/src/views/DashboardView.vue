@@ -42,7 +42,7 @@
                   </div>
                   <div class="card-content">
                     <h3>Hydrogen Demand</h3>
-                    <p>Calculate daily hydrogen requirements for aircraft and GSE operations.</p>
+                    <p>Calculate daily hydrogen requirements for aircraft and ground vehicles operations.</p>
                   </div>
                 </router-link>
                 <router-link to="/sustainability" class="result-card">
@@ -88,8 +88,8 @@
                     <ul class="step-details">
                       <li>Set the target fleet percentage (0-100%) for hydrogen aircraft transition</li>
                       <li>Select the projection year (2023-2050) for your analysis</li>
-                      <li>Choose which Ground Support Equipment (GSE) to convert to hydrogen</li>
-                      <li>Review the calculated daily hydrogen demand for both aircraft and GSE</li>
+                      <li>Choose which ground vehicles to convert to hydrogen</li>
+                      <li>Review the calculated daily hydrogen demand for both aircraft and ground vehicles</li>
                     </ul>
                   </div>
                 </div>
@@ -180,10 +180,6 @@
               <section class="dashboard-section">
                 <h2><i class="fas fa-language"></i> Common Acronyms</h2>
                 <div class="acronyms-table">
-                  <div class="acronym-row">
-                    <div class="acronym">GSE</div>
-                    <div class="definition">Ground Support Equipment</div>
-                  </div>
                   <div class="acronym-row">
                     <div class="acronym">LH2</div>
                     <div class="definition">Liquid Hydrogen</div>

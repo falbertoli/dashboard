@@ -21,7 +21,7 @@
 
       <!-- GSE Selection -->
       <div class="form-group">
-        <CheckboxGroup label="GSE to Transition:" :options="gseOptionsFormatted" v-model="gseList" />
+        <CheckboxGroup label="Ground vehicles to Transition:" :options="gseOptionsFormatted" v-model="gseList" />
       </div>
     </div>
 
@@ -56,7 +56,7 @@
 
         <!-- GSE Hydrogen Demand -->
         <div v-if="gseH2Demand" class="demand-section">
-          <h3><i class="fas fa-truck"></i> GSE Hydrogen Demand</h3>
+          <h3><i class="fas fa-truck"></i> Ground Vehicles Hydrogen Demand</h3>
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
@@ -91,7 +91,7 @@
           <div class="chart-wrapper">
             <h3><i class="fas fa-chart-bar"></i> Hydrogen Demand (Log Scale)</h3>
             <p class="chart-explanation">Logarithmic scale comparison showing the vast difference between aircraft and
-              GSE hydrogen demands</p>
+              ground vehicles hydrogen demands</p>
             <div class="chart-container">
               <ChartComponent chart-id="hydrogen-demand-log" chart-type="bar" :chart-data="hydrogenDemandData"
                 :chart-options="hydrogenDemandLogOptions" />
@@ -100,7 +100,7 @@
           <div class="chart-wrapper">
             <h3><i class="fas fa-chart-pie"></i> Demand Distribution (%)</h3>
             <p class="chart-explanation">Proportional distribution of hydrogen demand between aircraft and ground
-              support equipment</p>
+              vehicles</p>
             <div class="chart-container">
               <ChartComponent chart-id="hydrogen-demand-pie" chart-type="doughnut" :chart-data="hydrogenDemandPieData"
                 :chart-options="hydrogenDemandPieOptions" />
@@ -170,7 +170,7 @@ const gseOptionsFormatted = computed(() => {
 // Chart Data
 const hydrogenDemandData = computed(() => {
   return {
-    labels: ['Aircraft', 'GSE'],
+    labels: ['Aircraft', 'Ground Vehicles'],
     datasets: [{
       label: 'Daily Hydrogen Demand (ft³)',
       data: [
@@ -197,7 +197,7 @@ const hydrogenDemandPieData = computed(() => {
   const total = aircraftDemand + gseDemand;
 
   return {
-    labels: ['Aircraft', 'GSE'],
+    labels: ['Aircraft', 'Ground Vehicles'],
     datasets: [{
       data: [aircraftDemand, gseDemand],
       backgroundColor: [

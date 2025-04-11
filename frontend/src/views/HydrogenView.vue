@@ -3,7 +3,7 @@
     <div class="page-header">
       <h1>Hydrogen Demand Analysis</h1>
       <p class="description">
-        Analyze the hydrogen demand for aircraft and ground support equipment (GSE) based on fleet
+        Analyze the hydrogen demand for aircraft and ground vehicles based on fleet
         size and operational parameters.
       </p>
     </div>
