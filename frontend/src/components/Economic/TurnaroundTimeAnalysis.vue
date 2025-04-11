@@ -55,9 +55,28 @@
               <p>The additional time (in minutes) required for hydrogen aircraft refueling compared to conventional jet
                 fuel.
                 This represents the initial technology maturity level in the start year.</p>
-              <div class="visual-indicator">
-                <i class="fas fa-level-up-alt"></i>
-                <span>Initial Impact</span>
+              <div class="visual-indicators">
+                <div class="visual-indicator" title="Starting impact on operations">
+                  <i class="fas fa-level-up-alt"></i>
+                  <span>Initial Impact: Higher Turnaround Time</span>
+                  <div class="indicator-graphic">
+                    <div class="bar-container">
+                      <div class="bar high"></div>
+                      <span class="label">Start</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="visual-indicator" title="Technology improvement over time">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Gradual Improvement</span>
+                  <div class="indicator-graphic">
+                    <div class="trend-line">
+                      <div class="point start"></div>
+                      <div class="line"></div>
+                      <div class="point end"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2007,20 +2026,147 @@ input:checked+.toggle-slider:before {
   line-height: 1.6;
 }
 
+.visual-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
 .visual-indicator {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 15px;
-  padding: 8px 12px;
+  padding: 12px 15px;
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
+  border-radius: 8px;
   color: #64ffda;
   font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
-.visual-indicator i {
+.visual-indicator:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(5px);
+}
+
+.indicator-graphic {
+  margin-left: auto;
+  padding-left: 15px;
+  min-width: 100px;
+}
+
+/* Bar Graph Styling */
+.bar-container {
+  position: relative;
+  height: 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bar {
+  width: 100%;
+  background: rgba(100, 255, 218, 0.2);
+  border-radius: 4px;
+  transition: height 0.3s ease;
+}
+
+.bar.high {
+  height: 20px;
+}
+
+.label {
   font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+/* Trend Line Styling */
+.trend-line {
+  position: relative;
+  height: 30px;
+  width: 100%;
+}
+
+.line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #64ffda;
+  transform: rotate(-15deg);
+}
+
+.point {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64ffda;
+}
+
+.point.start {
+  top: 5px;
+  left: 0;
+}
+
+.point.end {
+  bottom: 5px;
+  right: 0;
+}
+
+/* Animation for trend line */
+@keyframes drawLine {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.line {
+  transform-origin: left;
+  animation: drawLine 1.5s ease-out forwards;
+}
+
+/* Tooltip styling */
+.visual-indicator[title] {
+  position: relative;
+  cursor: help;
+}
+
+.visual-indicator[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .visual-indicator {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .indicator-graphic {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+    margin-top: 10px;
+  }
 }
 
 /* Responsive adjustments */
