@@ -3,6 +3,8 @@
 <template>
   <div class="storage-results">
     <h2>Storage Analysis Results</h2>
+    <p class="results-description">Detailed analysis of storage requirements, including tank configuration, costs, and
+      spatial considerations.</p>
 
     <div v-if="!results" class="no-results">
       <p>No results available. Please calculate storage requirements first.</p>
@@ -12,25 +14,30 @@
       <!-- Summary Section -->
       <div class="summary-section">
         <h3>Summary</h3>
+        <p class="section-description">Key metrics for the storage system configuration and requirements.</p>
         <div class="summary-grid">
-          <div class="summary-item">
+          <div class="summary-item" title="Total ground area required for all storage tanks">
             <div class="summary-label">Total Storage Area</div>
             <div class="summary-value">{{ $formatArea(results.footprint_total) }}</div>
+            <div class="metric-description">Ground area required for tank installation</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item" title="Total cost of storage infrastructure including construction and tanks">
             <div class="summary-label">Total Infrastructure Cost</div>
             <div class="summary-value">${{ $formatNumber(results.total_infrastructure_cost) }}</div>
+            <div class="metric-description">Combined costs for construction and tanks</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item" title="Recommended number of storage tanks">
             <div class="summary-label">Number of Tanks</div>
             <div class="summary-value">{{ recommendedTankCount }}</div>
             <div class="summary-detail" v-if="rawTankCount > 0">
               Raw: {{ rawTankCount.toFixed(2) }}
             </div>
+            <div class="metric-description">Total tanks needed for storage requirements</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item" title="Total volume that can be stored across all tanks">
             <div class="summary-label">Total Storage Capacity</div>
             <div class="summary-value">{{ formatNumber(usableVolumePerTank * recommendedTankCount) }} ft³</div>
+            <div class="metric-description">Maximum hydrogen volume that can be stored</div>
           </div>
         </div>
       </div>
@@ -38,19 +45,23 @@
       <!-- Tank Utilization Section -->
       <div class="utilization-section" v-if="lastTankFillPercentage > 0">
         <h3>Storage Utilization</h3>
+        <p class="section-description">Analysis of storage capacity usage and efficiency metrics.</p>
         <div class="utilization-info">
-          <div class="utilization-detail">
+          <div class="utilization-detail" title="Total volume of hydrogen that needs to be stored">
             <div class="detail-label">Total Hydrogen Volume:</div>
             <div class="detail-value">{{ formatNumber(totalH2Volume) }} ft³</div>
+            <div class="metric-description">Required storage volume based on demand</div>
           </div>
-          <div class="utilization-detail">
+          <div class="utilization-detail" title="Percentage of the last tank's capacity being used">
             <div class="detail-label">Last Tank Fill Level:</div>
             <div class="detail-value">{{ lastTankFillPercentage.toFixed(2) }}%</div>
+            <div class="metric-description">Utilization of the final storage tank</div>
           </div>
-          <div class="utilization-detail">
+          <div class="utilization-detail" title="Overall storage system utilization efficiency">
             <div class="detail-label">Storage Efficiency:</div>
             <div class="detail-value">{{ formatPercentage((totalH2Volume / (usableVolumePerTank * recommendedTankCount))
               * 100) }}</div>
+            <div class="metric-description">Ratio of used to total available storage</div>
           </div>
           <div class="utilization-chart">
             <div class="chart-label">Tank Fill Visualization:</div>
@@ -70,23 +81,28 @@
       <!-- Cost Breakdown Section -->
       <div class="cost-section">
         <h3>Cost Breakdown</h3>
+        <p class="section-description">Detailed breakdown of infrastructure costs including construction and tank
+          expenses.</p>
         <div class="cost-grid">
-          <div class="cost-item">
+          <div class="cost-item" title="Total cost for site preparation and construction">
             <div class="cost-label">Construction Cost</div>
             <div class="cost-value">${{ $formatNumber(results.construction_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.construction_cost /
               results.total_infrastructure_cost * 100) }}</div>
+            <div class="metric-description">Site preparation and building expenses</div>
           </div>
-          <div class="cost-item">
+          <div class="cost-item" title="Total cost for tank materials and installation">
             <div class="cost-label">Tank Cost</div>
             <div class="cost-value">${{ $formatNumber(results.insulation_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.insulation_cost / results.total_infrastructure_cost
               * 100) }}</div>
+            <div class="metric-description">Storage tank materials and installation</div>
           </div>
         </div>
-        <div class="cost-total">
+        <div class="cost-total" title="Total combined cost for the entire storage system">
           <div class="cost-label">Total Cost</div>
           <div class="cost-value">${{ $formatNumber(results.total_infrastructure_cost) }}</div>
+          <div class="metric-description">Combined infrastructure and equipment costs</div>
         </div>
       </div>
     </div>
@@ -200,6 +216,13 @@ h3 {
   font-style: italic;
 }
 
+.metric-description {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .cost-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -251,6 +274,14 @@ h3 {
   font-size: 1.4rem;
 }
 
+.cost-total .metric-description {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  text-align: right;
+}
+
 .specs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -299,6 +330,13 @@ h3 {
   font-weight: 600;
 }
 
+.utilization-detail .metric-description {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .utilization-chart {
   grid-column: 1 / -1;
   padding: 1rem;
@@ -345,5 +383,18 @@ h3 {
   width: 100%;
   background-color: rgba(255, 159, 67, 0.6);
   transition: height 0.3s ease;
+}
+
+.results-description {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.section-description {
+  color: #888;
+  font-size: 0.85rem;
+  margin: -0.5rem 0 1rem 0;
 }
 </style>

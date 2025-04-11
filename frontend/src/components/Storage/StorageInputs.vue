@@ -5,6 +5,9 @@
       <div class="panel-header">
         <i class="fas fa-flask"></i>
         <h3>Hydrogen Demand</h3>
+        <div class="info-tooltip" title="Total hydrogen volume required based on demand calculations">
+          <i class="fas fa-info-circle"></i>
+        </div>
       </div>
 
       <div v-if="totalH2Volume > 0" class="panel-content">
@@ -85,6 +88,9 @@
             <div class="panel-header">
               <i class="fas fa-database"></i>
               <h3>Tank Specifications</h3>
+              <div class="info-tooltip" title="Physical dimensions and characteristics of storage tanks">
+                <i class="fas fa-info-circle"></i>
+              </div>
             </div>
 
             <div class="specs-grid">
@@ -122,6 +128,9 @@
             <div class="panel-header">
               <i class="fas fa-chart-bar"></i>
               <h3>Storage Summary</h3>
+              <div class="info-tooltip" title="Storage capacity and supply duration metrics">
+                <i class="fas fa-info-circle"></i>
+              </div>
             </div>
 
             <div class="panel-content">
@@ -543,5 +552,16 @@ const activeTab = ref('overview')
     align-items: flex-start;
     gap: 0.25rem;
   }
+}
+
+/* Tooltip Styling */
+.info-tooltip {
+  margin-left: 0.5rem;
+  color: #aaa;
+  cursor: help;
+}
+
+.info-tooltip:hover {
+  color: #64ffda;
 }
 </style>
