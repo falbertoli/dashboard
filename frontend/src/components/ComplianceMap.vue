@@ -270,7 +270,7 @@
                     <th>Storage Area</th>
                     <th>Original Area (ft²)</th>
                     <th>Available Area (ft²)</th>
-                    <th>Reduction (%)</th>
+                    <th>Available Space (%)</th>
                     <th>Compliance</th>
                   </tr>
                 </thead>
@@ -282,7 +282,7 @@
                     <td>{{ result.area_name }}</td>
                     <td>{{ $formatArea(result.original_area_sqft) }}</td>
                     <td>{{ $formatArea(result.available_area_sqft) }}</td>
-                    <td>{{ $formatNumber(result.area_reduction_percent) }}%</td>
+                    <td>{{ $formatNumber(result.available_area_sqft / result.original_area_sqft * 100, 1) }}%</td>
                     <td>
                       <span class="status-badge"
                         :class="result.available_area_sqft >= storageStore.totalFootprint ? 'compliant' : 'non-compliant'">
@@ -313,8 +313,8 @@
                 <div class="details-summary">
                   This area is affected by <strong>{{ selectedArea.overlapping_buffers.length }}</strong> safety
                   buffer(s),
-                  reducing the available space by <strong>{{ selectedArea.area_reduction_percent.toFixed(1)
-                  }}%</strong>.
+                  reducing the available space by <strong>{{ $formatNumber(selectedArea.area_reduction_percent, 1)
+                    }}%</strong>.
                 </div>
               </div>
 
@@ -332,7 +332,7 @@
                     <div class="buffer-stat">
                       <span class="label">Percentage of Total: </span>
                       <span class="value">
-                        {{ $formatNumber(((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100)) }}%
+                        {{ $formatNumber((buffer.overlap_area_sqft / selectedArea.original_area_sqft) * 100, 1) }}%
                       </span>
                     </div>
                     <div class="impact-bar">
