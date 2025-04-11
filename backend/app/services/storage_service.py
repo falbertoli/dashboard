@@ -99,7 +99,7 @@ def calculate_h2_storage_cost(
         footprint_per_tank_sqft = float(tank_diameter_ft * tank_length_ft)
         footprint_total = float(footprint_per_tank_sqft * number_of_tanks)
         construction_cost = float(footprint_total * cost_per_sqft_construction)
-        total_infrastructure_cost = float(insulation_cost + construction_cost)
+        total_infrastructure_cost = float(insulation_cost + (insulation_cost * 2.23) + construction_cost)
 
         return {
             "insulation_volume_total": insulation_volume_total,
