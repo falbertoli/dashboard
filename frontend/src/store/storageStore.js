@@ -25,18 +25,16 @@ export const useStorageStore = defineStore("storage", () => {
       STORAGE.TANK.DIMENSIONS.WATER_CAPACITY_GAL /
       STORAGE.CONVERSIONS.GALLON_TO_FT3;
 
-    // Match Python: tank_H2_storage = Water_cap*(1-Tank_ullage)*evaporation
-    // Note: In the original script, evaporation is 99.25 and not divided by 100
-    // But in the actual calculation, it should be divided by 100 to get the correct result
     return (
-      waterCapacityFt3 *
-      (1 - STORAGE.TANK.EFFICIENCY.ULLAGE) *
-      (STORAGE.TANK.EFFICIENCY.EVAPORATION_LOSS / 100)
+      (waterCapacityFt3 *
+        (1 - STORAGE.TANK.EFFICIENCY.ULLAGE) *
+        STORAGE.TANK.EFFICIENCY.EVAPORATION_LOSS) /
+      100
     );
   });
 
   const totalH2Volume = computed(() => {
-    return parseFloat(hydrogenStore.totalH2Demand || 0);
+    return parseFloat(hydrogenStore.totalH2Demand * 11 || 0);
   });
 
   // Raw tank count calculation
@@ -157,7 +155,7 @@ export const useStorageStore = defineStore("storage", () => {
     );
     console.log(
       "Evaporation Factor:",
-      STORAGE.TANK.EFFICIENCY.EVAPORATION_LOSS / 100
+      STORAGE.TANK.EFFICIENCY.EVAPORATION_LOSS
     );
     console.log("Usable Volume per Tank (ft³):", usableVolumePerTank.value);
     console.log("Raw Tank Count:", rawTankCount.value);

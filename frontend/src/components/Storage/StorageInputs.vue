@@ -12,7 +12,7 @@
 
       <div v-if="totalH2Volume > 0" class="panel-content">
         <div class="info-card primary">
-          <div class="info-label">Total Daily Hydrogen Demand</div>
+          <div class="info-label">Total Hydrogen Demand for 11 days</div>
           <div class="info-value">{{ $formatNumber(totalH2Volume) }} ft³</div>
         </div>
       </div>
@@ -142,7 +142,7 @@
 
                 <div class="summary-item">
                   <div class="summary-label">Days of Supply</div>
-                  <div class="summary-value">12 days</div>
+                  <div class="summary-value">11 days</div>
                 </div>
               </div>
             </div>
@@ -170,6 +170,8 @@ const {
   insulationVolume,
   results
 } = storeToRefs(store)
+
+console.log(usableVolumePerTank.value, 'usableVolumePerTank')
 
 // Tab management
 const activeTab = ref('overview')
