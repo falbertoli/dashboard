@@ -1,3 +1,5 @@
+// File: frontend/src/store/hydrogenStore.js
+
 import { defineStore } from "pinia";
 import { computed, watch } from "vue";
 
@@ -9,6 +11,7 @@ import {
 
 // Import the storage store to reset it when needed
 import { useStorageStore } from "./storageStore";
+import { useSustainabilityStore } from "./sustainabilityStore";
 
 export const useHydrogenStore = defineStore("hydrogen", {
   state: () => ({
@@ -38,6 +41,16 @@ export const useHydrogenStore = defineStore("hydrogen", {
       }
     },
 
+    resetEmissionsCalculations() {
+      const sustainabilityStore = useSustainabilityStore();
+      if (sustainabilityStore.emissionsResults) {
+        console.log(
+          "Resetting sustainabilty calculations due to hydrogen demand change"
+        );
+        sustainabilityStore.reset();
+      }
+    },
+
     async loadGSEOptions() {
       this.gseOptions = await fetchGseOptions();
     },
@@ -54,6 +67,7 @@ export const useHydrogenStore = defineStore("hydrogen", {
         // Reset storage calculations if demand changed
         if (oldDemand !== newDemand) {
           this.resetStorageCalculations();
+          this.resetEmissionsCalculations();
         }
       } catch (error) {
         console.error("Error fetching aircraft H2 demand:", error);
@@ -71,6 +85,7 @@ export const useHydrogenStore = defineStore("hydrogen", {
         // Reset storage calculations if demand changed
         if (oldDemand !== newDemand) {
           this.resetStorageCalculations();
+          this.resetEmissionsCalculations();
         }
       } catch (error) {
         console.error("Error fetching GSE H2 demand:", error);

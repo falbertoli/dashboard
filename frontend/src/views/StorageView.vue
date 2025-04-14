@@ -1,3 +1,5 @@
+<!-- File: frontend/src/views/StorageView.vue -->
+
 <template>
   <div class="storage-view">
     <div class="page-header">
