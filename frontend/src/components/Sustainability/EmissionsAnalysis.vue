@@ -46,7 +46,7 @@
               <i class="fas fa-truck"></i>
             </div>
             <div class="content">
-              <span>GSE</span>
+              <span>Ground Vehicles</span>
               <strong>{{ formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
             </div>
           </div>
@@ -64,8 +64,18 @@
       <!-- Hydrogen demand summary pill -->
       <div class="hydrogen-demand-summary">
         <div class="info-pill">
-          <i class="fas fa-atom"></i>
-          <span>Daily H₂ Demand: <strong>{{ formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }} ft³</strong></span>
+          <div class="pill-item">
+            <i class="fas fa-atom pulse-icon"></i>
+            <span class="hydrogen-demand-summary-span">Daily H₂ Demand: <strong>{{
+              formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }}
+                ft³</strong></span>
+          </div>
+          <div class="divider"></div>
+          <div class="pill-item">
+            <i class="fas fa-plane-departure"></i>
+            <span class="hydrogen-demand-summary-span">Fleet Adoption: <strong>{{
+              formatNumber(parseFloat(hydrogenStore.fleetPercentage)) }}%</strong></span>
+          </div>
         </div>
       </div>
 
@@ -176,7 +186,8 @@
           <div class="table-row">
             <div class="row-cell">Hydrogen</div>
             <div class="row-cell">{{ formatNumber(emissionsResults.H2_co2) }}</div>
-            <div class="row-cell">{{ ((emissionsResults.H2_co2 / emissionsResults.just_jetA_co2) * 100).toFixed(1) }}%
+            <div class="row-cell">{{ ((emissionsResults.H2_co2 / emissionsResults.just_jetA_co2) * 100).toFixed(1)
+            }}%
             </div>
           </div>
 
@@ -233,18 +244,25 @@ const emissionsComparisonChartData = computed(() => {
     labels: ['Conventional Operations', 'Hydrogen Operations'],
     datasets: [
       {
-        label: 'Jet A Emissions',
-        data: [emissionsResults.value.just_jetA_co2, emissionsResults.value.jetA_co2],
-        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-        borderColor: 'rgba(255, 99, 132, 1)',
+        label: 'Jet A Emissions Conventional',
+        data: [emissionsResults.value.just_jetA_co2, 0],
+        backgroundColor: ['rgba(255, 99, 132, 0.8)',],
+        borderColor: ['rgba(255, 99, 132, 1)',],
         borderWidth: 1
+      },
+      {
+        label: 'Jet A Emissions Hybrid',
+        data: [0, emissionsResults.value.jetA_co2],
+        backgroundColor: ['rgba(255, 255, 80, 0.8)'],
+        borderColor: ['rgba(54, 162, 235, 1)'],
+        borderWidth: 3
       },
       {
         label: 'Hydrogen Emissions',
         data: [0, emissionsResults.value.H2_co2],
-        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+        backgroundColor: 'rgba(10, 255, 10, 0.8)',
         borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
+        borderWidth: 3
       }
     ]
   };
@@ -578,6 +596,13 @@ h3 {
   .breakdown-container {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================
+   Hydrogen Demand Summary Pill
+   ========================= */
+.hydrogen-demand-summary-span {
+  padding-left: 10px;
 }
 
 /* =========================

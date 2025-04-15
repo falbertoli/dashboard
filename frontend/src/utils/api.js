@@ -97,13 +97,15 @@ export const api = {
   sustainability: {
     calculateEmissions: async (params) => {
       try {
+        console.log("📊 Sending emissions calculation request:", params);
         const response = await apiClient.post(
           "/sustainability/emissions",
           params
         );
+        console.log("✅ Emissions calculation response:", response.data);
         return response.data;
       } catch (error) {
-        console.error("Error calculating emissions:", error);
+        console.error("❌ Error calculating emissions:", error);
         throw error;
       }
     },
