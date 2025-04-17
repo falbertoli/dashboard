@@ -1,18 +1,18 @@
-<!-- File: frontend/src/components/Slider.vue -->
-
 <template>
-  <div class="slider-container">
-    <label :for="id" class="slider-label">{{ label }}</label>
-    <div class="slider-wrapper">
-      <input type="range" :id="id" :min="min" :max="max" :step="step" v-model.number="value" @input="emitValue"
-        class="slider-input" />
-      <span class="slider-value">{{ value }}{{ unit }}</span>
+  <div class="custom-slider-container">
+    <label :for="id" class="custom-slider-label">{{ label }}</label>
+    <div class="custom-slider-wrapper">
+      <div class="custom-slider-track" :id="id" ref="track">
+        <div class="custom-slider-thumb" ref="thumb"></div>
+        <div class="custom-slider-background" ref="background"></div>
+      </div>
+      <span class="custom-slider-value">{{ value }}{{ unit }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps({
   label: {
@@ -48,89 +48,128 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const value = ref(props.modelValue);
+const track = ref(null);
+const thumb = ref(null);
+const background = ref(null);
 
 watch(
   () => props.modelValue,
   (newVal) => {
     value.value = newVal;
+    updateThumbPosition();
+    updateTrackBackground();
   }
 );
 
-const emitValue = (event) => {
-  console.log(`Slider: emitting update:modelValue with value ${parseInt(event.target.value)}`);
-  emit('update:modelValue', parseInt(event.target.value));
+const updateThumbPosition = () => {
+  const trackWidth = track.value.offsetWidth;
+  const thumbWidth = thumb.value.offsetWidth;
+  const maxOffset = trackWidth - thumbWidth;
+  const percentage = (value.value - props.min) / (props.max - props.min);
+  thumb.value.style.left = `${percentage * maxOffset}px`;
 };
+
+const updateTrackBackground = () => {
+  const trackWidth = track.value.offsetWidth;
+  const thumbWidth = thumb.value.offsetWidth;
+  const maxOffset = trackWidth - thumbWidth;
+  const percentage = (value.value - props.min) / (props.max - props.min);
+  const backgroundWidth = percentage * maxOffset;
+  background.value.style.width = `${backgroundWidth}px`;
+};
+
+const onThumbDrag = (event) => {
+  const trackRect = track.value.getBoundingClientRect();
+  const thumbWidth = thumb.value.offsetWidth;
+  const maxOffset = trackRect.width - thumbWidth;
+  const offsetX = event.clientX - trackRect.left;
+  const percentage = Math.min(Math.max(offsetX / maxOffset, 0), 1);
+  value.value = Math.round(percentage * (props.max - props.min) + props.min);
+  emit('update:modelValue', value.value);
+  updateTrackBackground();
+};
+
+onMounted(() => {
+  updateThumbPosition();
+  updateTrackBackground();
+  thumb.value.addEventListener('mousedown', () => {
+    document.addEventListener('mousemove', onThumbDrag);
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', onThumbDrag);
+    });
+  });
+});
 </script>
 
 <style scoped>
 /* General container */
-.slider-container {
+.custom-slider-container {
   margin-bottom: 20px;
 }
 
 /* Style for the label */
-.slider-label {
+.custom-slider-label {
   display: block;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #eee;
+  /* color: #64ffda; */
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 /* Wrapper for the slider and its value, for better layout control */
-.slider-wrapper {
+.custom-slider-wrapper {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
-/* Basic styling for the range input */
-.slider-input {
+/* Basic styling for the slider track */
+.custom-slider-track {
   flex: 1;
-  height: 8px;
-  border-radius: 6px;
-  background: #444;
-  outline: none;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+  height: 40px;
+  background: rgba(100, 255, 218, 0.3);
+  position: relative;
   margin-right: 10px;
+  border-radius: 20px;
+  /* Rounded corners for better appearance */
+  overflow: hidden;
+  /* Ensure the thumb stays within the track */
 }
 
-/* Hover effect */
-.slider-input:hover {
-  opacity: 0.8;
+/* Styling for the slider background */
+.custom-slider-background {
+  height: 40px;
+  background: url('@/assets/images/hydrogen-molecule.png') repeat-x center;
+  background-size: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.1s ease-in-out;
+  /* Smooth transition for background width */
 }
 
-/* Thumb styling for WebKit browsers */
-.slider-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #64ffda;
+/* Styling for the slider thumb */
+.custom-slider-thumb {
+  width: 40px;
+  height: 40px;
+  background: url('@/assets/images/airplane.png') no-repeat center;
+  background-size: contain;
+  position: absolute;
+  top: 0;
   cursor: pointer;
-  border: none;
-  box-shadow: 0 0 5px rgba(100, 255, 218, 0.5);
-}
-
-/* Thumb styling for Firefox */
-.slider-input::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #64ffda;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 5px rgba(100, 255, 218, 0.5);
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.5), 0 0 20px rgba(100, 255, 218, 0.3);
+  transition: left 0.1s ease-in-out;
+  /* Smooth transition for thumb movement */
 }
 
 /* Styling for the slider value display */
-.slider-value {
+.custom-slider-value {
   font-size: 1rem;
-  color: #ddd;
+  color: #64ffda;
   width: 60px;
   text-align: right;
+  font-weight: bold;
 }
 </style>
