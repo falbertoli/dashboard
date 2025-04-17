@@ -689,14 +689,14 @@ export default {
     // Function to get colors for different rates
     const getColorForRate = (rate, alpha = 1) => {
       const colors = [
-        `rgba(255, 99, 132, ${alpha})`,   // 0 annual min/ops
-        `rgba(54, 162, 235, ${alpha})`,   // 1 annual min/ops
-        `rgba(255, 206, 86, ${alpha})`,   // 2 annual min/ops
-        `rgba(75, 192, 192, ${alpha})`,   // 3 annual min/ops
-        `rgba(153, 102, 255, ${alpha})`,  // 4 annual min/ops
-        `rgba(255, 159, 64, ${alpha})`    // 5 annual min/ops
+        `rgba(255, 107, 107, ${alpha})`,   // 0 annual min/ops
+        `rgba(77, 166, 255, ${alpha})`,   // 1 annual min/ops
+        `rgba(255, 230, 66, ${alpha})`,   // 2 annual min/ops
+        `rgba(75, 222, 172, ${alpha})`,   // 3 annual min/ops
+        `rgba(188, 140, 255, ${alpha})`,  // 4 annual min/ops
+        `rgba(255, 170, 66, ${alpha})`    // 5 annual min/ops
       ];
-      return colors[rate] || `rgba(0, 0, 0, ${alpha})`;
+      return colors[rate] || `rgba(200, 200, 200, ${alpha})`;
     };
 
     // Revenue Drop Chart Data
@@ -713,6 +713,11 @@ export default {
         borderColor: getColorForRate(parseInt(rate)),
         backgroundColor: getColorForRate(parseInt(rate), 0.2),
         borderWidth: parseInt(rate) === selectedScenario.value ? 3 : 1,
+        pointBackgroundColor: getColorForRate(parseInt(rate)),
+        pointBorderColor: '#000000', // Dark border around points
+        pointRadius: 5,              // Slightly larger points
+        pointHoverRadius: 7,
+        tension: 0.1                 // Slight curve for better visibility
       }));
 
       return { labels, datasets };
@@ -733,6 +738,11 @@ export default {
           borderColor: getColorForRate(parseInt(rate)),
           backgroundColor: getColorForRate(parseInt(rate), 0.2),
           borderWidth: parseInt(rate) === selectedScenario.value ? 3 : 1,
+          pointBackgroundColor: getColorForRate(parseInt(rate)),
+          pointBorderColor: '#000000',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          tension: 0.1
         };
       });
 
@@ -756,9 +766,9 @@ export default {
       const datasets = [{
         label: 'Cumulative Cost ($M)',
         data: cumulativeCosts,
-        backgroundColor: Object.keys(scenarios).map(rate => getColorForRate(parseInt(rate), 0.7)),
+        backgroundColor: Object.keys(scenarios).map(rate => getColorForRate(parseInt(rate), 0.8)),
         borderColor: Object.keys(scenarios).map(rate => getColorForRate(parseInt(rate))),
-        borderWidth: 1
+        borderWidth: 2
       }];
 
       return { labels, datasets };
@@ -771,9 +781,32 @@ export default {
       plugins: {
         title: {
           display: true,
-          text: 'Revenue Drop vs. Year for Different Turn-Time Reduction Rates'
+          text: 'Revenue Drop vs. Year for Different Turn-Time Reduction Rates',
+          color: '#ffffff', // White text for title on dark background
+          font: {
+            weight: 'bold',
+            size: 16
+          }
+        },
+        legend: {
+          labels: {
+            color: '#ffffff', // White text for legend on dark background
+            font: {
+              weight: 'medium',
+              size: 12
+            },
+            boxWidth: 15, // Smaller legend box for better readability
+            padding: 15,  // More spacing between legend items
+            usePointStyle: true, // Use point style instead of rectangles
+            pointStyle: 'circle' // Circle points for better visibility
+          }
         },
         tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Light background for tooltip on dark theme
+          titleColor: '#000000', // Black text for tooltip title
+          bodyColor: '#000000', // Black text for tooltip body
+          borderColor: '#888888',
+          borderWidth: 1,
           callbacks: {
             label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}%`
           }
@@ -783,13 +816,39 @@ export default {
         y: {
           title: {
             display: true,
-            text: '% Revenue Drop'
+            text: '% Revenue Drop',
+            color: '#ffffff', // White text for y-axis title
+            font: {
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#cccccc', // Light gray text for y-axis ticks
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)' // Subtle light grid lines
           }
         },
         x: {
           title: {
             display: true,
-            text: 'Year'
+            text: 'Year',
+            color: '#ffffff', // White text for x-axis title
+            font: {
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#cccccc', // Light gray text for x-axis ticks
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)' // Subtle light grid lines
           }
         }
       }
@@ -801,9 +860,32 @@ export default {
       plugins: {
         title: {
           display: true,
-          text: 'Tax Credits vs. Year for Different Turn-Time Reduction Rates'
+          text: 'Tax Credits vs. Year for Different Turn-Time Reduction Rates',
+          color: '#ffffff', // White text for title
+          font: {
+            weight: 'bold',
+            size: 16
+          }
+        },
+        legend: {
+          labels: {
+            color: '#ffffff', // White text for legend
+            font: {
+              weight: 'medium',
+              size: 12
+            },
+            boxWidth: 15,
+            padding: 15,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
         },
         tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          titleColor: '#000000',
+          bodyColor: '#000000',
+          borderColor: '#888888',
+          borderWidth: 1,
           callbacks: {
             label: (context) => `${context.dataset.label}: $${context.raw.toFixed(2)}/gal`
           }
@@ -813,13 +895,39 @@ export default {
         y: {
           title: {
             display: true,
-            text: 'Tax Credit ($/gal)'
+            text: 'Tax Credit ($/gal)',
+            color: '#ffffff',
+            font: {
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#cccccc',
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
           }
         },
         x: {
           title: {
             display: true,
-            text: 'Year'
+            text: 'Year',
+            color: '#ffffff',
+            font: {
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            color: '#cccccc',
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
           }
         }
       }
@@ -834,9 +942,19 @@ export default {
         },
         title: {
           display: true,
-          text: 'Cumulative Cost by Scenario'
+          text: 'Cumulative Cost by Scenario',
+          color: '#ffffff',
+          font: {
+            weight: 'bold',
+            size: 16
+          }
         },
         tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          titleColor: '#000000',
+          bodyColor: '#000000',
+          borderColor: '#888888',
+          borderWidth: 1,
           callbacks: {
             label: (context) => `${context.label}: $${context.raw.toFixed(2)}M`
           }
@@ -846,9 +964,33 @@ export default {
         y: {
           title: {
             display: true,
-            text: 'Cumulative Cost ($M)'
+            text: 'Cumulative Cost ($M)',
+            color: '#ffffff',
+            font: {
+              weight: 'bold'
+            }
           },
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            color: '#cccccc',
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        x: {
+          ticks: {
+            color: '#cccccc',
+            font: {
+              weight: 'medium'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
         }
       }
     };
