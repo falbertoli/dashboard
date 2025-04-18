@@ -132,7 +132,7 @@
           <div id="map"></div>
         </div>
 
-        <!-- Fixed Legend Below Map -->
+        <!-- Legend Map -->
         <div class="fixed-legend">
           <h4><i class="fas fa-map-signs"></i> Map Legend</h4>
 
@@ -142,18 +142,17 @@
               <h5>Buffer Zones</h5>
               <ul>
                 <li>
-                  <div class="color-box"
-                    style="background-color: #FF4500; border: 1px solid rgba(0, 0, 0, 0.2); border-style: dashed;">
+                  <div class="color-box" style="background-color: rgba(65, 105, 225, 0.2); border: 3px dotted #4169E1;">
                   </div>
                   <span>People Safety Buffer</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #FFD700; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(255, 215, 0, 0.2); border: 3px dotted #FFD700;">
                   </div>
                   <span>Flammable Liquids Buffer</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #FF0000; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(139, 69, 19, 0.2); border: 3px dotted #8B4513;">
                   </div>
                   <span>Open Fire Buffer</span>
                 </li>
@@ -165,22 +164,22 @@
               <h5>Storage Areas</h5>
               <ul>
                 <li>
-                  <div class="color-box" style="background-color: #32CD32; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(34, 197, 94, 0.3); border: 2px dashed #22C55E;">
                   </div>
                   <span>Free Space (Available)</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #006400; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(239, 68, 68, 0.3); border: 2px dashed #EF4444;">
                   </div>
                   <span>Free Space (Insufficient)</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #FFB6C1; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(236, 72, 153, 0.3); border: 2px dashed #EC4899;">
                   </div>
                   <span>Deicing (Available)</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #8B0000; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(185, 28, 28, 0.3); border: 2px dashed #B91C1C;">
                   </div>
                   <span>Deicing (Insufficient)</span>
                 </li>
@@ -192,46 +191,47 @@
               <h5>Amenities</h5>
               <ul class="amenities-grid">
                 <li>
-                  <div class="color-box" style="background-color: #4169E1; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(30, 58, 138, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Cargo</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #DC143C; border: 1px solid rgba(0, 0, 0, 0.2);"></div>
+                  <div class="color-box" style="background-color: rgba(153, 27, 27, 0.7); border: 1.5px solid #000000;">
+                  </div>
                   <span>Emergency Response</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #FFA500; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(217, 119, 6, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Fuel Farm</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #9370DB; border: 1px solid rgba(0, 0, 0, 0.2);">
-                  </div>
+                  <div class="color-box"
+                    style="background-color: rgba(107, 33, 168, 0.7); border: 1.5px solid #000000;"></div>
                   <span>Lease</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #708090; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(55, 65, 81, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Maintenance</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #87CEEB; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(3, 105, 161, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Parking</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #00CED1; border: 1px solid rgba(0, 0, 0, 0.2);">
-                  </div>
+                  <div class="color-box"
+                    style="background-color: rgba(14, 116, 144, 0.7); border: 1.5px solid #000000;"></div>
                   <span>Support</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #DAA520; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(180, 83, 9, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Transportation</span>
                 </li>
                 <li>
-                  <div class="color-box" style="background-color: #8B4513; border: 1px solid rgba(0, 0, 0, 0.2);">
+                  <div class="color-box" style="background-color: rgba(124, 45, 18, 0.7); border: 1.5px solid #000000;">
                   </div>
                   <span>Utilities</span>
                 </li>
@@ -314,7 +314,7 @@
                   This area is affected by <strong>{{ selectedArea.overlapping_buffers.length }}</strong> safety
                   buffer(s),
                   reducing the available space by <strong>{{ $formatNumber(selectedArea.area_reduction_percent, 1)
-                    }}%</strong>.
+                  }}%</strong>.
                 </div>
               </div>
 
@@ -578,9 +578,9 @@ const getHazardClass = (hazardType) => {
 
 const getHazardColor = (hazardType) => {
   const colors = {
-    "contains_people": "#FF4500",
+    "contains_people": "#4169E1",
     "contains_flammable_liquids": "#FFD700",
-    "contains_open_fire": "#FF0000"
+    "contains_open_fire": "#8B4513"
   };
   return colors[hazardType] || "#999";
 };
@@ -983,54 +983,69 @@ const renderFacilitiesGeoJSONLayer = () => {
     }
   });
 
+  // Enhanced colors for better distinction
+  const facilityColors = {
+    Cargo: "#1E3A8A", // Darker blue
+    "Emergency Response": "#991B1B", // Darker red
+    "Fuel Farm": "#D97706", // Darker orange
+    Lease: "#6B21A8", // Darker purple
+    Maintenance: "#374151", // Darker gray
+    Parking: "#0369A1", // Darker sky blue
+    Support: "#0E7490", // Darker cyan
+    Transportation: "#B45309", // Darker amber
+    Utilities: "#7C2D12", // Darker brown
+    Unknown: "#1F2937", // Darker gray
+  };
+
   facilitiesGeoJsonLayer.value = L.geoJSON(filteredFeatures, {
     style: (feature) => {
       const functionType = feature.properties.amenity || "Unknown";
       const isStorageType = functionType === "Free Space" || functionType === "Deicing";
-      const colors = {
-        Cargo: "blue",
-        "Emergency Response": "red",
-        "Fuel Farm": "orange",
-        Lease: "purple",
-        Maintenance: "gray",
-        Parking: "lightblue",
-        Support: "cyan",
-        Transportation: "yellow",
-        Utilities: "brown",
-        "Free Space": feature.properties.computed_area >= storageStore.totalFootprint ? "limegreen" : "darkgreen",
-        Deicing: feature.properties.computed_area >= storageStore.totalFootprint ? "lightpink" : "darkred",
-        Unknown: "black",
-      };
 
       if (isStorageType) {
+        const isSufficient = feature.properties.computed_area >= storageStore.totalFootprint;
+
+        // Color scheme based on both type and availability
+        let colorScheme;
+        if (functionType === "Free Space") {
+          colorScheme = isSufficient ? "#22C55E" : "#EF4444"; // Green if sufficient, red if insufficient
+        } else { // Deicing
+          colorScheme = isSufficient ? "#EC4899" : "#B91C1C"; // Pink if sufficient, dark red if insufficient
+        }
+
         if (feature.properties.available_geometry) {
           const availableLayer = L.geoJSON(feature.properties.available_geometry, {
             style: {
-              color: functionType === "Free Space" ? "limegreen" : "lightpink",
-              fillColor: functionType === "Free Space" ? "limegreen" : "lightpink",
-              fillOpacity: 0.7,
-              weight: 2
+              color: colorScheme,
+              fillColor: colorScheme,
+              fillOpacity: 0.6,
+              weight: 3,
+              dashArray: "3,6",
+              dashOffset: "3"
             }
           }).addTo(map.value);
 
           availableLayers.value.push(availableLayer);
         }
 
+        // Storage areas with checkered pattern effect using dashed borders
         return {
-          color: colors[functionType] || "black",
-          fillColor: colors[functionType] || "black",
-          fillOpacity: 0.2,
+          color: colorScheme,
+          fillColor: colorScheme,
+          fillOpacity: 0.3,
           weight: 2,
-          dashArray: "5,5",
-          zIndex: isStorageType ? 1000 : 500
+          dashArray: "1,10",
+          lineCap: "square",
+          zIndex: 1000
         };
       }
 
+      // Regular facilities with solid borders
       return {
-        color: colors[functionType] || "black",
-        fillColor: colors[functionType] || "black",
-        fillOpacity: 0.5,
-        weight: 1,
+        color: "#000000", // Black outline for all facilities
+        fillColor: facilityColors[functionType],
+        fillOpacity: 0.7,
+        weight: 1.5,
         zIndex: 500
       };
     },
@@ -1057,10 +1072,36 @@ const renderBufferZonesGeoJSONLayer = () => {
   }
 
   const bufferFeatures = [];
-
   let bufferPopupShown = false;
-
   const layerGroup = L.layerGroup();
+
+  // Enhanced buffer styles with more distinct patterns
+  const hazardStyles = {
+    "contains_people": {
+      color: "#4169E1",
+      weight: 3,
+      opacity: 0.8,
+      fillOpacity: 0.2,
+      dashArray: "1,5",
+      lineCap: "square"
+    },
+    "contains_flammable_liquids": {
+      color: "#FFD700",
+      weight: 3,
+      opacity: 0.8,
+      fillOpacity: 0.2,
+      dashArray: "1,5",
+      lineCap: "square"
+    },
+    "contains_open_fire": {
+      color: "#8B4513", // SaddleBrown color
+      weight: 3,
+      opacity: 0.8,
+      fillOpacity: 0.2,
+      dashArray: "1,5",
+      lineCap: "square"
+    }
+  };
 
   bufferZonesGeoJsonData.value.features.forEach(feature => {
     const hazardType = feature.properties.hazard_categories[0];
@@ -1084,22 +1125,14 @@ const renderBufferZonesGeoJSONLayer = () => {
       }
     });
 
-    const hazardColors = {
-      "contains_people": "#FF4500",
-      "contains_flammable_liquids": "#FFD700",
-      "contains_open_fire": "#FF0000"
+    const style = hazardStyles[hazardType] || {
+      color: "#3388ff",
+      weight: 2,
+      opacity: 0.6,
+      fillOpacity: 0.2
     };
 
-    const layer = L.geoJSON(feature, {
-      style: {
-        color: hazardColors[hazardType] || "#3388ff",
-        weight: 2,
-        opacity: 0.6,
-        fillOpacity: 0.2,
-        dashArray: hazardType === "contains_people" ? "5,5" : null
-      }
-    });
-
+    const layer = L.geoJSON(feature, { style });
     layerGroup.addLayer(layer);
   });
 
@@ -1652,6 +1685,8 @@ input:checked+.toggle-slider:before {
   flex-shrink: 0;
   display: inline-block;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
 /* Analysis Section */
