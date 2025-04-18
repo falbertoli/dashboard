@@ -315,7 +315,7 @@
                 <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-chart-line"></i> Max Revenue Drop</span>
+                <span class="metric-label"><i class="fas fa-chart-line"></i> Min Revenue Drop</span>
                 <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
               </div>
               <div class="metric">
@@ -337,7 +337,7 @@
             <p class="metric-year">in {{ getTaxCreditPeakYear(selectedScenario) }}</p>
           </div>
           <div class="metric-card">
-            <h3><i class="fas fa-chart-line"></i> Peak Revenue Impact</h3>
+            <h3><i class="fas fa-chart-line"></i> Min Revenue Impact</h3>
             <p class="metric-value">{{ $formatNumber(getMaxRevenueDrop(selectedScenario), 2) }}%</p>
             <p class="metric-year">in {{ getRevenueDropPeakYear(selectedScenario) }}</p>
           </div>
