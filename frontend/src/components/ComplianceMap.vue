@@ -1,5 +1,7 @@
 <!-- File: frontend/src/components/ComplianceMap.vue -->
 
+<!-- File: frontend/src/components/ComplianceMap.vue -->
+
 <template>
   <div class="compliance-map">
     <div class="header-section">
@@ -87,6 +89,17 @@
                 <div class="status-value">{{ deicingStatus }}</div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Free Space Data Source Information -->
+      <div class="data-source-info">
+        <div class="info-card">
+          <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+          <div class="info-text">
+            <p>Available and Compliant areas were taken from Hartsfield Jackson master plan 2030 and are areas
+              considered for repurposing or new areas outside the airport that will be purchased.</p>
           </div>
         </div>
       </div>
@@ -410,6 +423,12 @@
                   {{ selectedFeature.properties.available_area >= storageStore.totalFootprint ? 'Sufficient Space' :
                     'Insufficient Space' }}
                 </div>
+              </div>
+              <div v-if="isStorageArea(selectedFeature) && selectedFeature.properties.amenity === 'Free Space'"
+                class="master-plan-note">
+                <i class="fas fa-info-circle"></i>
+                <span>This area is designated in the Hartsfield Jackson master plan 2030 for repurposing or is a new
+                  area outside the airport planned for acquisition.</span>
               </div>
             </div>
           </div>
@@ -2421,5 +2440,52 @@ input:checked+.toggle-slider:before {
   .legend-panel {
     width: 250px;
   }
+}
+
+/* Information Sections */
+/* Data Source Info */
+.data-source-info {
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 4px solid #64ffda;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.info-icon {
+  color: #64ffda;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.info-text p {
+  margin: 0;
+  color: #a0aec0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Master Plan Note (in details panel) */
+.master-plan-note {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(100, 255, 218, 0.1);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #a0aec0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.master-plan-note i {
+  color: #64ffda;
+  margin-top: 2px;
 }
 </style>
