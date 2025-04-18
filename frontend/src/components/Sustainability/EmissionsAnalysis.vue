@@ -120,8 +120,11 @@
             <div class="card-title">Hybrid Operations</div>
             <div class="card-value">{{ formatNumber(totalHydrogenEmissions) }} metric tons CO₂</div>
             <div class="card-percentage">
-              Jet A: {{ formatNumber(emissionsResults.jetA_co2) }} + H₂: {{ formatNumber(emissionsResults.H2_co2) }}
-              metric tons
+              <span style="color:rgba(231, 76, 60, 0.5);font-weight:rgba(231, 76, 60, 0.5);">Jet A: {{
+                formatNumber(emissionsResults.jetA_co2) }}</span> +
+              <span style="color:rgba(52, 152, 219, 0.8);font-weight:rgba(52, 152, 219, 0.8);">H₂: {{
+                formatNumber(emissionsResults.H2_co2) }}</span>
+              metric tons CO₂
             </div>
           </div>
         </div>
