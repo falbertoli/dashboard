@@ -44,10 +44,21 @@ export const useSustainabilityStore = defineStore("sustainability", () => {
     return Math.round(emissionsReduction.value);
   });
 
+  const conventionalTreeEquivalent = computed(() => {
+    // Using the same calculation logic as carbonOffsetEquivalent but for conventional operations
+    return Math.round(totalJetAEmissions.value);
+  });
+
   const vehicleEquivalent = computed(() => {
     // Average passenger vehicle emits about 4.6 metric tons of CO₂ per year
     // Our emissions values are already in metric tons, so no division needed
     return Math.round(emissionsReduction.value / 4.6);
+  });
+
+  const conventionalVehicleEquivalent = computed(() => {
+    // Average passenger vehicle emits about 4.6 metric tons of CO₂ per year
+    // Our emissions values are already in metric tons, so no division needed
+    return Math.round(totalJetAEmissions.value / 4.6);
   });
 
   // Actions
@@ -175,6 +186,8 @@ export const useSustainabilityStore = defineStore("sustainability", () => {
     emissionsReduction,
     emissionsReductionPercentage,
     carbonOffsetEquivalent,
+    conventionalTreeEquivalent,
+    conventionalVehicleEquivalent,
     vehicleEquivalent,
 
     // Actions

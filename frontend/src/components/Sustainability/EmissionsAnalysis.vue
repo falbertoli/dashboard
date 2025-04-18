@@ -54,7 +54,7 @@
       </div>
 
       <p>Click the button below to calculate the emissions impact of hydrogen adoption.</p>
-      <button class="calculate-btn" @click="calculateEmissions">
+      <button class="primary-button" @click="calculateEmissions">
         <i class="fas fa-calculator"></i> Calculate Emissions
       </button>
     </div>
@@ -76,6 +76,15 @@
             <span class="hydrogen-demand-summary-span">Fleet Adoption: <strong>{{
               formatNumber(parseFloat(hydrogenStore.fleetPercentage)) }}%</strong></span>
           </div>
+        </div>
+      </div>
+
+      <div class="reduction-percentage-card">
+        <div class="percentage-value">{{ emissionsReductionPercentage.toFixed(1) }}%</div>
+        <div class="percentage-label">Emissions Reduction</div>
+        <div class="percentage-description">
+          Through hydrogen adoption, your operations would reduce CO₂ emissions by
+          {{ emissionsReductionPercentage.toFixed(1) }}% compared to conventional operations.
         </div>
       </div>
 
@@ -110,7 +119,10 @@
           <div class="card-content">
             <div class="card-title">Hybrid Operations</div>
             <div class="card-value">{{ formatNumber(totalHydrogenEmissions) }} metric tons CO₂</div>
-            <div class="card-percentage">Hydrogen transition scenario</div>
+            <div class="card-percentage">
+              Jet A: {{ formatNumber(emissionsResults.jetA_co2) }} + H₂: {{ formatNumber(emissionsResults.H2_co2) }}
+              metric tons
+            </div>
           </div>
         </div>
       </div>
@@ -134,27 +146,64 @@
       <!-- Environmental Equivalents -->
       <div class="equivalents-section">
         <h3>Environmental Impact Equivalents</h3>
-        <div class="equivalents-grid">
-          <div class="equivalent-card">
-            <div class="equivalent-icon">
-              <i class="fas fa-tree"></i>
-            </div>
-            <div class="equivalent-content">
-              <div class="equivalent-title">Carbon Sequestration Equivalent</div>
-              <div class="equivalent-value">{{ formatNumber(carbonOffsetEquivalent) }} trees</div>
-              <div class="equivalent-description">Number of trees needed to absorb the same amount of CO₂ over one year
+
+        <!-- New container to separate conventional vs reduction metrics -->
+        <div class="equivalents-container">
+          <!-- Reduction Metrics -->
+          <div class="equivalents-comparison">
+            <h4>Emissions Reduction Impact</h4>
+            <div class="equivalents-grid">
+              <div class="equivalent-card reduction">
+                <div class="equivalent-icon">
+                  <i class="fas fa-tree"></i>
+                </div>
+                <div class="equivalent-content">
+                  <div class="equivalent-title">Carbon Sequestration Equivalent</div>
+                  <div class="equivalent-value">{{ formatNumber(carbonOffsetEquivalent) }} trees</div>
+                  <div class="equivalent-description">Number of trees needed to absorb the same amount of CO₂ over one
+                    year</div>
+                </div>
+              </div>
+
+              <div class="equivalent-card reduction">
+                <div class="equivalent-icon">
+                  <i class="fas fa-car"></i>
+                </div>
+                <div class="equivalent-content">
+                  <div class="equivalent-title">Vehicle Emissions Equivalent</div>
+                  <div class="equivalent-value">{{ formatNumber(vehicleEquivalent) }} cars</div>
+                  <div class="equivalent-description">Number of cars taken off the road for one year</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="equivalent-card">
-            <div class="equivalent-icon">
-              <i class="fas fa-car"></i>
-            </div>
-            <div class="equivalent-content">
-              <div class="equivalent-title">Vehicle Emissions Equivalent</div>
-              <div class="equivalent-value">{{ formatNumber(vehicleEquivalent) }} cars</div>
-              <div class="equivalent-description">Number of cars taken off the road for one year</div>
+          <!-- Conventional Metrics -->
+          <div class="equivalents-comparison conventional">
+            <h4>Conventional Operations Impact</h4>
+            <div class="equivalents-grid">
+              <div class="equivalent-card conventional">
+                <div class="equivalent-icon">
+                  <i class="fas fa-tree"></i>
+                </div>
+                <div class="equivalent-content">
+                  <div class="equivalent-title">Conventional Operations Tree Equivalent</div>
+                  <div class="equivalent-value">{{ formatNumber(conventionalTreeEquivalent) }} trees</div>
+                  <div class="equivalent-description">Number of trees needed to absorb conventional operations CO₂ over
+                    one year</div>
+                </div>
+              </div>
+              <div class="equivalent-card conventional">
+                <div class="equivalent-icon">
+                  <i class="fas fa-car"></i>
+                </div>
+                <div class="equivalent-content">
+                  <div class="equivalent-title">Vehicle Emissions Equivalent</div>
+                  <div class="equivalent-value">{{ formatNumber(conventionalVehicleEquivalent) }} cars</div>
+                  <div class="equivalent-description">Number of cars that would emit the same CO₂ as conventional
+                    operations over one year</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -221,6 +270,8 @@ const {
   emissionsReduction,
   emissionsReductionPercentage,
   carbonOffsetEquivalent,
+  conventionalTreeEquivalent,
+  conventionalVehicleEquivalent,
   vehicleEquivalent
 } = storeToRefs(sustainabilityStore);
 
@@ -246,23 +297,23 @@ const emissionsComparisonChartData = computed(() => {
       {
         label: 'Jet A Emissions Conventional',
         data: [emissionsResults.value.just_jetA_co2, 0],
-        backgroundColor: ['rgba(255, 99, 132, 0.8)',],
-        borderColor: ['rgba(255, 99, 132, 1)',],
+        backgroundColor: ['rgba(231, 76, 60, 0.8)'], // Updated to match our red
+        borderColor: ['rgba(231, 76, 60, 1)'],
         borderWidth: 1
       },
       {
         label: 'Jet A Emissions Hybrid',
         data: [0, emissionsResults.value.jetA_co2],
-        backgroundColor: ['rgba(255, 255, 80, 0.8)'],
-        borderColor: ['rgba(54, 162, 235, 1)'],
-        borderWidth: 3
+        backgroundColor: ['rgba(231, 76, 60, 0.5)'], // Lighter red for remaining Jet A
+        borderColor: ['rgba(231, 76, 60, 0.8)'],
+        borderWidth: 1
       },
       {
         label: 'Hydrogen Emissions',
         data: [0, emissionsResults.value.H2_co2],
-        backgroundColor: 'rgba(10, 255, 10, 0.8)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 3
+        backgroundColor: 'rgba(52, 152, 219, 0.8)', // Updated blue for hydrogen
+        borderColor: 'rgba(52, 152, 219, 1)',
+        borderWidth: 1
       }
     ]
   };
@@ -336,12 +387,12 @@ const emissionsReductionChartData = computed(() => {
         totalHydrogenEmissions.value
       ],
       backgroundColor: [
-        'rgba(76, 175, 80, 0.8)',
-        'rgba(54, 162, 235, 0.8)'
+        'rgba(46, 204, 113, 0.8)', // Updated teal for emissions reduced
+        'rgba(231, 76, 60, 0.5)'  // Updated red for remaining emissions
       ],
       borderColor: [
-        'rgba(76, 175, 80, 1)',
-        'rgba(54, 162, 235, 1)'
+        'rgba(46, 204, 113, 1)',
+        'rgba(231, 76, 60, 0.8)'
       ],
       borderWidth: 1
     }]
@@ -378,10 +429,42 @@ const emissionsReductionChartOptions = computed(() => {
 
 <style scoped>
 /* =========================
+   Color Variables & Root
+   ========================= */
+:root {
+  /* Primary semantic colors */
+  --color-reduction: #2ecc71;
+  /* Brighter teal for reductions */
+  --color-conventional: #e74c3c;
+  /* Clear red for conventional emissions */
+  --color-hydrogen: #3498db;
+  /* Bright blue for hydrogen */
+
+  /* Background variations */
+  --bg-reduction: rgba(46, 204, 113, 0.1);
+  --bg-conventional: rgba(231, 76, 60, 0.1);
+  --bg-hydrogen: rgba(52, 152, 219, 0.1);
+
+  /* Border variations */
+  --border-reduction: rgba(46, 204, 113, 0.8);
+  --border-conventional: rgba(231, 76, 60, 0.8);
+  --border-hydrogen: rgba(52, 152, 219, 0.8);
+
+  /* UI colors */
+  --text-primary: #fff;
+  --text-secondary: #ddd;
+  --text-tertiary: #aaa;
+  --bg-card: rgba(255, 255, 255, 0.07);
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================
    Global & Utility Styles
    ========================= */
 .emissions-analysis {
   margin-bottom: 30px;
+  color: var(--text-secondary);
 }
 
 /* =========================
@@ -390,7 +473,7 @@ const emissionsReductionChartOptions = computed(() => {
 h2 {
   margin-top: 0;
   margin-bottom: 20px;
-  color: #64ffda;
+  color: var(--color-reduction);
   font-size: 1.5rem;
   font-weight: 600;
 }
@@ -398,48 +481,55 @@ h2 {
 h3 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #ddd;
+  color: var(--text-secondary);
   font-size: 1.1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 0.5rem;
+}
+
+h4 {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 15px;
+  font-weight: 500;
 }
 
 /* =========================
    Alerts & Feedback Messages
    ========================= */
 .error-message {
-  border-left: 4px solid #e74c3c;
-  color: #e74c3c;
-  background-color: rgba(255, 99, 132, 0.1);
+  border-left: 4px solid var(--color-conventional);
+  color: var(--color-conventional);
+  background-color: var(--bg-conventional);
   padding: 15px;
-  border-radius: 6px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .alert {
   display: flex;
   align-items: center;
   padding: 15px;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 25px;
-}
-
-.alert.info {
-  background-color: rgba(54, 162, 235, 0.1);
-  border-left: 4px solid rgba(54, 162, 235, 0.8);
-  color: #ddd;
 }
 
 .alert i {
   margin-right: 10px;
   font-size: 1.2rem;
+  color: var(--color-hydrogen);
 }
 
 .no-results {
-  color: #aaa;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 8px;
+  color: var(--text-tertiary);
+  background-color: var(--bg-surface);
+  padding: 25px;
+  border-radius: 12px;
   text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* =========================
@@ -451,13 +541,13 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: #64ffda;
+  color: var(--color-reduction);
 }
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  border-top: 4px solid #64ffda;
+  border-top: 4px solid var(--color-reduction);
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
@@ -477,24 +567,28 @@ h3 {
 /* =========================
    Button Styles
    ========================= */
-.calculate-btn {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background-color: #64ffda;
-  color: #1a1e24;
+.primary-button {
+  margin-top: 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .calculate-btn:hover {
-  background-color: #73ffde;
+  background-color: rgba(0, 196, 167, 0.9);
   transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.calculate-btn:active {
+  transform: translateY(0);
 }
 
 .calculate-btn i {
@@ -505,20 +599,21 @@ h3 {
    Hydrogen Demand Info
    ========================= */
 .hydrogen-demand-info {
-  background: linear-gradient(145deg, rgba(54, 162, 235, 0.1), rgba(100, 255, 218, 0.1));
+  background: rgba(100, 255, 218, 0.1);
   border-radius: 12px;
   padding: 25px;
   margin-bottom: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .hydrogen-demand-info h3 {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #64ffda;
+  color: var(--color-hydrogen);
   margin-bottom: 20px;
   font-size: 1.2rem;
+  border-bottom: none;
 }
 
 .hydrogen-demand-info h3 i {
@@ -536,7 +631,7 @@ h3 {
 }
 
 .info-row.total-demand strong {
-  color: #64ffda;
+  color: var(--color-hydrogen);
   font-size: 1.2rem;
 }
 
@@ -562,7 +657,7 @@ h3 {
 }
 
 .icon-wrapper {
-  background: rgba(100, 255, 218, 0.1);
+  background: var(--bg-hydrogen);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -572,7 +667,7 @@ h3 {
 }
 
 .icon-wrapper i {
-  color: #64ffda;
+  color: var(--color-hydrogen);
   font-size: 1.1rem;
 }
 
@@ -583,26 +678,55 @@ h3 {
 }
 
 .breakdown-item span {
-  color: #aaa;
+  color: var(--text-tertiary);
   font-size: 0.9rem;
 }
 
 .breakdown-item strong {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 1.1rem;
-}
-
-@media (max-width: 600px) {
-  .breakdown-container {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* =========================
    Hydrogen Demand Summary Pill
    ========================= */
+.hydrogen-demand-summary {
+  margin-bottom: 16px;
+}
+
+.info-pill {
+  background: linear-gradient(145deg, rgba(100, 255, 218, 0.5), rgba(100, 255, 218, 0.05));
+  background: rgba(100, 255, 218, 0.7);
+  border-radius: 50px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  /* background-color: #64ffda;
+  border-color: #64ffda; */
+}
+
+.info-pill .pill-item {
+  display: flex;
+  align-items: center;
+}
+
 .hydrogen-demand-summary-span {
   padding-left: 10px;
+  color: var(--text-secondary);
+}
+
+.hydrogen-demand-summary-span strong {
+  color: var(--color-hydrogen);
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 0 12px;
 }
 
 /* =========================
@@ -611,37 +735,45 @@ h3 {
 .results-container {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 30px;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
 }
 
 .summary-card {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background-color: var(--bg-surface);
+  border-radius: 12px;
   padding: 20px;
   display: flex;
   align-items: flex-start;
   gap: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
 }
 
 .summary-card.reduction {
-  background-color: rgba(76, 175, 80, 0.1);
-  border-left: 4px solid #4caf50;
+  background-color: var(--bg-reduction);
+  border-left: 4px solid var(--color-reduction);
 }
 
 .summary-card.conventional {
-  background-color: rgba(255, 99, 132, 0.1);
-  border-left: 4px solid #ff6384;
+  background-color: var(--bg-conventional);
+  border-left: 4px solid var(--color-conventional);
 }
 
 .summary-card.hydrogen {
-  background-color: rgba(54, 162, 235, 0.1);
-  border-left: 4px solid #36a2eb;
+  background-color: var(--bg-hydrogen);
+  border-left: 4px solid var(--color-hydrogen);
 }
 
 .card-icon {
@@ -655,18 +787,18 @@ h3 {
 }
 
 .summary-card.reduction .card-icon {
-  background-color: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
+  background-color: rgba(46, 204, 113, 0.5);
+  color: var(--color-reduction);
 }
 
 .summary-card.conventional .card-icon {
-  background-color: rgba(255, 99, 132, 0.2);
-  color: #ff6384;
+  background-color: rgba(231, 76, 60, 0.2);
+  color: var(--color-conventional);
 }
 
 .summary-card.hydrogen .card-icon {
-  background-color: rgba(54, 162, 235, 0.2);
-  color: #36a2eb;
+  background-color: rgba(52, 152, 219, 0.2);
+  color: var(--color-hydrogen);
 }
 
 .card-content {
@@ -674,44 +806,52 @@ h3 {
 }
 
 .card-title {
-  color: #aaa;
+  color: var(--text-tertiary);
   font-size: 0.9rem;
   margin-bottom: 5px;
 }
 
 .card-value {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 5px;
 }
 
 .summary-card.reduction .card-value {
-  color: #4caf50;
+  color: var(--color-reduction);
 }
 
 .summary-card.conventional .card-value {
-  color: #ff6384;
+  color: var(--color-conventional);
 }
 
 .summary-card.hydrogen .card-value {
-  color: #36a2eb;
+  color: var(--color-hydrogen);
 }
 
 .card-percentage {
-  color: #aaa;
+  color: var(--text-tertiary);
   font-size: 0.9rem;
 }
 
 /* =========================
    Chart Section
    ========================= */
-.chart-section,
-.equivalents-section,
-.breakdown-section {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
+.charts-container {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.chart-section {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 24px;
+  flex: 1;
+  min-width: 0;
+  /* Prevents flex items from overflowing */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .chart-container {
@@ -722,6 +862,32 @@ h3 {
 /* =========================
    Equivalents Grid & Cards
    ========================= */
+.equivalents-section {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.equivalents-container {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.equivalents-comparison {
+  background-color: var(--bg-reduction);
+  border-radius: 12px;
+  padding: 22px;
+  flex: 1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.equivalents-comparison.conventional {
+  background-color: var(--bg-conventional);
+}
+
 .equivalents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -735,18 +901,39 @@ h3 {
   display: flex;
   align-items: flex-start;
   gap: 15px;
+  transition: transform 0.2s;
+}
+
+.equivalent-card:hover {
+  transform: translateY(-2px);
+}
+
+.equivalent-card.reduction {
+  border-left: 4px solid var(--color-reduction);
+}
+
+.equivalent-card.conventional {
+  border-left: 4px solid var(--color-conventional);
 }
 
 .equivalent-icon {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: rgba(100, 255, 218, 0.1);
-  color: #64ffda;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
+}
+
+.equivalent-card.reduction .equivalent-icon {
+  background-color: rgba(46, 204, 113, 0.5);
+  color: var(--color-reduction);
+}
+
+.equivalent-card.conventional .equivalent-icon {
+  background-color: rgba(231, 76, 60, 0.15);
+  color: var(--color-conventional);
 }
 
 .equivalent-content {
@@ -754,47 +941,99 @@ h3 {
 }
 
 .equivalent-title {
-  color: #ddd;
+  color: var(--text-secondary);
   font-size: 1rem;
   margin-bottom: 5px;
 }
 
 .equivalent-value {
-  color: #64ffda;
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 5px;
 }
 
+.equivalent-card.reduction .equivalent-value {
+  color: var(--color-reduction);
+}
+
+.equivalent-card.conventional .equivalent-value {
+  color: var(--color-conventional);
+}
+
 .equivalent-description {
-  color: #aaa;
+  color: var(--text-tertiary);
   font-size: 0.8rem;
 }
 
 /* =========================
-   Table
+   Reduction Percentage Card
    ========================= */
+.reduction-percentage-card {
+  background: linear-gradient(145deg, rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0.3));
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 28px;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border-left: 6px solid var(--color-reduction);
+}
+
+.percentage-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-reduction);
+  margin-bottom: 10px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.percentage-label {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.percentage-description {
+  color: var(--text-tertiary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* =========================
+   Table Styles
+   ========================= */
+.breakdown-section {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .table-container {
   width: 100%;
-  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 15px;
 }
 
 .table-header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 12px 15px;
-  border-radius: 6px 6px 0 0;
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 14px 16px;
   font-weight: 600;
-  color: #ddd;
+  color: var(--text-primary);
 }
 
 .table-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  padding: 12px 15px;
+  padding: 14px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: #aaa;
+  color: var(--text-tertiary);
 }
 
 .table-row:last-child {
@@ -802,10 +1041,9 @@ h3 {
 }
 
 .table-row.total {
-  background-color: rgba(100, 255, 218, 0.05);
-  color: #64ffda;
+  background-color: var(--bg-reduction);
+  color: var(--color-reduction);
   font-weight: 600;
-  border-radius: 0 0 6px 6px;
 }
 
 .header-cell,
@@ -814,21 +1052,50 @@ h3 {
 }
 
 /* =========================
-   Charts Container & Responsive Layout
+   Animations
    ========================= */
-.charts-container {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 25px;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.chart-section {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-  flex: 1;
-  min-width: 0;
-  /* Prevents flex items from overflowing */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.pulse-icon {
+  animation: pulse 2s infinite;
+  color: var(--color-hydrogen);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* =========================
@@ -836,6 +1103,15 @@ h3 {
    ========================= */
 @media (max-width: 1024px) {
   .charts-container {
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .chart-section {
+    min-height: 350px;
+  }
+
+  .equivalents-container {
     flex-direction: column;
   }
 }
@@ -845,11 +1121,73 @@ h3 {
   .summary-grid,
   .equivalents-grid {
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .breakdown-container {
+    grid-template-columns: 1fr;
+  }
+
+  .reduction-percentage-card {
+    padding: 24px;
+  }
+
+  .percentage-value {
+    font-size: 2.8rem;
+  }
+
+  .charts-container {
+    gap: 24px;
+  }
+
+  .hydrogen-demand-info {
+    padding: 20px;
+  }
+
+  .info-pill {
+    flex-direction: column;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .divider {
+    width: 80%;
+    height: 1px;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  h3 {
+    font-size: 1rem;
   }
 
   .table-header,
   .table-row {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1.5fr 0.75fr 0.75fr;
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+
+  .header-cell,
+  .row-cell {
+    padding: 0 6px;
+  }
+
+  .card-value {
+    font-size: 1.2rem;
+  }
+
+  .equivalent-value {
+    font-size: 1.1rem;
+  }
+
+  .percentage-description {
+    font-size: 0.85rem;
   }
 }
 </style>

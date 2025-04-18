@@ -123,6 +123,60 @@ h3 {
   padding: 0 10px;
 }
 
+/* =========================
+   Alert
+   ========================= */
+
+.alert.info {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid #3b82f6;
+  color: #93c5fd;
+}
+
+/* =========================
+   Button
+   ========================= */
+.primary-button,
+.secondary-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.primary-button {
+  background-color: #64ffda;
+  color: #1a1e24;
+  font-weight: 600;
+}
+
+.primary-button:hover:not(:disabled) {
+  background-color: #73ffde;
+  transform: translateY(-2px);
+}
+
+.secondary-button {
+  background-color: transparent;
+  border: 1px solid #64ffda;
+  color: #64ffda;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background-color: rgba(100, 255, 218, 0.1);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /****************************************/
 
 p {
