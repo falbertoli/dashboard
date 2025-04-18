@@ -98,8 +98,8 @@
               ({{ hydrogenStore.fleetPercentage }}%).</p>
           </div>
           <div class="explanation-item">
-            <h3><i class="fas fa-dollar-sign"></i> Tax Credit Requirements</h3>
-            <p>The required tax credit ($/gallon) to offset revenue losses.
+            <h3><i class="fas fa-dollar-sign"></i> Equivalent Subsidy Requirements</h3>
+            <p>The required subsidy ($/gallon) to offset revenue losses.
               Based on hydrogen demand ({{ $formatNumber(hydrogenStore.totalH2Demand) }} ft³/day) and revenue impact.
             </p>
           </div>
@@ -109,12 +109,12 @@
         <div v-show="activeExplanationTab === 2" class="explanation-panel">
           <div class="metrics-grid">
             <div class="metric-item">
-              <h4><i class="fas fa-star"></i> Peak Tax Credit</h4>
-              <p>Maximum tax credit needed per gallon of hydrogen fuel during the transition period</p>
+              <h4><i class="fas fa-star"></i> Peak Subsidy </h4>
+              <p>Maximum required subsidy equivalent needed per gallon of hydrogen fuel during the transition period</p>
             </div>
             <div class="metric-item">
-              <h4><i class="fas fa-chart-line"></i> Peak Revenue Impact</h4>
-              <p>Largest percentage drop in revenue across the analysis period</p>
+              <h4><i class="fas fa-chart-line"></i> Min Revenue Impact</h4>
+              <p>Smallest percentage drop in revenue across the analysis period</p>
             </div>
             <div class="metric-item">
               <h4><i class="fas fa-coins"></i> Cumulative Cost</h4>
@@ -122,7 +122,7 @@
             </div>
             <div class="metric-item">
               <h4><i class="fas fa-percentage"></i> Cost Recovery</h4>
-              <p>Percentage of revenue loss offset by tax credits</p>
+              <p>Percentage of revenue loss offset by subsidies equivalent</p>
             </div>
           </div>
         </div>
@@ -167,14 +167,14 @@
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Required Tax credits to compensate only for the turnaround time impact</span>
+            <span>Required subsidies equivalent to compensate only for the turnaround time impact</span>
           </div>
         </div>
 
         <div v-show="activeAssumptionTab === 2" class="assumption-list">
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Fixed Tax Credit Rate</span>
+            <span>Fixed Subsidy Equivalent Rate</span>
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
@@ -311,7 +311,7 @@
             <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual min/ops</h3>
             <div class="card-metrics">
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Tax Credit</span>
+                <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Subsidy Equivalent</span>
                 <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
               </div>
               <div class="metric">
@@ -319,7 +319,7 @@
                 <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Tax Credit</span>
+                <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Subsidy Equivalent</span>
                 <span class="metric-value">{{ scenario.finalYearTaxCredit }}</span>
               </div>
             </div>
@@ -332,13 +332,13 @@
         <h2><i class="fas fa-chart-pie"></i> {{ selectedScenario }} annual min/ops Scenario Summary</h2>
         <div class="summary-metrics">
           <div class="metric-card">
-            <h3><i class="fas fa-dollar-sign"></i> Peak Tax Credit</h3>
-            <p class="metric-value">${{ $formatNumber(getMaxTaxCredit(selectedScenario)) }}/gal</p>
+            <h3><i class="fas fa-dollar-sign"></i> Peak Subsidy Equivalent</h3>
+            <p class="metric-value">${{ $formatNumber(getMaxTaxCredit(selectedScenario), 2) }}/gal</p>
             <p class="metric-year">in {{ getTaxCreditPeakYear(selectedScenario) }}</p>
           </div>
           <div class="metric-card">
             <h3><i class="fas fa-chart-line"></i> Peak Revenue Impact</h3>
-            <p class="metric-value">{{ $formatNumber(getMaxRevenueDrop(selectedScenario)) }}%</p>
+            <p class="metric-value">{{ $formatNumber(getMaxRevenueDrop(selectedScenario), 2) }}%</p>
             <p class="metric-year">in {{ getRevenueDropPeakYear(selectedScenario) }}</p>
           </div>
           <div class="metric-card">
@@ -374,45 +374,47 @@
 
           <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">{{ $formatNumber(item.Growth_Factor) }}</div>
+            <div class="row-cell">{{ $formatNumber(item.Growth_Factor, 2) }}</div>
             <div class="row-cell">{{ $formatNumber(item.Turn_Time_min) }}</div>
             <div class="row-cell">{{ $formatNumber(item.Fraction_Flights_H2 * 100) }}%</div>
-            <div class="row-cell">${{ $formatNumber(item.Baseline_Revenue_M) }}M</div>
-            <div class="row-cell">${{ $formatNumber(item.Hydrogen_Revenue_M) }}M</div>
-            <div class="row-cell">{{ $formatNumber(item.Pct_Drop) }}%</div>
+            <div class="row-cell">${{ $formatNumber(item.Baseline_Revenue_M, 2) }}M</div>
+            <div class="row-cell">${{ $formatNumber(item.Hydrogen_Revenue_M, 2) }}M</div>
+            <div class="row-cell">{{ $formatNumber(item.Pct_Drop, 2) }}%</div>
           </div>
         </div>
       </section>
 
-      <!-- Tax Credits Table -->
+      <!-- Subsidies Equivalent Table -->
       <section v-if="activeTab === 'taxCredits'" class="taxCredits-section">
-        <h2><i class="fas fa-receipt"></i> Tax Credits for {{ selectedScenario }} annual min/ops Scenario</h2>
+        <h2><i class="fas fa-receipt"></i> Required equivalent subsidies for {{ selectedScenario }} annual min/ops
+          Scenario</h2>
         <div class="table-container taxCredits-table">
           <div class="table-header">
             <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
             <div class="header-cell"><i class="fas fa-arrow-down"></i> Revenue Loss ($M)</div>
             <div class="header-cell"><i class="fas fa-gas-pump"></i> H2 Volume (gal)</div>
-            <div class="header-cell"><i class="fas fa-file-invoice-dollar"></i> Tax Credit ($/gal)</div>
-            <div class="header-cell"><i class="fas fa-hand-holding-usd"></i> Total Subsidy ($M)</div>
-            <div class="header-cell"><i class="fas fa-percentage"></i> Cost Recovery (%)</div>
+            <div class="header-cell"><i class="fas fa-file-invoice-dollar"></i> Required equivalent subsidy ($/gal)
+            </div>
+            <!-- <div class="header-cell"><i class="fas fa-hand-holding-usd"></i> Total Subsidy ($M)</div> -->
+            <!-- <div class="header-cell"><i class="fas fa-percentage"></i> Cost Recovery (%)</div> -->
           </div>
 
           <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">${{ $formatNumber(item.Revenue_Drop_M || 0) }}M</div>
+            <div class="row-cell">${{ $formatNumber(item.Revenue_Drop_M || 0, 2) }}M</div>
             <div class="row-cell">{{ formatH2Volume($formatNumber(item.H2_Demand_annual_gal) || 0) }}</div>
-            <div class="row-cell">${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0) }}</div>
-            <div class="row-cell">${{ $formatNumber(calculateTotalSubsidy(item)) }}M</div>
-            <div class="row-cell">{{ $formatNumber(calculateCostRecovery(item)) }}%</div>
+            <div class="row-cell">${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0, 2) }}</div>
+            <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidy(item)) }}M</div> -->
+            <!-- <div class="row-cell">{{ $formatNumber(calculateCostRecovery(item)) }}%</div> -->
           </div>
 
           <div class="table-row total">
             <div class="row-cell"><i class="fas fa-calculator"></i> Average</div>
-            <div class="row-cell">${{ $formatNumber(calculateAverageRevenueLoss()) }}M</div>
-            <div class="row-cell">{{ $formatNumber(formatH2Volume(calculateTotalH2Volume())) }}</div>
-            <div class="row-cell">${{ $formatNumber(calculateAverageTaxCredit()) }}</div>
-            <div class="row-cell">${{ $formatNumber(calculateTotalSubsidies()) }}M</div>
-            <div class="row-cell">{{ $formatNumber(calculateAverageCostRecovery()) }}%</div>
+            <div class="row-cell">${{ $formatNumber(calculateAverageRevenueLoss(), 2) }}M</div>
+            <div class="row-cell">{{ formatH2Volume($formatNumber(calculateTotalH2Volume())) }}</div>
+            <div class="row-cell">${{ $formatNumber(calculateAverageTaxCredit(), 2) }}</div>
+            <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidies()) }}M</div>
+            <div class="row-cell">{{ $formatNumber(calculateAverageCostRecovery()) }}%</div> -->
           </div>
         </div>
       </section>
@@ -431,10 +433,10 @@
             :chartOptions="revenueChartOptions" />
         </div>
 
-        <!-- Tax Credit Chart -->
+        <!-- Subsidy Equivalent Chart -->
         <div class="chart-wrapper">
-          <h3><i class="fas fa-file-invoice-dollar"></i> Tax Credits by Scenario</h3>
-          <p class="chart-description">Required tax credit per gallon of hydrogen over time. Credits decrease as
+          <h3><i class="fas fa-file-invoice-dollar"></i> Subsidies Equivalent by Scenario</h3>
+          <p class="chart-description">Required subsidy equivalent per gallon of hydrogen over time. Credits decrease as
             refueling efficiency improves.</p>
           <ChartComponent chartId="taxCreditChart" chartType="line" :chartData="taxCreditChartData"
             :chartOptions="taxCreditChartOptions" />
@@ -584,7 +586,7 @@ export default {
       return totalCost;
     };
 
-    // Helper functions for tax credit summary calculations
+    // Helper functions for subsidy equivalent summary calculations
     const calculateAverageRevenueLoss = () => {
       if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
       const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.Revenue_Drop_M || 0), 0);
@@ -617,7 +619,7 @@ export default {
       return total / validItems.length;
     };
 
-    // Helper functions for tax credit table
+    // Helper functions for subsidy equivalent table
     const calculateRevenueLoss = (item) => {
       return (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
     };
@@ -723,7 +725,7 @@ export default {
       return { labels, datasets };
     });
 
-    // Tax Credit Chart Data
+    // Subsidy Equivalent Chart Data
     const taxCreditChartData = computed(() => {
       if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
 
@@ -860,7 +862,7 @@ export default {
       plugins: {
         title: {
           display: true,
-          text: 'Tax Credits vs. Year for Different Turn-Time Reduction Rates',
+          text: 'Subsidies Equivalent vs. Year for Different Turn-Time Reduction Rates',
           color: '#ffffff', // White text for title
           font: {
             weight: 'bold',
@@ -895,7 +897,7 @@ export default {
         y: {
           title: {
             display: true,
-            text: 'Tax Credit ($/gal)',
+            text: 'Subsidy Equivalent ($/gal)',
             color: '#ffffff',
             font: {
               weight: 'bold'
@@ -1083,7 +1085,7 @@ export default {
 
     const dataTabs = [
       { id: 'details', label: 'Yearly Details', icon: 'fas fa-table' },
-      { id: 'taxCredits', label: 'Tax Credits', icon: 'fas fa-receipt' },
+      { id: 'taxCredits', label: 'Subsidies Equivalent', icon: 'fas fa-receipt' },
       { id: 'charts', label: 'Charts', icon: 'fas fa-chart-bar' }
     ];
 
@@ -1605,7 +1607,7 @@ h3 {
 .taxCredits-section .table-header,
 .taxCredits-section .table-row {
   display: grid;
-  grid-template-columns: 0.7fr 1fr 1.2fr 1fr 1fr 1fr;
+  grid-template-columns: 0.7fr 1fr 1.2fr 2fr;
 }
 
 .details-section .table-header,
@@ -1642,6 +1644,10 @@ h3 {
 .header-cell,
 .row-cell {
   padding: 0 10px;
+}
+
+.row-cell {
+  padding-left: 2.5em;
 }
 
 /* =========================
