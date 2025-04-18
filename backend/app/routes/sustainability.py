@@ -16,25 +16,31 @@ def get_emissions():
             return jsonify({"error": "Missing request body"}), 400
         
         # Extract parameters from request
-        # Now we expect the three fuel weights (all in lbs)
         jetA_weight = float(data.get("jetA_weight", 0))
         H2_weight = float(data.get("H2_weight", 0))
         Fuel_weight = float(data.get("Fuel_weight", 0))
+        year = int(data.get("year", 2036))  # Default to 2036 if not provided
         
-        # Optionally validate that fuel weight values are not negative
+        # Validate input parameters
         if jetA_weight < 0 or H2_weight < 0 or Fuel_weight < 0:
             return jsonify({
                 "error": "Invalid parameter",
                 "message": "Fuel weights must be non-negative"
             }), 400
         
-        # Calculate emissions using the new emissions function
-        jetA_co2, H2_co2, just_jetA_co2 = emissions(jetA_weight, H2_weight, Fuel_weight)
+        if year < 2026 or year > 2050:
+            return jsonify({
+                "error": "Invalid parameter",
+                "message": "Year must be between 2026 and 2050"
+            }), 400
+        
+        # Calculate emissions using the updated emissions function that takes year
+        jetA_co2, H2_co2, just_jetA_co2 = emissions(jetA_weight, H2_weight, Fuel_weight, year)
 
         # Add logging to verify data
-        print(f"Calculated emissions: jetA_co2={jetA_co2}, H2_co2={H2_co2}, just_jetA_co2={just_jetA_co2}")
+        print(f"Calculated emissions for year {year}: jetA_co2={jetA_co2}, H2_co2={H2_co2}, just_jetA_co2={just_jetA_co2}")
         
-        current_app.logger.info("Calculated emissions successfully")
+        current_app.logger.info(f"Calculated emissions successfully for year {year}")
         return jsonify({
             "jetA_co2": jetA_co2,
             "H2_co2": H2_co2,
@@ -45,7 +51,7 @@ def get_emissions():
         current_app.logger.warning(f"Validation error in emissions endpoint: {str(e)}")
         return jsonify({
             "error": "Invalid parameter format", 
-            "message": "All fuel weights must be numbers"
+            "message": "Fuel weights must be numbers and year must be an integer"
         }), 400
     
     except Exception as e:
