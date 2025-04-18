@@ -67,8 +67,8 @@ export const useSustainabilityStore = defineStore("sustainability", () => {
     try {
       // Extract values from hydrogen store
       // Total fuel weight for conventional operations
-
       const sliderPercentage = hydrogenStore.fleetPercentage / 100; // Convert percentage to decimal
+      const currentYear = hydrogenStore.year; // Get the selected year from hydrogen store
 
       const totalFuelWeight =
         hydrogenStore.aircraftH2Demand.projected_fuel_weight_lb /
@@ -89,6 +89,7 @@ export const useSustainabilityStore = defineStore("sustainability", () => {
 
       console.log("📊 Emissions calculation request:", {
         sliderPercentage: sliderPercentage,
+        year: currentYear,
         aircraftH2Weight: aircraftH2Weight,
         gseH2Weight: gseH2Weight,
         jetA_weight: jetAWeight,
@@ -101,6 +102,7 @@ export const useSustainabilityStore = defineStore("sustainability", () => {
         jetA_weight: jetAWeight,
         H2_weight: totalH2Weight,
         Fuel_weight: totalFuelWeight,
+        year: currentYear, // Add the year parameter
       });
 
       console.log("✅ Emissions calculation response:", response);
