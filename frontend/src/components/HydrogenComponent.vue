@@ -1,8 +1,15 @@
 <!-- File: frontend/src/components/HydrogenComponent.vue -->
 
 <template>
-  <div>
-    <h2><i class="fas fa-atom"></i> Hydrogen Demand Estimation</h2>
+  <div class="hydrogen-dashboard">
+    <div class="dashboard-header">
+      <h2><i class="fas fa-atom animated-spin"></i> Hydrogen Airport Transition Hub</h2>
+      <div class="airport-status">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ statusMessage }}</span>
+      </div>
+    </div>
+    <!-- <h2><i class="fas fa-atom"></i> Hydrogen Demand Estimation</h2> -->
 
     <!-- Input Parameters Section -->
     <div class="parameters-section">
@@ -97,6 +104,8 @@
         </div>
       </div>
 
+      <StatusComponent :totalH2Demand="store.totalH2Demand" :fleetPercentage="fleetPercentage" />
+
       <!-- Charts Tab -->
       <div v-show="activeTab === 'chart'" class="chart-tab">
         <div class="charts-container">
@@ -135,6 +144,7 @@ import Slider from '../components/Slider.vue';
 import Dropdown from '../components/Dropdown.vue';
 import CheckboxGroup from '../components/CheckboxGroup.vue';
 import ChartComponent from '../components/ChartComponent.vue';
+import StatusComponent from './HydrogenDemand/StatusComponent.vue';
 import { computed, ref, onMounted, watch } from "vue";
 import { useHydrogenStore } from "../store/hydrogenStore";
 import { fetchGseOptions } from "../utils/api.js";
@@ -695,5 +705,97 @@ div {
   .chart-container {
     min-height: 400px;
   }
+}
+
+.hydrogen-dashboard {
+  background-color: #1a1d24;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+}
+
+.animated-spin {
+  display: inline-block;
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.airport-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #64ffda;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: #64ffda;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(100, 255, 218, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(100, 255, 218, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(100, 255, 218, 0);
+  }
+}
+
+/* Enhanced tabs styling */
+.tabs {
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 3px;
+}
+
+.tab-button {
+  border-radius: 6px;
+  padding: 12px 20px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.tab-button i {
+  transition: transform 0.3s ease;
+}
+
+.tab-button:hover i {
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.05));
+  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.1);
 }
 </style>
