@@ -402,7 +402,7 @@
           <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
             <div class="row-cell">{{ item.Year }}</div>
             <div class="row-cell">${{ $formatNumber(item.Revenue_Drop_M || 0, 2) }}M</div>
-            <div class="row-cell">{{ formatH2Volume($formatNumber(item.H2_Demand_annual_gal) || 0) }}</div>
+            <div class="row-cell">{{ formatH2Volume($formatCompactNumber(item.H2_Demand_annual_gal) || 0) }}</div>
             <div class="row-cell">${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0, 2) }}</div>
             <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidy(item)) }}M</div> -->
             <!-- <div class="row-cell">{{ $formatNumber(calculateCostRecovery(item)) }}%</div> -->
@@ -411,7 +411,7 @@
           <div class="table-row total">
             <div class="row-cell"><i class="fas fa-calculator"></i> Average</div>
             <div class="row-cell">${{ $formatNumber(calculateAverageRevenueLoss(), 2) }}M</div>
-            <div class="row-cell">{{ formatH2Volume($formatNumber(calculateTotalH2Volume())) }}</div>
+            <div class="row-cell">{{ formatH2Volume($formatCompactNumber(calculateAverageH2Volume())) }}</div>
             <div class="row-cell">${{ $formatNumber(calculateAverageTaxCredit(), 2) }}</div>
             <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidies()) }}M</div>
             <div class="row-cell">{{ $formatNumber(calculateAverageCostRecovery()) }}%</div> -->
@@ -590,6 +590,12 @@ export default {
     const calculateAverageRevenueLoss = () => {
       if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
       const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.Revenue_Drop_M || 0), 0);
+      return total / selectedScenarioData.value.length;
+    };
+
+    const calculateAverageH2Volume = () => {
+      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
+      const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.H2_Demand_annual_gal || 0), 0);
       return total / selectedScenarioData.value.length;
     };
 
@@ -1126,6 +1132,7 @@ export default {
       calculateCostRecovery,
       calculateAverageRevenueLoss,
       calculateTotalH2Volume,
+      calculateAverageH2Volume,
       calculateAverageTaxCredit,
       calculateTotalSubsidies,
       calculateAverageCostRecovery,
