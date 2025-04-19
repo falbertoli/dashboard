@@ -212,7 +212,7 @@
           <span class="param-note">(fixed)</span>
         </div>
         <div class="param-item">
-          <span class="param-label">Initial Turn Time:</span>
+          <span class="param-label">Initial Extra Turn Time:</span>
           <span class="param-value">{{ extraTurnTime }} minutes</span>
           <span class="param-note">(user input)</span>
         </div>
