@@ -1,3 +1,5 @@
+<!-- frontend/src/components/RegulationsTable.vue -->
+
 <template>
   <div class="regulations-container">
     <table class="data-table">

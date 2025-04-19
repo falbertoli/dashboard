@@ -919,4 +919,134 @@ export default {
   font-size: 1.3rem;
   font-weight: 500;
 }
+
+/****** Width Reactive Enhancements ******/
+
+/* Fluid container sizing */
+.dashboard {
+  width: 100%;
+  max-width: 1600px;
+  /* Prevents excessive stretching on ultra-wide screens */
+  margin: 0 auto;
+}
+
+/* More responsive grid layouts */
+.content-grid {
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+}
+
+/* Improved responsive tabs */
+@media (max-width: 768px) {
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .tab-button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 6px;
+  }
+}
+
+/* Better responsive scaling for results cards */
+.results-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Improved hero section responsiveness */
+@media (min-width: 1200px) {
+  .hero-grid {
+    grid-template-columns: 180px 1fr;
+  }
+
+  .hero-content {
+    max-width: 1200px;
+  }
+
+  .description {
+    max-width: 900px;
+  }
+}
+
+/* Ultra-wide screen adaptations */
+@media (min-width: 1600px) {
+  .content-grid {
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  .dashboard-section {
+    padding: 40px;
+  }
+}
+
+/* Improved step list for medium screens */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .step-list {
+    grid-template-columns: 1fr;
+  }
+
+  .step {
+    padding: 25px;
+  }
+}
+
+/* Better data structure grid responsiveness */
+.data-structure-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* More responsive assumptions grid */
+@media (min-width: 768px) {
+  .assumptions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* Improved fluid typography */
+html {
+  font-size: 16px;
+}
+
+@media (min-width: 1400px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 500px) {
+  html {
+    font-size: 14px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero h2 {
+    font-size: 1rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+}
+
+/* Fix for tab-content at different screen sizes */
+.tab-content {
+  padding: clamp(15px, 3vw, 30px);
+}
+
+/* Better responsive layout for acronyms table */
+@media (max-width: 500px) {
+  .acronym-row {
+    grid-template-columns: 70px 1fr;
+    gap: 10px;
+  }
+}
 </style>

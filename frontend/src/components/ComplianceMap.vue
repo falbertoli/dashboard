@@ -1,7 +1,5 @@
 <!-- File: frontend/src/components/ComplianceMap.vue -->
 
-<!-- File: frontend/src/components/ComplianceMap.vue -->
-
 <template>
   <div class="compliance-map">
     <div class="header-section">

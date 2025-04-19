@@ -600,4 +600,100 @@ h3 i {
     grid-template-columns: 1fr;
   }
 }
+
+/****** Width Reactive Enhancements ******/
+
+/* Base container responsiveness */
+div {
+  max-width: 100%;
+}
+
+/* More responsive form elements */
+.parameters-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Improved responsive tabs */
+@media (max-width: 500px) {
+  .tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .tab-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Enhanced charts responsiveness */
+.chart-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Better responsive demand grid for medium screens */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    min-height: 400px;
+  }
+
+  .chart-container {
+    min-height: 300px;
+  }
+}
+
+/* Small screen adjustments */
+@media (max-width: 480px) {
+  .gse-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .gse-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .chart-wrapper {
+    padding: 15px;
+    min-height: 350px;
+  }
+
+  .chart-container {
+    min-height: 250px;
+  }
+}
+
+/* Large screen improvements */
+@media (min-width: 1400px) {
+  .demand-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+
+  .charts-container {
+    gap: 30px;
+  }
+
+  .chart-wrapper {
+    min-height: 500px;
+  }
+
+  .chart-container {
+    min-height: 400px;
+  }
+}
 </style>
