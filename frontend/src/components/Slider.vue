@@ -4,7 +4,7 @@
   <div class="runway-slider-container">
     <div class="slider-header">
       <label :for="id" class="runway-slider-label">
-        <i class="fas fa-plane-departure"></i> {{ label }}
+        <i class="fas fa-plane-circle-check"></i> {{ label }}
       </label>
       <div class="percentage-badge">{{ value }}{{ unit }}</div>
     </div>

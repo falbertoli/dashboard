@@ -3,12 +3,11 @@
 <template>
   <div class="flight-board-container">
     <label :for="id" class="flight-board-label">
-      <i class="fas fa-plane-departure"></i>
+      <i class="fas fa-plane-arrival"></i>
       {{ label }}
     </label>
 
     <div class="flight-board">
-      <!-- Current Selected Year Display -->
       <div class="current-flight" @click="toggleSelector">
         <div class="flight-info">
           <div class="flight-number">H2-{{ modelValue }}</div>

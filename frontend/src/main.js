@@ -4,6 +4,7 @@ import "./assets/style.css";
 import router from "./router";
 import { createPinia } from "pinia";
 import formatters from "./plugins/formatters";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const app = createApp(App);
 const pinia = createPinia();

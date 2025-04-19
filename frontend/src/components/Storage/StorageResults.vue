@@ -28,9 +28,9 @@
           </div>
           <div class="summary-item" title="Recommended number of storage tanks">
             <div class="summary-label">Number of Tanks</div>
-            <div class="summary-value">{{ recommendedTankCount }}</div>
+            <div class="summary-value">{{ $formatNumber(recommendedTankCount) }}</div>
             <div class="summary-detail" v-if="rawTankCount > 0">
-              Raw: {{ rawTankCount.toFixed(2) }}
+              Raw: {{ $formatNumber(rawTankCount, 2) }}
             </div>
             <div class="metric-description">Total tanks needed for storage requirements</div>
           </div>
