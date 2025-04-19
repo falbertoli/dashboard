@@ -308,7 +308,7 @@
         <div class="comparison-cards">
           <div v-for="scenario in economicsStore.scenarioComparison" :key="scenario.rate" class="comparison-card"
             :class="{ 'selected': selectedScenario === scenario.rate }" @click="selectScenario(scenario.rate)">
-            <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual min/ops</h3>
+            <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual improvements min/ops</h3>
             <div class="card-metrics">
               <div class="metric">
                 <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Subsidy Equivalent</span>
@@ -1473,7 +1473,7 @@ h3 {
 
 .comparison-card {
   flex: 1;
-  min-width: 200px;
+  min-width: 300px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 15px;
