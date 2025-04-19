@@ -365,7 +365,10 @@ const emissionsComparisonChartOptions = computed(() => {
           color: '#ddd'
         },
         ticks: {
-          color: '#aaa'
+          color: '#aaa',
+          callback: function (value) {
+            return $formatCompactNumber(value);
+          }
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.1)'
