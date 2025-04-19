@@ -1,4 +1,4 @@
-<!-- File: frontend/src/components/FlightBoardSelector.vue -->
+<!-- File: frontend/src/components/ Dropdown.vue (FlightBoardSelector) -->
 
 <template>
   <div class="flight-board-container">
