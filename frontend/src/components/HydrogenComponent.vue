@@ -56,11 +56,11 @@
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft3</span>
+              <span class="metric-value">{{ $formatCompactNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft3</span>
             </div>
             <div class="metric">
               <span class="metric-label">Projected Fuel Weight:</span>
-              <span class="metric-value">{{ $formatNumber(aircraftH2Demand.projected_fuel_weight_lb) }} lb</span>
+              <span class="metric-value">{{ $formatCompactNumber(aircraftH2Demand.projected_fuel_weight_lb) }} lb</span>
             </div>
           </div>
         </div>
@@ -90,7 +90,7 @@
           <div class="metric-card highlight">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(store.totalH2Demand) }} ft3</span>
+              <span class="metric-value">{{ $formatCompactNumber(store.totalH2Demand) }} ft3</span>
             </div>
           </div>
         </div>
@@ -137,6 +137,10 @@ import ChartComponent from '../components/ChartComponent.vue';
 import { computed, ref, onMounted, watch } from "vue";
 import { useHydrogenStore } from "../store/hydrogenStore";
 import { fetchGseOptions } from "../utils/api.js";
+import { getCurrentInstance } from 'vue';
+
+const instance = getCurrentInstance();
+const { $formatNumber, $formatCompactNumber } = instance.appContext.config.globalProperties;
 
 const store = useHydrogenStore();
 const fleetPercentage = computed({
@@ -224,68 +228,7 @@ const hydrogenDemandPieData = computed(() => {
   };
 });
 
-const formatLargeNumber = (num) => {
-  if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-  if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-  return num.toFixed(2);
-};
-
 // Chart Options
-const hydrogenDemandOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: true,
-      position: 'top',
-      labels: {
-        color: '#ddd',
-        font: {
-          size: 12
-        },
-        padding: 20
-      }
-    },
-    tooltip: {
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      titleColor: '#64ffda',
-      bodyColor: '#fff',
-      padding: 12,
-      cornerRadius: 6,
-      displayColors: true,
-      callbacks: {
-        label: function (context) {
-          const value = context.raw;
-          return `${value.toLocaleString()} ft³`;
-        }
-      }
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-        drawBorder: false
-      },
-      ticks: {
-        color: '#aaa',
-        callback: function (value) {
-          return value.toLocaleString() + ' ft³';
-        }
-      }
-    },
-    x: {
-      grid: {
-        display: false
-      },
-      ticks: {
-        color: '#aaa'
-      }
-    }
-  }
-}));
-
 const hydrogenDemandLogOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -298,7 +241,7 @@ const hydrogenDemandLogOptions = computed(() => ({
       titleColor: '#64ffda',
       bodyColor: '#fff',
       callbacks: {
-        label: (context) => `${context.raw.toLocaleString()} ft³`
+        label: (context) => `${$formatCompactNumber(context.raw.toFixed(0)).toLocaleString()} ft³`
       }
     }
   },
@@ -310,7 +253,7 @@ const hydrogenDemandLogOptions = computed(() => ({
       },
       ticks: {
         color: '#aaa',
-        callback: (value) => value.toLocaleString() + ' ft³'
+        callback: (value) => $formatCompactNumber(value).toLocaleString() + ' ft³'
       }
     },
     x: {
@@ -340,7 +283,7 @@ const hydrogenDemandPieOptions = computed(() => ({
             text: `${label} (${((data.datasets[0].data[i] / total) * 100).toFixed(2)}%)`,
             fillStyle: data.datasets[0].backgroundColor[i],
             strokeStyle: data.datasets[0].borderColor[i],
-            fontColor: '#aaa', // Add this line to color the text
+            fontColor: '#aaa',
             lineWidth: 1,
             hidden: false,
           }));
@@ -357,7 +300,7 @@ const hydrogenDemandPieOptions = computed(() => ({
           const total = context.dataset.data.reduce((a, b) => a + b, 0);
           const percentage = ((value / total) * 100).toFixed(2);
           return [
-            `Demand: ${formatLargeNumber(value)} ft³`,
+            `Demand: ${$formatCompactNumber(value.toFixed(0))} ft³`,
             `Percentage: ${percentage}%`
           ];
         }

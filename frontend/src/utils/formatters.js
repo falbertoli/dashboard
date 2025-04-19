@@ -36,11 +36,11 @@ export function formatNumber(value, decimals = 0) {
   // Add logic to simplify large numbers if decimals == 'auto'
   if (decimals === "auto") {
     if (value >= 1_000_000_000) {
-      return (value / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
+      return (value / 1_000_000_000).toFixed(0).replace(/\.0$/, "") + "B";
     } else if (value >= 1_000_000) {
-      return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+      return (value / 1_000_000).toFixed(0).replace(/\.0$/, "") + "M";
     } else if (value >= 1_000) {
-      return (value / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+      return (value / 1_000).toFixed(0).replace(/\.0$/, "") + "K";
     }
   }
 
