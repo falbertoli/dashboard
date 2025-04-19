@@ -137,12 +137,19 @@
               <div class="summary-grid">
                 <div class="summary-item">
                   <div class="summary-label">Usable Volume per Tank</div>
-                  <div class="summary-value">{{ $formatNumber(usableVolumePerTank) }} ft³</div>
+                  <div class="summary-content">
+                    <div class="summary-value">{{ $formatNumber(usableVolumePerTank) }} ft³</div>
+                    <div class="metric-description">Accounts for ullage space and evaporation losses in standard storage
+                      conditions.</div>
+                  </div>
                 </div>
-
-                <div class="summary-item">
+                <div class="summary-item days-supply-item">
                   <div class="summary-label">Days of Supply</div>
-                  <div class="summary-value">11 days</div>
+                  <div class="summary-content">
+                    <div class="summary-value">11 days</div>
+                    <div class="metric-description">Buffer implemented corresponds to 11 days of operations of the month
+                      of July.</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -517,8 +524,8 @@ const activeTab = ref('overview')
 
 .summary-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 0.75rem;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
@@ -533,6 +540,19 @@ const activeTab = ref('overview')
   color: #a3a3ff;
   font-weight: 600;
   font-size: 1rem;
+}
+
+.summary-content {
+  width: 100%;
+}
+
+.metric-description {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+  text-align: left;
+  width: 100%;
 }
 
 /* Responsive Adjustments */
