@@ -29,7 +29,7 @@
         <h3><i class="fas fa-atom"></i> Hydrogen Demand</h3>
         <div class="info-row total-demand">
           <span>Total Daily Hydrogen Demand:</span>
-          <strong>{{ formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }} ft³</strong>
+          <strong>{{ $formatCompactNumber(hydrogenStore.totalH2Demand) }} ft³</strong>
         </div>
         <div class="breakdown-container">
           <div class="breakdown-item">
@@ -38,7 +38,7 @@
             </div>
             <div class="content">
               <span>Aircraft</span>
-              <strong>{{ formatNumber(hydrogenStore.aircraftH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+              <strong>{{ $formatCompactNumber(hydrogenStore.aircraftH2Demand.daily_h2_demand_ft3) }} ft³</strong>
             </div>
           </div>
           <div class="breakdown-item">
@@ -47,7 +47,7 @@
             </div>
             <div class="content">
               <span>Ground Vehicles</span>
-              <strong>{{ formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
+              <strong>{{ $formatCompactNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3, 0) }} ft³</strong>
             </div>
           </div>
         </div>
@@ -67,14 +67,14 @@
           <div class="pill-item">
             <i class="fas fa-atom pulse-icon"></i>
             <span class="hydrogen-demand-summary-span">Daily H₂ Demand: <strong>{{
-              formatNumber(parseFloat(hydrogenStore.totalH2Demand)) }}
+              $formatCompactNumber(hydrogenStore.totalH2Demand) }}
                 ft³</strong></span>
           </div>
           <div class="divider"></div>
           <div class="pill-item">
             <i class="fas fa-plane-departure"></i>
             <span class="hydrogen-demand-summary-span">Fleet Adoption: <strong>{{
-              formatNumber(parseFloat(hydrogenStore.fleetPercentage)) }}%</strong></span>
+              $formatNumber(parseFloat(hydrogenStore.fleetPercentage)) }}%</strong></span>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
           </div>
           <div class="card-content">
             <div class="card-title">CO₂ Emissions Reduction</div>
-            <div class="card-value">{{ formatNumber(emissionsReduction) }} metric tons</div>
+            <div class="card-value">{{ $formatCompactNumber(emissionsReduction) }} metric tons</div>
             <div class="card-percentage">{{ emissionsReductionPercentage.toFixed(1) }}% reduction</div>
           </div>
         </div>
@@ -107,7 +107,7 @@
           </div>
           <div class="card-content">
             <div class="card-title">Conventional Operations</div>
-            <div class="card-value">{{ formatNumber(totalJetAEmissions) }} metric tons CO₂</div>
+            <div class="card-value">{{ $formatCompactNumber(totalJetAEmissions) }} metric tons CO₂</div>
             <div class="card-percentage">Baseline scenario</div>
           </div>
         </div>
@@ -118,12 +118,12 @@
           </div>
           <div class="card-content">
             <div class="card-title">Hybrid Operations</div>
-            <div class="card-value">{{ formatNumber(totalHydrogenEmissions) }} metric tons CO₂</div>
+            <div class="card-value">{{ $formatCompactNumber(totalHydrogenEmissions) }} metric tons CO₂</div>
             <div class="card-percentage">
               <span style="color:rgba(231, 76, 60, 0.5);font-weight:rgba(231, 76, 60, 0.5);">Jet A: {{
-                formatNumber(emissionsResults.jetA_co2) }}</span> +
+                $formatCompactNumber(emissionsResults.jetA_co2) }}</span> +
               <span style="color:rgba(52, 152, 219, 0.8);font-weight:rgba(52, 152, 219, 0.8);">H₂: {{
-                formatNumber(emissionsResults.H2_co2) }}</span>
+                $formatCompactNumber(emissionsResults.H2_co2) }}</span>
               metric tons CO₂
             </div>
           </div>
@@ -162,7 +162,7 @@
                 </div>
                 <div class="equivalent-content">
                   <div class="equivalent-title">Carbon Sequestration Equivalent</div>
-                  <div class="equivalent-value">{{ formatNumber(carbonOffsetEquivalent) }} trees</div>
+                  <div class="equivalent-value">{{ $formatCompactNumber(carbonOffsetEquivalent) }} trees</div>
                   <div class="equivalent-description">Number of trees needed to absorb the same amount of CO₂ over one
                     year</div>
                 </div>
@@ -174,7 +174,7 @@
                 </div>
                 <div class="equivalent-content">
                   <div class="equivalent-title">Vehicle Emissions Equivalent</div>
-                  <div class="equivalent-value">{{ formatNumber(vehicleEquivalent) }} cars</div>
+                  <div class="equivalent-value">{{ $formatCompactNumber(vehicleEquivalent) }} cars</div>
                   <div class="equivalent-description">Number of cars taken off the road for one year</div>
                 </div>
               </div>
@@ -191,7 +191,7 @@
                 </div>
                 <div class="equivalent-content">
                   <div class="equivalent-title">Conventional Operations Tree Equivalent</div>
-                  <div class="equivalent-value">{{ formatNumber(conventionalTreeEquivalent) }} trees</div>
+                  <div class="equivalent-value">{{ $formatCompactNumber(conventionalTreeEquivalent) }} trees</div>
                   <div class="equivalent-description">Number of trees needed to absorb conventional operations CO₂ over
                     one year</div>
                 </div>
@@ -202,7 +202,7 @@
                 </div>
                 <div class="equivalent-content">
                   <div class="equivalent-title">Vehicle Emissions Equivalent</div>
-                  <div class="equivalent-value">{{ formatNumber(conventionalVehicleEquivalent) }} cars</div>
+                  <div class="equivalent-value">{{ $formatCompactNumber(conventionalVehicleEquivalent) }} cars</div>
                   <div class="equivalent-description">Number of cars that would emit the same CO₂ as conventional
                     operations over one year</div>
                 </div>
@@ -224,20 +224,20 @@
 
           <div class="table-row">
             <div class="row-cell">Jet A (Conventional)</div>
-            <div class="row-cell">{{ formatNumber(emissionsResults.just_jetA_co2) }}</div>
+            <div class="row-cell">{{ $formatCompactNumber(emissionsResults.just_jetA_co2) }}</div>
             <div class="row-cell">100%</div>
           </div>
 
           <div class="table-row">
             <div class="row-cell">Jet A (Hybrid)</div>
-            <div class="row-cell">{{ formatNumber(emissionsResults.jetA_co2) }}</div>
+            <div class="row-cell">{{ $formatCompactNumber(emissionsResults.jetA_co2) }}</div>
             <div class="row-cell">{{ ((emissionsResults.jetA_co2 / emissionsResults.just_jetA_co2) * 100).toFixed(1) }}%
             </div>
           </div>
 
           <div class="table-row">
             <div class="row-cell">Hydrogen</div>
-            <div class="row-cell">{{ formatNumber(emissionsResults.H2_co2) }}</div>
+            <div class="row-cell">{{ $formatCompactNumber(emissionsResults.H2_co2) }}</div>
             <div class="row-cell">{{ ((emissionsResults.H2_co2 / emissionsResults.just_jetA_co2) * 100).toFixed(1)
             }}%
             </div>
@@ -245,7 +245,7 @@
 
           <div class="table-row total">
             <div class="row-cell">Total Reduction</div>
-            <div class="row-cell">{{ formatNumber(emissionsReduction) }}</div>
+            <div class="row-cell">{{ $formatCompactNumber(emissionsReduction) }}</div>
             <div class="row-cell">{{ emissionsReductionPercentage.toFixed(1) }}%</div>
           </div>
         </div>
@@ -255,11 +255,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHydrogenStore } from '@/store/hydrogenStore';
 import { useSustainabilityStore } from '@/store/sustainabilityStore';
 import ChartComponent from '@/components/ChartComponent.vue';
+import { getCurrentInstance } from 'vue';
+
+const instance = getCurrentInstance();
+const { $formatNumber, $formatCompactNumber } = instance.appContext.config.globalProperties;
 
 const hydrogenStore = useHydrogenStore();
 const sustainabilityStore = useSustainabilityStore();
@@ -277,13 +281,6 @@ const {
   conventionalVehicleEquivalent,
   vehicleEquivalent
 } = storeToRefs(sustainabilityStore);
-
-// Format number with commas
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 2
-  }).format(value || 0);
-};
 
 // Calculate emissions when requested
 const calculateEmissions = () => {
@@ -337,14 +334,14 @@ const emissionsComparisonChartOptions = computed(() => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return `${context.dataset.label}: ${formatNumber(context.raw)} metric tons CO₂`;
+            return `${context.dataset.label}: ${$formatCompactNumber(context.raw)} metric tons CO₂`;
           },
           footer: function (tooltipItems) {
             let sum = 0;
             tooltipItems.forEach(item => {
               sum += item.raw;
             });
-            return `Total: ${formatNumber(sum)} metric tons CO₂`;
+            return `Total: ${$formatCompactNumber(sum)} metric tons CO₂`;
           }
         }
       }
@@ -421,7 +418,7 @@ const emissionsReductionChartOptions = computed(() => {
             const value = context.raw;
             const total = context.dataset.data.reduce((a, b) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${formatNumber(value)} metric tons (${percentage}%)`;
+            return `${context.label}: ${$formatCompactNumber(value)} metric tons (${percentage}%)`;
           }
         }
       }

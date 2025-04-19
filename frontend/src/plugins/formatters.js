@@ -1,4 +1,9 @@
-import { formatNumber, formatCurrency, formatArea } from "../utils/formatters";
+import {
+  formatNumber,
+  formatCurrency,
+  formatArea,
+  formatCompactNumber,
+} from "../utils/formatters";
 
 export default {
   install: (app) => {
@@ -6,6 +11,7 @@ export default {
     app.config.globalProperties.$formatNumber = formatNumber;
     app.config.globalProperties.$formatCurrency = formatCurrency;
     app.config.globalProperties.$formatArea = formatArea;
+    app.config.globalProperties.$formatCompactNumber = formatCompactNumber;
 
     // Optional: Add global directive
     app.directive("format-number", {

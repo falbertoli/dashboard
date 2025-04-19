@@ -50,3 +50,22 @@ export function formatNumber(value, decimals = 0) {
     useGrouping: true,
   }).format(value);
 }
+
+export function formatCompactNumber(value) {
+  if (value === null || value === undefined) return "N/A";
+
+  const absValue = Math.abs(value);
+  let formatted;
+
+  if (absValue >= 1_000_000_000) {
+    formatted = (value / 1_000_000_000).toFixed(0) + "B";
+  } else if (absValue >= 1_000_000) {
+    formatted = (value / 1_000_000).toFixed(0) + "M";
+  } else if (absValue >= 1_000) {
+    formatted = (value / 1_000).toFixed(0) + "K";
+  } else {
+    formatted = value.toString();
+  }
+
+  return formatted.replace(/\.0(?=[KMGB])/, ""); // strip trailing ".0" if unnecessary
+}

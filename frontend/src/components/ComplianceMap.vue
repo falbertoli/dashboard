@@ -1224,7 +1224,9 @@ onMounted(async () => {
   const instance = getCurrentInstance();
   formatters.value = {
     $formatNumber: instance.appContext.config.globalProperties.$formatNumber,
-    $formatArea: instance.appContext.config.globalProperties.$formatArea
+    $formatArea: instance.appContext.config.globalProperties.$formatArea,
+    $formatCompactNumber: instance.appContext.config.globalProperties.$formatCompactNumber
+
   };
 
   const mapContainer = document.getElementById('map');

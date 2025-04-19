@@ -18,12 +18,12 @@
         <div class="summary-grid">
           <div class="summary-item" title="Total ground area required for all storage tanks">
             <div class="summary-label">Total Storage Area</div>
-            <div class="summary-value">{{ $formatArea(results.footprint_total) }}</div>
+            <div class="summary-value">{{ $formatCompactNumber(results.footprint_total) }} ft²</div>
             <div class="metric-description">Ground area required for tank installation</div>
           </div>
           <div class="summary-item" title="Total cost of storage infrastructure including construction and tanks">
-            <div class="summary-label">Total Infrastructure Cost</div>
-            <div class="summary-value">${{ $formatNumber(results.total_infrastructure_cost) }}</div>
+            <div class="summary-label">Total Tank Infrastructure Cost</div>
+            <div class="summary-value">${{ $formatCompactNumber(results.total_infrastructure_cost) }}</div>
             <div class="metric-description">Combined costs for construction and tanks</div>
           </div>
           <div class="summary-item" title="Recommended number of storage tanks">
@@ -36,7 +36,7 @@
           </div>
           <div class="summary-item" title="Total volume that can be stored across all tanks">
             <div class="summary-label">Total Storage Capacity</div>
-            <div class="summary-value">{{ formatNumber(usableVolumePerTank * recommendedTankCount) }} ft³</div>
+            <div class="summary-value">{{ $formatCompactNumber(usableVolumePerTank * recommendedTankCount) }} ft³</div>
             <div class="metric-description">Maximum hydrogen volume that can be stored</div>
           </div>
         </div>
@@ -49,19 +49,13 @@
         <div class="utilization-info">
           <div class="utilization-detail" title="Total volume of hydrogen that needs to be stored">
             <div class="detail-label">Total Hydrogen Volume:</div>
-            <div class="detail-value">{{ formatNumber(totalH2Volume) }} ft³</div>
+            <div class="detail-value">{{ $formatCompactNumber(totalH2Volume) }} ft³</div>
             <div class="metric-description">Required storage volume based on demand</div>
           </div>
           <div class="utilization-detail" title="Percentage of the last tank's capacity being used">
             <div class="detail-label">Last Tank Fill Level:</div>
-            <div class="detail-value">{{ lastTankFillPercentage.toFixed(2) }}%</div>
+            <div class="detail-value">{{ $formatNumber(lastTankFillPercentage) }}%</div>
             <div class="metric-description">Utilization of the final storage tank</div>
-          </div>
-          <div class="utilization-detail" title="Overall storage system utilization efficiency">
-            <div class="detail-label">Storage Efficiency:</div>
-            <div class="detail-value">{{ formatPercentage((totalH2Volume / (usableVolumePerTank * recommendedTankCount))
-              * 100) }}</div>
-            <div class="metric-description">Ratio of used to total available storage</div>
           </div>
           <div class="utilization-chart">
             <div class="chart-label">Tank Fill Visualization:</div>
@@ -80,28 +74,28 @@
 
       <!-- Cost Breakdown Section -->
       <div class="cost-section">
-        <h3>Cost Breakdown</h3>
+        <h3>Tank Cost Breakdown</h3>
         <p class="section-description">Detailed breakdown of infrastructure costs including construction and tank
           expenses.</p>
         <div class="cost-grid">
           <div class="cost-item" title="Total cost for site preparation and construction">
-            <div class="cost-label">Construction Cost</div>
-            <div class="cost-value">${{ $formatNumber(results.construction_cost) }}</div>
+            <div class="cost-label">Tank Construction Cost</div>
+            <div class="cost-value">${{ $formatCompactNumber(results.construction_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.construction_cost /
               results.total_infrastructure_cost * 100) }}</div>
             <div class="metric-description">Site preparation and building expenses</div>
           </div>
           <div class="cost-item" title="Total cost for tank materials and installation">
             <div class="cost-label">Tank Cost</div>
-            <div class="cost-value">${{ $formatNumber(results.insulation_cost) }}</div>
+            <div class="cost-value">${{ $formatCompactNumber(results.insulation_cost) }}</div>
             <div class="cost-percentage">{{ formatPercentage(results.insulation_cost / results.total_infrastructure_cost
               * 100) }}</div>
             <div class="metric-description">Storage tank materials and installation</div>
           </div>
         </div>
         <div class="cost-total" title="Total combined cost for the entire storage system">
-          <div class="cost-label">Total Cost</div>
-          <div class="cost-value">${{ $formatNumber(results.total_infrastructure_cost) }}</div>
+          <div class="cost-label">Total Tank Cost</div>
+          <div class="cost-value">${{ $formatCompactNumber(results.total_infrastructure_cost) }}</div>
           <div class="metric-description">Combined infrastructure and equipment costs</div>
         </div>
       </div>
@@ -110,7 +104,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStorageStore } from '@/store/storageStore'
 
@@ -140,6 +134,14 @@ const formatPercentage = (value) => {
     minimumFractionDigits: 1
   }).format(value || 0) + '%';
 }
+
+onMounted(async () => {
+  const instance = getCurrentInstance();
+  formatters.value = {
+    $formatNumber: instance.appContext.config.globalProperties.$formatNumber,
+    $formatArea: instance.appContext.config.globalProperties.$formatArea
+  };
+});
 </script>
 
 <style scoped>

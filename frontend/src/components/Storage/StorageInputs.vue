@@ -13,7 +13,7 @@
       <div v-if="totalH2Volume > 0" class="panel-content">
         <div class="info-card primary">
           <div class="info-label">Total Hydrogen Demand for 11 days</div>
-          <div class="info-value">{{ $formatNumber(totalH2Volume) }} ft³</div>
+          <div class="info-value">{{ $formatCompactNumber(totalH2Volume) }} ft³</div>
         </div>
       </div>
 
