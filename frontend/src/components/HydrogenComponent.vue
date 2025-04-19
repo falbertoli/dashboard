@@ -104,8 +104,6 @@
         </div>
       </div>
 
-      <StatusComponent :totalH2Demand="store.totalH2Demand" :fleetPercentage="fleetPercentage" />
-
       <!-- Charts Tab -->
       <div v-show="activeTab === 'chart'" class="chart-tab">
         <div class="charts-container">
@@ -144,7 +142,6 @@ import Slider from '../components/Slider.vue';
 import Dropdown from '../components/Dropdown.vue';
 import CheckboxGroup from '../components/CheckboxGroup.vue';
 import ChartComponent from '../components/ChartComponent.vue';
-import StatusComponent from './HydrogenDemand/StatusComponent.vue';
 import { computed, ref, onMounted, watch } from "vue";
 import { useHydrogenStore } from "../store/hydrogenStore";
 import { fetchGseOptions } from "../utils/api.js";
