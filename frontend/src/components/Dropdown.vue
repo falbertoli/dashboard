@@ -292,19 +292,25 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 0 15px;
+  /* Add position indicators for gates */
+  position: relative;
 }
 
 .gate {
   font-size: 0.8rem;
   font-weight: bold;
+  position: absolute;
+  z-index: 2;
 }
 
 .gate-start {
   color: #aaa;
+  left: 15px;
 }
 
 .gate-end {
   color: #64ffda;
+  right: 15px;
 }
 
 .progress-airplane {
@@ -313,12 +319,7 @@ onUnmounted(() => {
   transform: translateY(-50%);
   color: #64ffda;
   transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.progress-airplane i {
-  font-size: 1.2rem;
-  transform: rotate(90deg);
-  filter: drop-shadow(0 0 8px rgba(100, 255, 218, 0.6));
+  z-index: 3;
 }
 
 /* Animations */
