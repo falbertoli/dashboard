@@ -28,17 +28,6 @@
 
       <!-- GSE Selection -->
       <div class="form-group">
-        <div class="gse-header">
-          <label>Ground vehicles to Transition:</label>
-          <div class="gse-actions">
-            <button class="action-button" @click="selectAllGse">
-              <i class="fas fa-check-square"></i> Select All
-            </button>
-            <button class="action-button" @click="deselectAllGse">
-              <i class="fas fa-square"></i> Deselect All
-            </button>
-          </div>
-        </div>
         <CheckboxGroup :options="gseOptionsFormatted" v-model="gseList" />
       </div>
     </div>
