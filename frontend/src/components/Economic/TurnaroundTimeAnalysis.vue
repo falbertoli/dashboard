@@ -393,7 +393,7 @@
             <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
             <div class="header-cell"><i class="fas fa-arrow-down"></i> Revenue Loss ($M)</div>
             <div class="header-cell"><i class="fas fa-gas-pump"></i> H2 Volume (gal)</div>
-            <div class="header-cell"><i class="fas fa-file-invoice-dollar"></i> Required equivalent subsidy ($/gal)
+            <div class="header-cell"><i class="fas fa-file-invoice-dollar"></i> Required subsidy cost recovery ($/gal)
             </div>
             <!-- <div class="header-cell"><i class="fas fa-hand-holding-usd"></i> Total Subsidy ($M)</div> -->
             <!-- <div class="header-cell"><i class="fas fa-percentage"></i> Cost Recovery (%)</div> -->
