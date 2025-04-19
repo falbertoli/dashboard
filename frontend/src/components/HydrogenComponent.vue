@@ -56,7 +56,7 @@
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatCompactNumber(aircraftH2Demand.daily_h2_demand_ft3) }} ft3</span>
+              <span class="metric-value">{{ $formatNumberDecimals(aircraftH2Demand.daily_h2_demand_ft3) }} ft3</span>
             </div>
             <div class="metric">
               <span class="metric-label">Projected Fuel Weight:</span>
@@ -71,7 +71,8 @@
           <div class="metric-card">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatNumber(gseH2Demand.daily_h2_demand_ft3) }} ft3</span>
+              <span class="metric-value">{{ $formatNumberDecimals(gseH2Demand.daily_h2_demand_ft3) }}
+                ft3</span>
             </div>
             <div class="metric">
               <span class="metric-label">Total Diesel Used:</span>
@@ -85,12 +86,12 @@
         </div>
 
         <!-- Total Hydrogen Demand -->
-        <div class="demand-section total-demand span-full">
+        <div v-if="gseH2Demand && store.totalH2Demand" class="demand-section total-demand span-full">
           <h3><i class="fas fa-tachometer-alt"></i> Total Hydrogen Demand</h3>
           <div class="metric-card highlight">
             <div class="metric">
               <span class="metric-label">Daily Demand:</span>
-              <span class="metric-value">{{ $formatCompactNumber(store.totalH2Demand) }} ft3</span>
+              <span class="metric-value">{{ $formatNumberDecimals(store.totalH2Demand) }} ft3</span>
             </div>
           </div>
         </div>
@@ -140,7 +141,7 @@ import { fetchGseOptions } from "../utils/api.js";
 import { getCurrentInstance } from 'vue';
 
 const instance = getCurrentInstance();
-const { $formatNumber, $formatCompactNumber } = instance.appContext.config.globalProperties;
+const { $formatNumber, $formatCompactNumber, $formatNumberDecimals } = instance.appContext.config.globalProperties;
 
 const store = useHydrogenStore();
 const fleetPercentage = computed({
@@ -280,7 +281,7 @@ const hydrogenDemandPieOptions = computed(() => ({
           const data = chart.data;
           const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
           return data.labels.map((label, i) => ({
-            text: `${label} (${((data.datasets[0].data[i] / total) * 100).toFixed(2)}%)`,
+            text: `${label} (${((data.datasets[0].data[i] / total) * 100).toFixed(0)}%)`,
             fillStyle: data.datasets[0].backgroundColor[i],
             strokeStyle: data.datasets[0].borderColor[i],
             fontColor: '#aaa',
@@ -298,7 +299,7 @@ const hydrogenDemandPieOptions = computed(() => ({
         label: (context) => {
           const value = context.raw;
           const total = context.dataset.data.reduce((a, b) => a + b, 0);
-          const percentage = ((value / total) * 100).toFixed(2);
+          const percentage = ((value / total) * 100).toFixed(0);
           return [
             `Demand: ${$formatCompactNumber(value.toFixed(0))} ft³`,
             `Percentage: ${percentage}%`

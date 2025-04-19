@@ -3,6 +3,8 @@ import {
   formatCurrency,
   formatArea,
   formatCompactNumber,
+  formatTotal,
+  formatNumberDecimals,
 } from "../utils/formatters";
 
 export default {
@@ -12,6 +14,8 @@ export default {
     app.config.globalProperties.$formatCurrency = formatCurrency;
     app.config.globalProperties.$formatArea = formatArea;
     app.config.globalProperties.$formatCompactNumber = formatCompactNumber;
+    app.config.globalProperties.$formatTotal = formatTotal;
+    app.config.globalProperties.$formatNumberDecimals = formatNumberDecimals;
 
     // Optional: Add global directive
     app.directive("format-number", {

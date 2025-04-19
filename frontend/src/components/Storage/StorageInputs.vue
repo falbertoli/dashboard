@@ -54,12 +54,12 @@
 
               <div class="panel-content">
                 <div class="recommended-value">
-                  <span class="value">{{ recommendedTankCount }}</span>
+                  <span class="value">{{ $formatNumber(recommendedTankCount) }}</span>
                   <span class="unit">tanks</span>
                 </div>
 
                 <div class="calculation-details" v-if="rawTankCount > 0">
-                  Raw calculation: {{ $formatNumber(rawTankCount) }} tanks
+                  Raw calculation: {{ $formatNumber(rawTankCount, 1) }} tanks
                 </div>
               </div>
             </section>

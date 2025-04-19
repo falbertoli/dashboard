@@ -38,7 +38,7 @@
               <div class="metric-icon"><i class="fas fa-gas-pump"></i></div>
               <div class="metric-content">
                 <div class="metric-label">Total H₂ Demand</div>
-                <div class="metric-value">{{ $formatNumber(storageStore.totalH2VolumeGallons) }} gallons</div>
+                <div class="metric-value">{{ $formatCompactNumber(storageStore.totalH2VolumeGallons) }} gallons</div>
               </div>
             </div>
             <div class="metric-item">
@@ -60,7 +60,7 @@
               <div class="metric-icon"><i class="fas fa-boxes"></i></div>
               <div class="metric-content">
                 <div class="metric-label">Number of Tanks</div>
-                <div class="metric-value">{{ storageStore.recommendedTankCount }}</div>
+                <div class="metric-value">{{ $formatNumber(storageStore.recommendedTankCount) }}</div>
               </div>
             </div>
           </div>
