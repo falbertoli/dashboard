@@ -92,7 +92,7 @@
         </div>
         <div class="tooltip-row">
           <span class="tooltip-label">Usable Volume:</span>
-          <span class="tooltip-value">{{ formatNumber(usableVolumePerTank, 2) }} ft³</span>
+          <span class="tooltip-value">{{ $formatNumber(usableVolumePerTank, 0) }} ft³</span>
         </div>
         <div class="tooltip-row" v-if="tooltipTankIndex === count && lastTankFill !== undefined">
           <span class="tooltip-label">Fill Level:</span>
@@ -187,13 +187,6 @@ const showTooltip = (tankIndex) => {
 // Hide tooltip
 const hideTooltip = () => {
   tooltipVisible.value = false;
-};
-
-// Format number with commas
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 2
-  }).format(value || 0);
 };
 </script>
 

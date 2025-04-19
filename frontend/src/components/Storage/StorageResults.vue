@@ -104,7 +104,6 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStorageStore } from '@/store/storageStore'
 
@@ -120,13 +119,6 @@ const {
   lastTankFillPercentage
 } = storeToRefs(store)
 
-// Format number with commas
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 2
-  }).format(value || 0);
-}
-
 // Format percentage
 const formatPercentage = (value) => {
   return new Intl.NumberFormat('en-US', {
@@ -134,14 +126,6 @@ const formatPercentage = (value) => {
     minimumFractionDigits: 1
   }).format(value || 0) + '%';
 }
-
-onMounted(async () => {
-  const instance = getCurrentInstance();
-  formatters.value = {
-    $formatNumber: instance.appContext.config.globalProperties.$formatNumber,
-    $formatArea: instance.appContext.config.globalProperties.$formatArea
-  };
-});
 </script>
 
 <style scoped>
