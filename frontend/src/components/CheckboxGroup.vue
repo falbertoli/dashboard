@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <div class="airport-map-container">
+    <div class="airport-map-container" ref="airportMapRef">
       <!-- Airport runway visualization -->
       <div class="airport-runway">
         <div class="runway-center-line"></div>
@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, watch, ref } from 'vue';
 
 const props = defineProps({
   label: {
@@ -241,6 +241,229 @@ const selectCategory = (category) => {
 
   emit('update:modelValue', newValues);
 };
+
+// Create reference for the animation elements
+const airportMapRef = ref(null);
+const hydrogenMolecules = ref([]);
+const maxMolecules = 15;
+
+// Create a fueling station element
+const createFuelingStation = () => {
+  const fuelingStation = document.createElement('div');
+  fuelingStation.className = 'fueling-station';
+
+  const stationBase = document.createElement('div');
+  stationBase.className = 'station-base';
+
+  const stationPump = document.createElement('div');
+  stationPump.className = 'station-pump';
+
+  const stationDisplay = document.createElement('div');
+  stationDisplay.className = 'station-display';
+
+  const stationNozzle = document.createElement('div');
+  stationNozzle.className = 'station-nozzle';
+
+  stationPump.appendChild(stationDisplay);
+  stationPump.appendChild(stationNozzle);
+  fuelingStation.appendChild(stationBase);
+  fuelingStation.appendChild(stationPump);
+
+  return fuelingStation;
+};
+
+// Create the hydrogen network
+const createHydrogenNetwork = () => {
+  const networkContainer = document.createElement('div');
+  networkContainer.className = 'hydrogen-network';
+
+  // Create SVG for paths
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.style.position = 'absolute';
+  svg.style.top = '0';
+  svg.style.left = '0';
+  svg.style.pointerEvents = 'none';
+
+  networkContainer.appendChild(svg);
+  return { networkContainer, svg };
+};
+
+// Create a dancing H₂ molecule
+const createMolecule = (startX, startY, endX, endY) => {
+  const molecule = document.createElement('div');
+  molecule.className = 'molecule';
+  molecule.innerHTML = '<span>H₂</span>';
+
+  // Set explicit positioning
+  molecule.style.position = 'absolute';
+  molecule.style.left = `${startX}px`;
+  molecule.style.top = `${startY}px`;
+
+  // Calculate distance for animation
+  const tx = endX - startX;
+  const ty = endY - startY;
+
+  // Set animation properties explicitly
+  molecule.style.setProperty('--tx', `${tx}px`);
+  molecule.style.setProperty('--ty', `${ty}px`);
+
+  // Randomize animation parameters
+  const duration = 8 + Math.random() * 7; // 8-15 seconds
+  molecule.style.setProperty('--duration', `${duration}s`);
+
+  const delay = Math.random() * 2;
+  molecule.style.animationDelay = `${delay}s`;
+
+  return molecule;
+}
+
+// Update network paths connecting vehicles to runway
+const updateNetworkPaths = (selectedVehicles, svg) => {
+  // Clear existing paths
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
+
+  // Get runway position
+  const runway = document.querySelector('.airport-runway');
+  if (!runway) return;
+
+  const runwayRect = runway.getBoundingClientRect();
+  const containerRect = airportMapRef.value.getBoundingClientRect();
+
+  const runwayY = runwayRect.top - containerRect.top + runwayRect.height / 2;
+  const runwayLeft = runwayRect.left - containerRect.left;
+  const runwayRight = runwayLeft + runwayRect.width;
+
+  // Create paths from each selected vehicle to the runway
+  selectedVehicles.forEach(vehicle => {
+    const vehicleElem = document.querySelector(`.vehicle-item[data-value="${vehicle}"]`);
+    if (!vehicleElem) return;
+
+    const vehicleRect = vehicleElem.getBoundingClientRect();
+    const vehicleX = vehicleRect.left - containerRect.left + vehicleRect.width / 2;
+    const vehicleY = vehicleRect.top - containerRect.top + vehicleRect.height / 2;
+
+    // Determine if vehicle is above or below runway
+    const isAbove = vehicleY < runwayY;
+
+    // Create path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.classList.add('network-path');
+
+    // Calculate control points for bezier curve
+    const controlX = vehicleX;
+    const controlY = isAbove ?
+      runwayY - 30 :
+      runwayY + 30;
+
+    // Draw path
+    let d;
+    if (vehicleX < runwayLeft) {
+      // Connect to left side of runway
+      d = `M ${vehicleX} ${vehicleY} Q ${controlX} ${controlY}, ${runwayLeft} ${runwayY}`;
+    } else if (vehicleX > runwayRight) {
+      // Connect to right side of runway
+      d = `M ${vehicleX} ${vehicleY} Q ${controlX} ${controlY}, ${runwayRight} ${runwayY}`;
+    } else {
+      // Connect directly to runway below/above
+      d = `M ${vehicleX} ${vehicleY} L ${vehicleX} ${runwayY}`;
+    }
+
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  });
+};
+
+// Create and position random H₂ molecules
+const createMolecules = () => {
+  if (!airportMapRef.value) return;
+
+  // First, remove any existing molecule container
+  const existingContainer = airportMapRef.value.querySelector('.molecules-container');
+  if (existingContainer) {
+    airportMapRef.value.removeChild(existingContainer);
+  }
+
+  // Clear reference array
+  hydrogenMolecules.value = [];
+
+  // Only create molecules if there are selected vehicles
+  if (props.modelValue.length === 0) return;
+
+  // Create container with proper positioning
+  const moleculesContainer = document.createElement('div');
+  moleculesContainer.className = 'molecules-container';
+  airportMapRef.value.appendChild(moleculesContainer);
+
+  const containerRect = airportMapRef.value.getBoundingClientRect();
+  const runway = airportMapRef.value.querySelector('.airport-runway');
+
+  if (!runway) return;
+
+  const runwayRect = runway.getBoundingClientRect();
+  const runwayY = runwayRect.top - containerRect.top + runwayRect.height / 2;
+
+  // Create molecules with better positioning calculation
+  for (let i = 0; i < maxMolecules; i++) {
+    // More precise positioning
+    const startX = Math.random() * (runwayRect.width - 40) + (runwayRect.left - containerRect.left) + 20;
+    const startY = runwayY - 5; // Slightly adjust vertical position
+
+    // Keep molecules within safer bounds
+    const safeAreaHeight = containerRect.height * 0.6;
+    const endX = Math.random() * (containerRect.width - 60) + 30;
+    const endY = Math.random() * safeAreaHeight + 30;
+
+    const molecule = createMolecule(startX, startY, endX, endY);
+    moleculesContainer.appendChild(molecule);
+    hydrogenMolecules.value.push(molecule);
+  }
+};
+
+
+// Initialize dynamic elements
+onMounted(() => {
+  if (!airportMapRef.value) return;
+
+  // Add data-value attributes to vehicle items for easier selection
+  const vehicleItems = document.querySelectorAll('.vehicle-item');
+  vehicleItems.forEach(item => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      item.setAttribute('data-value', checkbox.value);
+    }
+  });
+
+  // Create and add fueling station
+  const fuelingStation = createFuelingStation();
+  airportMapRef.value.appendChild(fuelingStation);
+
+  // Create and add hydrogen network
+  const { networkContainer, svg } = createHydrogenNetwork();
+  airportMapRef.value.appendChild(networkContainer);
+
+  // Initialize network paths and molecules
+  updateNetworkPaths(props.modelValue, svg);
+  createMolecules();
+
+  // Watch for changes in selection
+  watch(() => props.modelValue, (newValue) => {
+    updateNetworkPaths(newValue, svg);
+
+    // Recreate all molecules to ensure proper cleanup
+    createMolecules();
+
+    // Toggle visibility of fueling station based on selection
+    if (newValue.length > 0) {
+      fuelingStation.style.display = 'block';
+    } else {
+      fuelingStation.style.display = 'none';
+    }
+  }, { deep: true });
+});
 </script>
 
 <style scoped>
@@ -309,26 +532,6 @@ const selectCategory = (category) => {
 }
 
 /* Airport runway visualization */
-.airport-runway {
-  position: absolute;
-  width: 90%;
-  height: 30px;
-  background-color: #1a1e27;
-  left: 5%;
-  top: 70px;
-  border-radius: 15px;
-  z-index: 1;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.runway-center-line {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: repeating-linear-gradient(90deg, #ddd, #ddd 15px, transparent 15px, transparent 30px);
-  top: 50%;
-  transform: translateY(-50%);
-}
 
 .runway-end {
   position: absolute;
@@ -354,13 +557,106 @@ const selectCategory = (category) => {
   box-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
 }
 
+/* Enhanced Runway Animations */
+.airport-runway {
+  position: absolute;
+  width: 90%;
+  height: 30px;
+  background-color: #1a1e27;
+  left: 5%;
+  top: 70px;
+  border-radius: 15px;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.runway-center-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #ddd, #ddd 15px, transparent 15px, transparent 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  animation: runway-dash 20s linear infinite;
+}
+
+@keyframes runway-dash {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+.runway-end.left .runway-marker,
+.runway-end.right .runway-marker {
+  width: 5px;
+  height: 15px;
+  background-color: #64ffda;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
+  animation: marker-pulse 2s ease-in-out infinite alternate;
+}
+
+.runway-end.left .runway-marker:nth-child(2),
+.runway-end.right .runway-marker:nth-child(2) {
+  animation-delay: 1s;
+}
+
+@keyframes marker-pulse {
+  0% {
+    opacity: 0.5;
+    height: 12px;
+  }
+
+  100% {
+    opacity: 1;
+    height: 18px;
+  }
+}
+
 /* Control tower */
+.tower-body {
+  width: 10px;
+  height: 35px;
+  background-color: #3d4251;
+  margin: 0 auto;
+}
+
+.tower-base {
+  width: 20px;
+  height: 5px;
+  background-color: #2c3040;
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+/* Enhanced Control Tower Animations */
 .control-tower {
   position: absolute;
   top: 20px;
   right: 40px;
   z-index: 2;
   filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
+  animation: tower-sway 10s ease-in-out infinite;
+}
+
+@keyframes tower-sway {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(1deg);
+  }
+
+  75% {
+    transform: rotate(-1deg);
+  }
 }
 
 .tower-top {
@@ -380,31 +676,45 @@ const selectCategory = (category) => {
   border-radius: 10px;
   top: 5px;
   left: 5px;
+  animation: window-pulse 4s ease-in-out infinite;
 }
 
-.tower-body {
-  width: 10px;
-  height: 35px;
-  background-color: #3d4251;
-  margin: 0 auto;
+@keyframes window-pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.tower-base {
+/* Radar on top of control tower */
+.tower-top::after {
+  content: '';
+  position: absolute;
   width: 20px;
-  height: 5px;
-  background-color: #2c3040;
-  margin: 0 auto;
-  border-radius: 2px;
+  height: 2px;
+  background-color: #333;
+  top: 2px;
+  left: 10px;
+  transform-origin: 50% 100%;
+  animation: radar-spin 4s linear infinite;
+}
+
+@keyframes radar-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Terminal building */
-.terminal-building {
-  position: absolute;
-  bottom: 15px;
-  left: 30px;
-  z-index: 2;
-  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
-}
 
 .terminal-roof {
   width: 120px;
@@ -424,11 +734,41 @@ const selectCategory = (category) => {
   padding: 0 5px;
 }
 
+/* Enhanced Terminal Building Animations */
+.terminal-building {
+  position: absolute;
+  bottom: 15px;
+  left: 30px;
+  z-index: 2;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+}
+
 .terminal-window {
   width: 10px;
   height: 15px;
   background: rgba(100, 255, 218, 0.2);
   border-radius: 2px;
+  animation: window-flicker 5s infinite;
+}
+
+.terminal-window:nth-child(2) {
+  animation-delay: 1.5s;
+}
+
+.terminal-window:nth-child(3) {
+  animation-delay: 3s;
+}
+
+@keyframes window-flicker {
+
+  0%,
+  100% {
+    background: rgba(100, 255, 218, 0.2);
+  }
+
+  50% {
+    background: rgba(100, 255, 218, 0.5);
+  }
 }
 
 .terminal-door {
@@ -436,6 +776,31 @@ const selectCategory = (category) => {
   height: 20px;
   background: rgba(100, 255, 218, 0.3);
   border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-door::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(100, 255, 218, 0.2) 50%, transparent 100%);
+  animation: door-scan 3s ease-in-out infinite;
+}
+
+@keyframes door-scan {
+
+  0%,
+  100% {
+    transform: translateY(-100%);
+  }
+
+  50% {
+    transform: translateY(100%);
+  }
 }
 
 /* Categorized vehicles grid */
@@ -444,7 +809,7 @@ const selectCategory = (category) => {
   flex-wrap: wrap;
   gap: 20px;
   position: relative;
-  z-index: 3;
+  z-index: 5;
   margin-top: 80px;
   margin-bottom: 15px;
 }
@@ -455,6 +820,7 @@ const selectCategory = (category) => {
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
   overflow: hidden;
+  z-index: 5;
 }
 
 .category-header {
@@ -493,6 +859,7 @@ const selectCategory = (category) => {
   border: 2px solid #35393f;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  z-index: 5;
 }
 
 .vehicle-item:hover {
@@ -547,7 +914,8 @@ const selectCategory = (category) => {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 4;
 }
 
 .bubble {
@@ -605,7 +973,25 @@ const selectCategory = (category) => {
   }
 }
 
-/* Runway connectors with improved animation */
+.hydrogen-bubbles .bubble {
+  position: absolute;
+  background-color: rgba(100, 255, 218, 0.15);
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  color: rgba(100, 255, 218, 0.8);
+  font-size: 0.6rem;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: float 4s ease-in infinite;
+  overflow: hidden;
+}
+
+/* Enhanced Runway Connectors */
 .runway-connector-left,
 .runway-connector-right {
   position: absolute;
@@ -617,16 +1003,38 @@ const selectCategory = (category) => {
 
 .runway-connector-left {
   right: 100%;
-  width: 30px;
+  width: 0;
+  /* Start with 0 width */
   background: linear-gradient(90deg, transparent, #64ffda);
-  animation: pulse-left 2s infinite;
+  animation: connector-extend-left 1s forwards, pulse-left 2s infinite 1s;
 }
 
 .runway-connector-right {
   left: 100%;
-  width: 30px;
+  width: 0;
+  /* Start with 0 width */
   background: linear-gradient(90deg, #64ffda, transparent);
-  animation: pulse-right 2s infinite;
+  animation: connector-extend-right 1s forwards, pulse-right 2s infinite 1s;
+}
+
+@keyframes connector-extend-left {
+  0% {
+    width: 0;
+  }
+
+  100% {
+    width: 50px;
+  }
+}
+
+@keyframes connector-extend-right {
+  0% {
+    width: 0;
+  }
+
+  100% {
+    width: 50px;
+  }
 }
 
 @keyframes pulse-left {
@@ -634,10 +1042,12 @@ const selectCategory = (category) => {
   0%,
   100% {
     background: linear-gradient(90deg, transparent, #64ffda);
+    opacity: 0.7;
   }
 
   50% {
     background: linear-gradient(90deg, #64ffda, #64ffda);
+    opacity: 1;
   }
 }
 
@@ -646,10 +1056,12 @@ const selectCategory = (category) => {
   0%,
   100% {
     background: linear-gradient(90deg, #64ffda, transparent);
+    opacity: 0.7;
   }
 
   50% {
     background: linear-gradient(90deg, #64ffda, #64ffda);
+    opacity: 1;
   }
 }
 
@@ -733,6 +1145,8 @@ const selectCategory = (category) => {
   }
 }
 
+
+
 /* Enhanced vehicle name styling */
 .vehicle-name {
   font-size: 0.9rem;
@@ -751,6 +1165,35 @@ const selectCategory = (category) => {
   font-weight: 600;
 }
 
+/* Pulse ring effect for selected vehicles */
+.vehicle-selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 2px solid rgba(100, 255, 218, 0.5);
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+  }
+
+  100% {
+    width: 130%;
+    height: 130%;
+    opacity: 0;
+  }
+}
+
 /* Selection toolbar */
 .selection-toolbar {
   display: flex;
@@ -761,6 +1204,8 @@ const selectCategory = (category) => {
   padding: 15px;
   border-radius: 8px;
   justify-content: center;
+  position: relative;
+  z-index: 6;
 }
 
 .toolbar-button {
@@ -837,6 +1282,156 @@ const selectCategory = (category) => {
 
   .vehicle-counter {
     align-self: flex-start;
+  }
+}
+
+/* Add hydrogen network paths conditionally when vehicles are selected */
+.hydrogen-network {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.network-path {
+  stroke: rgba(100, 255, 218, 0.3);
+  stroke-width: 2;
+  stroke-dasharray: 5;
+  fill: none;
+  animation: flow-path 4s linear infinite;
+}
+
+@keyframes flow-path {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* Hydrogen fueling station that animates when vehicles are selected */
+.fueling-station {
+  position: absolute;
+  right: 120px;
+  bottom: 30px;
+  width: 40px;
+  height: 50px;
+  z-index: 3;
+}
+
+.station-base {
+  width: 40px;
+  height: 15px;
+  background-color: #3d4251;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 0;
+}
+
+.station-pump {
+  width: 20px;
+  height: 35px;
+  background-color: #2c3040;
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  border-radius: 4px 4px 0 0;
+}
+
+.station-display {
+  width: 16px;
+  height: 10px;
+  background-color: rgba(100, 255, 218, 0.3);
+  position: absolute;
+  top: 5px;
+  left: 2px;
+  border-radius: 2px;
+  animation: display-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes display-pulse {
+  0% {
+    background-color: rgba(100, 255, 218, 0.3);
+  }
+
+  100% {
+    background-color: rgba(100, 255, 218, 0.8);
+  }
+}
+
+.station-nozzle {
+  width: 10px;
+  height: 20px;
+  background-color: #64ffda;
+  position: absolute;
+  top: 20px;
+  left: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.station-nozzle::after {
+  content: 'H₂';
+  position: absolute;
+  color: #12151e;
+  font-size: 8px;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Dancing H₂ molecules */
+.molecules-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+  /* Above runway but below UI elements */
+}
+
+.molecule {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  animation: float-molecule var(--duration, 10s) linear forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.molecule span {
+  display: inline-block;
+  font-size: 12px;
+  color: #64ffda;
+  text-shadow: 0 0 5px rgba(100, 255, 218, 0.7);
+  background-color: rgba(18, 21, 30, 0.6);
+  border-radius: 50%;
+  padding: 3px;
+  font-weight: bold;
+}
+
+/* Update animation for molecules */
+@keyframes float-molecule {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--tx), var(--ty));
+    opacity: 0;
   }
 }
 </style>
