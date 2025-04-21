@@ -76,6 +76,12 @@
             <span class="hydrogen-demand-summary-span">Fleet Adoption: <strong>{{
               $formatNumber(parseFloat(hydrogenStore.fleetPercentage)) }}%</strong></span>
           </div>
+          <div class="divider"></div>
+          <div class="pill-item">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span class="hydrogen-demand-summary-span">End Year: <strong>{{
+              hydrogenStore.year }}</strong></span>
+          </div>
         </div>
       </div>
 
