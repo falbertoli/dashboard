@@ -47,7 +47,7 @@
             </div>
             <div class="content">
               <span>Ground Vehicles</span>
-              <strong>{{ $formatCompactNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3, 0) }} ft³</strong>
+              <strong>{{ $formatNumber(hydrogenStore.gseH2Demand.daily_h2_demand_ft3) }} ft³</strong>
             </div>
           </div>
         </div>
