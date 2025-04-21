@@ -12,6 +12,22 @@
       </div>
     </div>
 
+    <!-- Quick selection toolbar -->
+    <div class="selection-toolbar">
+      <button class="toolbar-button select-all" @click="selectAll">
+        <i class="fas fa-check-square"></i> Select All Vehicles
+      </button>
+      <button class="toolbar-button select-none" @click="selectNone">
+        <i class="fas fa-square"></i> Clear Selection
+      </button>
+      <button class="toolbar-button" @click="selectCategory('TUG')">
+        <i class="fas fa-truck-pickup"></i> Tugs
+      </button>
+      <button class="toolbar-button" @click="selectCategory('F')">
+        <i class="fas fa-car"></i> Ford Vehicles
+      </button>
+    </div>
+
     <div class="airport-map-container" ref="airportMapRef">
       <!-- Airport runway visualization -->
       <div class="airport-runway">
@@ -113,22 +129,6 @@
             </label>
           </div>
         </div>
-      </div>
-
-      <!-- Quick selection toolbar -->
-      <div class="selection-toolbar">
-        <button class="toolbar-button select-all" @click="selectAll">
-          <i class="fas fa-check-square"></i> Select All Vehicles
-        </button>
-        <button class="toolbar-button select-none" @click="selectNone">
-          <i class="fas fa-square"></i> Clear Selection
-        </button>
-        <button class="toolbar-button" @click="selectCategory('TUG')">
-          <i class="fas fa-truck-pickup"></i> Tugs
-        </button>
-        <button class="toolbar-button" @click="selectCategory('F')">
-          <i class="fas fa-car"></i> Ford Vehicles
-        </button>
       </div>
 
       <!-- Airport terminal illustration -->

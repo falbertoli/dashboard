@@ -28,7 +28,7 @@ def get_emissions():
                 "message": "Fuel weights must be non-negative"
             }), 400
         
-        if year < 2026 or year > 2050:
+        if year < 2023 or year > 2050:
             return jsonify({
                 "error": "Invalid parameter",
                 "message": "Year must be between 2026 and 2050"
