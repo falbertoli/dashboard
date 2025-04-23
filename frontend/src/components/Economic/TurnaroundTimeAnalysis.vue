@@ -1300,6 +1300,14 @@ h3 {
   color: #ff6384;
   border-radius: 4px;
   transition: all 0.2s ease;
+  position: absolute;
+  /* Change to absolute positioning */
+  right: 15px;
+  /* Position it on the right with some padding */
+  top: 50%;
+  /* Center vertically */
+  transform: translateY(-50%);
+  /* Adjust for perfect centering */
 }
 
 .btn.remove:hover {
@@ -1387,6 +1395,12 @@ h3 {
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
+  position: relative;
+  /* For absolute positioning of the remove button */
+  overflow: hidden;
+  /* Ensure content stays within */
+  flex-wrap: wrap;
+  /* Allow wrapping for smaller screens */
 }
 
 .scenario-input:hover {
