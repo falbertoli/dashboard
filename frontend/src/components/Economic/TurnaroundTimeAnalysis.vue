@@ -2,7 +2,10 @@
 
 <template>
   <!-- Alert shown when no hydrogen data is available -->
-  <div v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand" class="alert info">
+  <div
+    v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand"
+    class="alert info"
+  >
     <i class="fas fa-info-circle"></i>
     <span>Please configure hydrogen demand in the Hydrogen section first.</span>
   </div>
@@ -22,7 +25,9 @@
   <!-- No data message -->
   <div v-else-if="!hydrogenStore.totalH2Demand" class="no-data-container">
     <i class="fas fa-info-circle"></i>
-    <p>No hydrogen demand data available. Please calculate hydrogen demand first.</p>
+    <p>
+      No hydrogen demand data available. Please calculate hydrogen demand first.
+    </p>
     <router-link to="/hydrogen" class="btn primary">
       <i class="fas fa-arrow-right"></i> Go to Hydrogen Demand
     </router-link>
@@ -34,9 +39,15 @@
       <h2><i class="fas fa-info-circle"></i> About Turnaround Time Analysis</h2>
 
       <div class="explanation-tabs">
-        <button v-for="(tab, index) in explanationTabs" :key="index"
-          :class="['explanation-tab', { active: activeExplanationTab === index }]"
-          @click="activeExplanationTab = index">
+        <button
+          v-for="(tab, index) in explanationTabs"
+          :key="index"
+          :class="[
+            'explanation-tab',
+            { active: activeExplanationTab === index },
+          ]"
+          @click="activeExplanationTab = index"
+        >
           <i :class="tab.icon"></i>
           {{ tab.title }}
           <span class="tab-indicator"></span>
@@ -52,11 +63,16 @@
               <h3>Extra Turnaround Time</h3>
             </div>
             <div class="item-content">
-              <p>The additional time (in minutes) required for hydrogen aircraft refueling compared to conventional jet
-                fuel.
-                This represents the initial technology maturity level in the start year.</p>
+              <p>
+                The additional time (in minutes) required for hydrogen aircraft
+                refueling compared to conventional jet fuel. This represents the
+                initial technology maturity level in the start year.
+              </p>
               <div class="visual-indicators">
-                <div class="visual-indicator" title="Starting impact on operations">
+                <div
+                  class="visual-indicator"
+                  title="Starting impact on operations"
+                >
                   <i class="fas fa-level-up-alt"></i>
                   <span>Initial Impact: Higher Turnaround Time</span>
                   <div class="indicator-graphic">
@@ -66,7 +82,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="visual-indicator" title="Technology improvement over time">
+                <div
+                  class="visual-indicator"
+                  title="Technology improvement over time"
+                >
                   <i class="fas fa-chart-line"></i>
                   <span>Gradual Improvement</span>
                   <div class="indicator-graphic">
@@ -82,10 +101,13 @@
           </div>
           <div class="explanation-item">
             <h3><i class="fas fa-chart-line"></i> Annual Reduction Rate</h3>
-            <p>Measured in minutes per operation annually (annual min/ops), this rate represents how quickly refueling
-              technology improves. For example, a rate of 3 annual min/ops means the extra turnaround time decreases by
-              3
-              minutes per operation each year as efficiency improves.</p>
+            <p>
+              Measured in minutes per operation annually (annual min/ops), this
+              rate represents how quickly refueling technology improves. For
+              example, a rate of 3 annual min/ops means the extra turnaround
+              time decreases by 3 minutes per operation each year as efficiency
+              improves.
+            </p>
           </div>
         </div>
 
@@ -93,14 +115,20 @@
         <div v-show="activeExplanationTab === 1" class="explanation-panel">
           <div class="explanation-item">
             <h3><i class="fas fa-percent"></i> Revenue Impact</h3>
-            <p>Shows the percentage decrease in revenue due to longer turnaround times.
-              This is calculated based on reduced daily flight capacity and fleet percentage
-              ({{ hydrogenStore.fleetPercentage }}%).</p>
+            <p>
+              Shows the percentage decrease in revenue due to longer turnaround
+              times. This is calculated based on reduced daily flight capacity
+              and fleet percentage ({{ hydrogenStore.fleetPercentage }}%).
+            </p>
           </div>
           <div class="explanation-item">
-            <h3><i class="fas fa-dollar-sign"></i> Equivalent Subsidy Requirements</h3>
-            <p>The required subsidy ($/gallon) to offset revenue losses.
-              Based on hydrogen demand ({{ $formatNumber(hydrogenStore.totalH2Demand) }} ft³/day) and revenue impact.
+            <h3>
+              <i class="fas fa-dollar-sign"></i> Equivalent Subsidy Requirements
+            </h3>
+            <p>
+              The required subsidy ($/gallon) to offset revenue losses. Based on
+              hydrogen demand ({{ $formatNumber(hydrogenStore.totalH2Demand) }}
+              ft³/day) and revenue impact.
             </p>
           </div>
         </div>
@@ -109,16 +137,24 @@
         <div v-show="activeExplanationTab === 2" class="explanation-panel">
           <div class="metrics-grid">
             <div class="metric-item">
-              <h4><i class="fas fa-star"></i> Peak Subsidy </h4>
-              <p>Maximum required subsidy equivalent needed per gallon of hydrogen fuel during the transition period</p>
+              <h4><i class="fas fa-star"></i> Peak Subsidy</h4>
+              <p>
+                Maximum required subsidy equivalent needed per gallon of
+                hydrogen fuel during the transition period
+              </p>
             </div>
             <div class="metric-item">
               <h4><i class="fas fa-chart-line"></i> Min Revenue Impact</h4>
-              <p>Smallest percentage drop in revenue across the analysis period</p>
+              <p>
+                Smallest percentage drop in revenue across the analysis period
+              </p>
             </div>
             <div class="metric-item">
               <h4><i class="fas fa-coins"></i> Cumulative Cost</h4>
-              <p>Total revenue loss in millions of dollars through {{ hydrogenStore.year }}</p>
+              <p>
+                Total revenue loss in millions of dollars through
+                {{ hydrogenStore.year }}
+              </p>
             </div>
             <div class="metric-item">
               <h4><i class="fas fa-percentage"></i> Cost Recovery</h4>
@@ -133,8 +169,12 @@
     <div class="assumptions-section">
       <h2><i class="fas fa-clipboard-check"></i> Model Assumptions</h2>
       <div class="assumptions-tabs">
-        <button v-for="(tab, index) in assumptionTabs" :key="index"
-          :class="['assumption-tab', { active: activeAssumptionTab === index }]" @click="activeAssumptionTab = index">
+        <button
+          v-for="(tab, index) in assumptionTabs"
+          :key="index"
+          :class="['assumption-tab', { active: activeAssumptionTab === index }]"
+          @click="activeAssumptionTab = index"
+        >
           <i :class="tab.icon"></i>
           {{ tab.title }}
         </button>
@@ -156,18 +196,26 @@
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Extra turnaround from the destination airport considered</span>
+            <span
+              >Extra turnaround from the destination airport considered</span
+            >
           </div>
         </div>
 
         <div v-show="activeAssumptionTab === 1" class="assumption-list">
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Average Extra Turnaround Time for all hydrogen powered aircrafts</span>
+            <span
+              >Average Extra Turnaround Time for all hydrogen powered
+              aircrafts</span
+            >
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Required subsidies equivalent to compensate only for the turnaround time impact</span>
+            <span
+              >Required subsidies equivalent to compensate only for the
+              turnaround time impact</span
+            >
           </div>
         </div>
 
@@ -182,7 +230,10 @@
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Annual reduction in turnaround time per flight until Jet A aircraft levels</span>
+            <span
+              >Annual reduction in turnaround time per flight until Jet A
+              aircraft levels</span
+            >
           </div>
         </div>
       </div>
@@ -191,10 +242,16 @@
     <!-- Add auto-recalculate option here -->
     <div class="auto-recalculate-option">
       <label class="toggle-switch">
-        <input type="checkbox" v-model="economicsStore.autoRecalculate" @change="handleAutoRecalculateChange">
+        <input
+          type="checkbox"
+          v-model="economicsStore.autoRecalculate"
+          @change="handleAutoRecalculateChange"
+        />
         <span class="toggle-slider"></span>
       </label>
-      <span class="toggle-label">Auto-recalculate when hydrogen data changes</span>
+      <span class="toggle-label"
+        >Auto-recalculate when hydrogen data changes</span
+      >
     </div>
 
     <!-- Always show calculation parameters -->
@@ -203,7 +260,9 @@
       <div class="params-grid">
         <div class="param-item">
           <span class="param-label">Fleet Percentage:</span>
-          <span class="param-value">{{ $formatNumber(hydrogenStore.fleetPercentage) }}%</span>
+          <span class="param-value"
+            >{{ $formatNumber(hydrogenStore.fleetPercentage) }}%</span
+          >
           <span class="param-note">(from Hydrogen Demand)</span>
         </div>
         <div class="param-item">
@@ -218,35 +277,64 @@
         </div>
         <div class="param-item">
           <span class="param-label">Years:</span>
-          <span class="param-value">{{ economicsStore.startYear }} - {{ hydrogenStore.year }}</span>
+          <span class="param-value"
+            >{{ economicsStore.startYear }} - {{ hydrogenStore.year }}</span
+          >
         </div>
       </div>
     </div>
 
     <div class="data-consistency-indicator" v-if="economicsStore.results">
-      <div class="calculation-timestamp" v-if="economicsStore.results && economicsStore.lastCalculationTime">
+      <div
+        class="calculation-timestamp"
+        v-if="economicsStore.results && economicsStore.lastCalculationTime"
+      >
         <i class="fas fa-clock"></i>
-        <span>Last calculated: {{ formatTimestamp(economicsStore.lastCalculationTime) }}</span>
+        <span
+          >Last calculated:
+          {{ formatTimestamp(economicsStore.lastCalculationTime) }}</span
+        >
       </div>
-      <div class="indicator" :class="{ 'consistent': isDataConsistent, 'inconsistent': !isDataConsistent }">
-        <i :class="isDataConsistent ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
-        <span>Data {{ isDataConsistent ? 'is consistent' : 'has changed' }}</span>
+      <div
+        class="indicator"
+        :class="{
+          consistent: isDataConsistent,
+          inconsistent: !isDataConsistent,
+        }"
+      >
+        <i
+          :class="
+            isDataConsistent
+              ? 'fas fa-check-circle'
+              : 'fas fa-exclamation-triangle'
+          "
+        ></i>
+        <span
+          >Data {{ isDataConsistent ? "is consistent" : "has changed" }}</span
+        >
       </div>
-      <button v-if="!isDataConsistent" @click="calculateEconomicImpact" class="btn warning">
+      <button
+        v-if="!isDataConsistent"
+        @click="calculateEconomicImpact"
+        class="btn warning"
+      >
         <i class="fas fa-sync"></i> Recalculate
       </button>
     </div>
 
     <div class="parameters-description" v-if="!economicsStore.results">
       <p>
-        <strong>Economic Model Parameters:</strong> This model calculates the economic impact of hydrogen adoption
-        based on the hydrogen demand you calculated. The key variable is the extra turnaround time required for
-        hydrogen aircraft and how quickly this time decreases as the technology matures.
+        <strong>Economic Model Parameters:</strong> This model calculates the
+        economic impact of hydrogen adoption based on the hydrogen demand you
+        calculated. The key variable is the extra turnaround time required for
+        hydrogen aircraft and how quickly this time decreases as the technology
+        matures.
       </p>
       <p>
-        <strong>Fixed Parameters:</strong> Fleet percentage ({{ hydrogenStore.fleetPercentage }}%),
-        projection year ({{ hydrogenStore.year }}), and growth rate (2%) are derived from your hydrogen demand
-        calculation.
+        <strong>Fixed Parameters:</strong> Fleet percentage ({{
+          hydrogenStore.fleetPercentage
+        }}%), projection year ({{ hydrogenStore.year }}), and growth rate (2%)
+        are derived from your hydrogen demand calculation.
       </p>
     </div>
 
@@ -254,23 +342,54 @@
       <h2><i class="fas fa-sliders-h"></i> Turnaround Time Parameters</h2>
 
       <div class="form-group">
-        <label for="extraTurnTime"><i class="fas fa-clock"></i> Initial Extra Turnaround Time for H₂ Aircraft
-          (minutes):</label>
-        <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
-        <small>Additional turnaround time required for hydrogen aircraft compared to conventional aircraft</small>
+        <label for="extraTurnTime"
+          ><i class="fas fa-clock"></i> Initial Extra Turnaround Time for H₂
+          Aircraft (minutes):</label
+        >
+        <input
+          type="number"
+          id="extraTurnTime"
+          v-model.number="extraTurnTime"
+          min="0"
+          max="60"
+        />
+        <small
+          >Additional turnaround time required for hydrogen aircraft compared to
+          conventional aircraft</small
+        >
       </div>
 
       <div class="scenario-config">
-        <h3><i class="fas fa-layer-group"></i> Turnaround Time Reduction Scenarios</h3>
-        <p>Define different annual reduction rates (minutes/year) as hydrogen refueling technology matures:</p>
+        <h3>
+          <i class="fas fa-layer-group"></i> Turnaround Time Reduction Scenarios
+        </h3>
+        <p>
+          Define different annual reduction rates (minutes/year) as hydrogen
+          refueling technology matures:
+        </p>
 
         <div class="scenarios-grid">
-          <div v-for="(rate, index) in turnTimeDecreaseRates" :key="index" class="scenario-input">
+          <div
+            v-for="(rate, index) in turnTimeDecreaseRates"
+            :key="index"
+            class="scenario-input"
+          >
             <label :for="`scenario${index}`">Scenario {{ index + 1 }}:</label>
-            <input :id="`scenario${index}`" type="number" v-model.number="turnTimeDecreaseRates[index]" min="0" max="10"
-              step="1" />
+            <input
+              :id="`scenario${index}`"
+              type="number"
+              v-model.number="turnTimeDecreaseRates[index]"
+              min="0"
+              max="10"
+              step="1"
+            />
             <span>annual min/ops</span>
-            <button v-if="index > 0" @click="removeScenario(index)" class="btn remove" title="Remove scenario">
+            <button
+              v-if="index > 0"
+              @click="removeScenario(index)"
+              class="btn remove"
+              title="Remove scenario"
+            >
               ✕
             </button>
           </div>
@@ -284,7 +403,11 @@
       </div>
 
       <div class="form-actions">
-        <button @click="calculateEconomicImpact" class="btn primary" :disabled="!isFormValid">
+        <button
+          @click="calculateEconomicImpact"
+          class="btn primary"
+          :disabled="!isFormValid"
+        >
           <i class="fas fa-calculator"></i> Calculate Economic Impact
         </button>
       </div>
@@ -306,21 +429,39 @@
       <section class="scenario-comparison">
         <h2><i class="fas fa-balance-scale"></i> Scenario Comparison</h2>
         <div class="comparison-cards">
-          <div v-for="scenario in economicsStore.scenarioComparison" :key="scenario.rate" class="comparison-card"
-            :class="{ 'selected': selectedScenario === scenario.rate }" @click="selectScenario(scenario.rate)">
-            <h3><i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual improvements min/ops</h3>
+          <div
+            v-for="scenario in economicsStore.scenarioComparison"
+            :key="scenario.rate"
+            class="comparison-card"
+            :class="{ selected: selectedScenario === scenario.rate }"
+            @click="selectScenario(scenario.rate)"
+          >
+            <h3>
+              <i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual
+              improvements min/ops
+            </h3>
             <div class="card-metrics">
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Subsidy Equivalent</span>
+                <span class="metric-label"
+                  ><i class="fas fa-dollar-sign"></i> Max Subsidy
+                  Equivalent</span
+                >
                 <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-chart-line"></i> Min Revenue Drop</span>
+                <span class="metric-label"
+                  ><i class="fas fa-chart-line"></i> Min Revenue Drop</span
+                >
                 <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Subsidy Equivalent</span>
-                <span class="metric-value">{{ scenario.finalYearTaxCredit }}</span>
+                <span class="metric-label"
+                  ><i class="fas fa-money-bill-wave"></i> Final Subsidy
+                  Equivalent</span
+                >
+                <span class="metric-value">{{
+                  scenario.finalYearTaxCredit
+                }}</span>
               </div>
             </div>
           </div>
@@ -329,21 +470,34 @@
 
       <!-- Selected Scenario Summary -->
       <section class="scenario-summary">
-        <h2><i class="fas fa-chart-pie"></i> {{ selectedScenario }} annual min/ops Scenario Summary</h2>
+        <h2>
+          <i class="fas fa-chart-pie"></i> {{ selectedScenario }} annual min/ops
+          Scenario Summary
+        </h2>
         <div class="summary-metrics">
           <div class="metric-card">
             <h3><i class="fas fa-dollar-sign"></i> Peak Subsidy Equivalent</h3>
-            <p class="metric-value">${{ $formatNumber(getMaxTaxCredit(selectedScenario), 2) }}/gal</p>
-            <p class="metric-year">in {{ getTaxCreditPeakYear(selectedScenario) }}</p>
+            <p class="metric-value">
+              ${{ $formatNumber(getMaxTaxCredit(selectedScenario), 2) }}/gal
+            </p>
+            <p class="metric-year">
+              in {{ getTaxCreditPeakYear(selectedScenario) }}
+            </p>
           </div>
           <div class="metric-card">
             <h3><i class="fas fa-chart-line"></i> Min Revenue Impact</h3>
-            <p class="metric-value">{{ $formatNumber(getMaxRevenueDrop(selectedScenario), 2) }}%</p>
-            <p class="metric-year">in {{ getRevenueDropPeakYear(selectedScenario) }}</p>
+            <p class="metric-value">
+              {{ $formatNumber(getMaxRevenueDrop(selectedScenario), 2) }}%
+            </p>
+            <p class="metric-year">
+              in {{ getRevenueDropPeakYear(selectedScenario) }}
+            </p>
           </div>
           <div class="metric-card">
             <h3><i class="fas fa-coins"></i> Cumulative Cost</h3>
-            <p class="metric-value">${{ $formatNumber(getCumulativeCost(selectedScenario)) }}M</p>
+            <p class="metric-value">
+              ${{ $formatNumber(getCumulativeCost(selectedScenario)) }}M
+            </p>
             <p class="metric-year">through {{ hydrogenStore.year }}</p>
           </div>
         </div>
@@ -351,8 +505,12 @@
 
       <!-- Tabs for different data views -->
       <div class="data-tabs">
-        <button v-for="tab in dataTabs" :key="tab.id" :class="['tab-button', { active: activeTab === tab.id }]"
-          @click="activeTab = tab.id">
+        <button
+          v-for="tab in dataTabs"
+          :key="tab.id"
+          :class="['tab-button', { active: activeTab === tab.id }]"
+          @click="activeTab = tab.id"
+        >
           <i :class="tab.icon"></i>
           <span>{{ tab.label }}</span>
         </button>
@@ -360,25 +518,54 @@
 
       <!-- Detailed Results Table -->
       <section v-if="activeTab === 'details'" class="details-section">
-        <h2><i class="fas fa-table"></i> Detailed Results for {{ selectedScenario }} annual min/ops Scenario</h2>
+        <h2>
+          <i class="fas fa-table"></i> Detailed Results for
+          {{ selectedScenario }} annual min/ops Scenario
+        </h2>
         <div class="table-container details-table">
           <div class="table-header">
-            <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
-            <div class="header-cell"><i class="fas fa-chart-line"></i> Growth Factor</div>
-            <div class="header-cell"><i class="fas fa-clock"></i> Turn Time (min)</div>
-            <div class="header-cell"><i class="fas fa-plane"></i> H2 Flights (%)</div>
-            <div class="header-cell"><i class="fas fa-dollar-sign"></i> Baseline Revenue ($M)</div>
-            <div class="header-cell"><i class="fas fa-hydrogen"></i> H2 Revenue ($M)</div>
-            <div class="header-cell"><i class="fas fa-chart-area"></i> Revenue Drop (%)</div>
+            <div class="header-cell">
+              <i class="fas fa-calendar-alt"></i> Year
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-chart-line"></i> Growth Factor
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-clock"></i> Turn Time (min)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-plane"></i> H2 Flights (%)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-dollar-sign"></i> Baseline Revenue ($M)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-hydrogen"></i> H2 Revenue ($M)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-chart-area"></i> Revenue Drop (%)
+            </div>
           </div>
 
-          <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
+          <div
+            v-for="item in selectedScenarioData"
+            :key="item.Year"
+            class="table-row"
+          >
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">{{ $formatNumber(item.Growth_Factor, 2) }}</div>
+            <div class="row-cell">
+              {{ $formatNumber(item.Growth_Factor, 2) }}
+            </div>
             <div class="row-cell">{{ $formatNumber(item.Turn_Time_min) }}</div>
-            <div class="row-cell">{{ $formatNumber(item.Fraction_Flights_H2 * 100) }}%</div>
-            <div class="row-cell">${{ $formatNumber(item.Baseline_Revenue_M, 2) }}M</div>
-            <div class="row-cell">${{ $formatNumber(item.Hydrogen_Revenue_M, 2) }}M</div>
+            <div class="row-cell">
+              {{ $formatNumber(item.Fraction_Flights_H2 * 100) }}%
+            </div>
+            <div class="row-cell">
+              ${{ $formatNumber(item.Baseline_Revenue_M, 2) }}M
+            </div>
+            <div class="row-cell">
+              ${{ $formatNumber(item.Hydrogen_Revenue_M, 2) }}M
+            </div>
             <div class="row-cell">{{ $formatNumber(item.Pct_Drop, 2) }}%</div>
           </div>
         </div>
@@ -386,33 +573,67 @@
 
       <!-- Subsidies Equivalent Table -->
       <section v-if="activeTab === 'taxCredits'" class="taxCredits-section">
-        <h2><i class="fas fa-receipt"></i> Required equivalent subsidies for {{ selectedScenario }} annual min/ops
-          Scenario</h2>
+        <h2>
+          <i class="fas fa-receipt"></i> Required equivalent subsidies for
+          {{ selectedScenario }} annual min/ops Scenario
+        </h2>
         <div class="table-container taxCredits-table">
           <div class="table-header">
-            <div class="header-cell"><i class="fas fa-calendar-alt"></i> Year</div>
-            <div class="header-cell"><i class="fas fa-arrow-down"></i> Revenue Loss ($M)</div>
-            <div class="header-cell"><i class="fas fa-gas-pump"></i> H2 Volume (gal)</div>
-            <div class="header-cell"><i class="fas fa-file-invoice-dollar"></i> Required subsidy cost recovery ($/gal)
+            <div class="header-cell">
+              <i class="fas fa-calendar-alt"></i> Year
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-arrow-down"></i> Revenue Loss ($M)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-gas-pump"></i> H2 Volume (gal)
+            </div>
+            <div class="header-cell">
+              <i class="fas fa-file-invoice-dollar"></i> Required subsidy cost
+              recovery ($/gal)
             </div>
             <!-- <div class="header-cell"><i class="fas fa-hand-holding-usd"></i> Total Subsidy ($M)</div> -->
             <!-- <div class="header-cell"><i class="fas fa-percentage"></i> Cost Recovery (%)</div> -->
           </div>
 
-          <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
+          <div
+            v-for="item in selectedScenarioData"
+            :key="item.Year"
+            class="table-row"
+          >
             <div class="row-cell">{{ item.Year }}</div>
-            <div class="row-cell">${{ $formatNumber(item.Revenue_Drop_M || 0, 2) }}M</div>
-            <div class="row-cell">{{ formatH2Volume($formatCompactNumber(item.H2_Demand_annual_gal) || 0) }}</div>
-            <div class="row-cell">${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0, 2) }}</div>
+            <div class="row-cell">
+              ${{ $formatNumber(item.Revenue_Drop_M || 0, 2) }}M
+            </div>
+            <div class="row-cell">
+              {{
+                formatH2Volume(
+                  $formatCompactNumber(item.H2_Demand_annual_gal) || 0
+                )
+              }}
+            </div>
+            <div class="row-cell">
+              ${{ $formatNumber(item.Req_Tax_Credit_per_gal || 0, 2) }}
+            </div>
             <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidy(item)) }}M</div> -->
             <!-- <div class="row-cell">{{ $formatNumber(calculateCostRecovery(item)) }}%</div> -->
           </div>
 
           <div class="table-row total">
-            <div class="row-cell"><i class="fas fa-calculator"></i> Average</div>
-            <div class="row-cell">${{ $formatNumber(calculateAverageRevenueLoss(), 2) }}M</div>
-            <div class="row-cell">{{ formatH2Volume($formatCompactNumber(calculateAverageH2Volume())) }}</div>
-            <div class="row-cell">${{ $formatNumber(calculateAverageTaxCredit(), 2) }}</div>
+            <div class="row-cell">
+              <i class="fas fa-calculator"></i> Average
+            </div>
+            <div class="row-cell">
+              ${{ $formatNumber(calculateAverageRevenueLoss(), 2) }}M
+            </div>
+            <div class="row-cell">
+              {{
+                formatH2Volume($formatCompactNumber(calculateAverageH2Volume()))
+              }}
+            </div>
+            <div class="row-cell">
+              ${{ $formatNumber(calculateAverageTaxCredit(), 2) }}
+            </div>
             <!-- <div class="row-cell">${{ $formatNumber(calculateTotalSubsidies()) }}M</div>
             <div class="row-cell">{{ $formatNumber(calculateAverageCostRecovery()) }}%</div> -->
           </div>
@@ -427,28 +648,51 @@
         <!-- Revenue Drop Chart -->
         <div class="chart-wrapper">
           <h3><i class="fas fa-chart-line"></i> Revenue Drop by Scenario</h3>
-          <p class="chart-description">Shows how revenue decreases over time for different turnaround time improvement
-            rates. Higher reduction rates lead to lower revenue impact.</p>
-          <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
-            :chartOptions="revenueChartOptions" />
+          <p class="chart-description">
+            Shows how revenue decreases over time for different turnaround time
+            improvement rates. Higher reduction rates lead to lower revenue
+            impact.
+          </p>
+          <ChartComponent
+            chartId="revenueDropChart"
+            chartType="line"
+            :chartData="revenueDropChartData"
+            :chartOptions="revenueChartOptions"
+          />
         </div>
 
         <!-- Subsidy Equivalent Chart -->
         <div class="chart-wrapper">
-          <h3><i class="fas fa-file-invoice-dollar"></i> Subsidies Equivalent by Scenario</h3>
-          <p class="chart-description">Required subsidy equivalent per gallon of hydrogen over time. Credits decrease as
-            refueling efficiency improves.</p>
-          <ChartComponent chartId="taxCreditChart" chartType="line" :chartData="taxCreditChartData"
-            :chartOptions="taxCreditChartOptions" />
+          <h3>
+            <i class="fas fa-file-invoice-dollar"></i> Subsidies Equivalent by
+            Scenario
+          </h3>
+          <p class="chart-description">
+            Required subsidy equivalent per gallon of hydrogen over time.
+            Credits decrease as refueling efficiency improves.
+          </p>
+          <ChartComponent
+            chartId="taxCreditChart"
+            chartType="line"
+            :chartData="taxCreditChartData"
+            :chartOptions="taxCreditChartOptions"
+          />
         </div>
 
         <!-- Cumulative Cost Chart -->
         <div class="chart-wrapper">
           <h3><i class="fas fa-coins"></i> Cumulative Cost Comparison</h3>
-          <p class="chart-description">Total revenue loss through {{ hydrogenStore.year }} for each scenario. Shows the
-            long-term financial impact of different improvement rates.</p>
-          <ChartComponent chartId="cumulativeCostChart" chartType="bar" :chartData="cumulativeCostChartData"
-            :chartOptions="cumulativeCostChartOptions" />
+          <p class="chart-description">
+            Total revenue loss through {{ hydrogenStore.year }} for each
+            scenario. Shows the long-term financial impact of different
+            improvement rates.
+          </p>
+          <ChartComponent
+            chartId="cumulativeCostChart"
+            chartType="bar"
+            :chartData="cumulativeCostChartData"
+            :chartOptions="cumulativeCostChartOptions"
+          />
         </div>
       </section>
     </div>
@@ -456,17 +700,17 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useEconomicsStore } from '@/store/economicsStore';
-import { useHydrogenStore } from '@/store/hydrogenStore';
-import { useNotificationStore } from '@/store/notificationStore';
-import ChartComponent from '@/components/ChartComponent.vue';
+import { ref, computed, onMounted, watch } from "vue";
+import { useEconomicsStore } from "@/store/economicsStore";
+import { useHydrogenStore } from "@/store/hydrogenStore";
+import { useNotificationStore } from "@/store/notificationStore";
+import ChartComponent from "@/components/ChartComponent.vue";
 
 export default {
-  name: 'EconomicImpactView',
+  name: "EconomicImpactView",
 
   components: {
-    ChartComponent
+    ChartComponent,
   },
 
   setup() {
@@ -474,7 +718,7 @@ export default {
     const hydrogenStore = useHydrogenStore();
     const notificationStore = useNotificationStore();
     const selectedScenario = ref(3); // Default to 3 annual min/ops reduction
-    const activeTab = ref('details'); // Default active tab
+    const activeTab = ref("details"); // Default active tab
 
     // Only allow user to modify turnaround time parameters
     const extraTurnTime = ref(30); // 30 minutes default
@@ -482,27 +726,29 @@ export default {
 
     // Form validation
     const isFormValid = computed(() => {
-      return extraTurnTime.value >= 0 &&
+      return (
+        extraTurnTime.value >= 0 &&
         turnTimeDecreaseRates.value.length > 0 &&
-        turnTimeDecreaseRates.value.every(rate => rate >= 0);
+        turnTimeDecreaseRates.value.every((rate) => rate >= 0)
+      );
     });
 
     // Function to notify user
-    const notifyUser = (message, type = 'info') => {
+    const notifyUser = (message, type = "info") => {
       notificationStore.addNotification(message, type);
     };
 
     // Format timestamp function
     const formatTimestamp = (timestamp) => {
-      if (!timestamp) return 'Never';
+      if (!timestamp) return "Never";
 
       const date = new Date(timestamp);
-      return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
     };
 
@@ -514,9 +760,10 @@ export default {
     // Add/remove scenario functions
     const addScenario = () => {
       // Add a new scenario with the next integer value or 0
-      const nextValue = turnTimeDecreaseRates.value.length > 0
-        ? Math.max(...turnTimeDecreaseRates.value) + 1
-        : 0;
+      const nextValue =
+        turnTimeDecreaseRates.value.length > 0
+          ? Math.max(...turnTimeDecreaseRates.value) + 1
+          : 0;
       turnTimeDecreaseRates.value.push(Math.min(nextValue, 10)); // Cap at 10 annual min/ops
     };
 
@@ -531,56 +778,69 @@ export default {
 
     // Get the selected scenario data
     const selectedScenarioData = computed(() => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return [];
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return [];
       return economicsStore.results.scenarios[selectedScenario.value] || [];
     });
 
     // Helper functions for scenario summary
     const getMaxTaxCredit = (rate) => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return '0.00';
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return "0.00";
       const data = economicsStore.results.scenarios[rate] || [];
-      if (data.length === 0) return '0.00';
+      if (data.length === 0) return "0.00";
 
-      const maxCredit = Math.max(...data.map(item => item.Req_Tax_Credit_per_gal || 0));
+      const maxCredit = Math.max(
+        ...data.map((item) => item.Req_Tax_Credit_per_gal || 0)
+      );
       return maxCredit;
     };
 
     const getTaxCreditPeakYear = (rate) => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return '';
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return "";
       const data = economicsStore.results.scenarios[rate] || [];
-      if (data.length === 0) return '';
+      if (data.length === 0) return "";
 
-      const maxCredit = Math.max(...data.map(item => item.Req_Tax_Credit_per_gal || 0));
-      const peakItem = data.find(item => (item.Req_Tax_Credit_per_gal || 0) === maxCredit);
-      return peakItem ? peakItem.Year : '';
+      const maxCredit = Math.max(
+        ...data.map((item) => item.Req_Tax_Credit_per_gal || 0)
+      );
+      const peakItem = data.find(
+        (item) => (item.Req_Tax_Credit_per_gal || 0) === maxCredit
+      );
+      return peakItem ? peakItem.Year : "";
     };
 
     const getMaxRevenueDrop = (rate) => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return '0.00';
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return "0.00";
       const data = economicsStore.results.scenarios[rate] || [];
-      if (data.length === 0) return '0.00';
+      if (data.length === 0) return "0.00";
 
-      const maxDrop = Math.max(...data.map(item => item.Pct_Drop || 0));
+      const maxDrop = Math.max(...data.map((item) => item.Pct_Drop || 0));
       return maxDrop;
     };
 
     const getRevenueDropPeakYear = (rate) => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return '';
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return "";
       const data = economicsStore.results.scenarios[rate] || [];
-      if (data.length === 0) return '';
+      if (data.length === 0) return "";
 
-      const maxDrop = Math.max(...data.map(item => item.Pct_Drop || 0));
-      const peakItem = data.find(item => (item.Pct_Drop || 0) === maxDrop);
-      return peakItem ? peakItem.Year : '';
+      const maxDrop = Math.max(...data.map((item) => item.Pct_Drop || 0));
+      const peakItem = data.find((item) => (item.Pct_Drop || 0) === maxDrop);
+      return peakItem ? peakItem.Year : "";
     };
 
     const getCumulativeCost = (rate) => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return '0.00';
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return "0.00";
       const data = economicsStore.results.scenarios[rate] || [];
-      if (data.length === 0) return '0.00';
+      if (data.length === 0) return "0.00";
 
       const totalCost = data.reduce((sum, item) => {
-        const revenueLoss = (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
+        const revenueLoss =
+          (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
         return sum + revenueLoss;
       }, 0);
       return totalCost;
@@ -588,40 +848,84 @@ export default {
 
     // Helper functions for subsidy equivalent summary calculations
     const calculateAverageRevenueLoss = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
-      const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.Revenue_Drop_M || 0), 0);
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
+      const total = selectedScenarioData.value.reduce(
+        (sum, item) => sum + (item.Revenue_Drop_M || 0),
+        0
+      );
       return total / selectedScenarioData.value.length;
     };
 
     const calculateAverageH2Volume = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
-      const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.H2_Demand_annual_gal || 0), 0);
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
+      const total = selectedScenarioData.value.reduce(
+        (sum, item) => sum + (item.H2_Demand_annual_gal || 0),
+        0
+      );
       return total / selectedScenarioData.value.length;
     };
 
     const calculateTotalH2Volume = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
-      return selectedScenarioData.value.reduce((sum, item) => sum + (item.H2_Demand_annual_gal || 0), 0);
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
+      return selectedScenarioData.value.reduce(
+        (sum, item) => sum + (item.H2_Demand_annual_gal || 0),
+        0
+      );
     };
 
     const calculateAverageTaxCredit = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
-      const total = selectedScenarioData.value.reduce((sum, item) => sum + (item.Req_Tax_Credit_per_gal || 0), 0);
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
+      const total = selectedScenarioData.value.reduce(
+        (sum, item) => sum + (item.Req_Tax_Credit_per_gal || 0),
+        0
+      );
       return total / selectedScenarioData.value.length;
     };
 
     const calculateTotalSubsidies = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
-      return selectedScenarioData.value.reduce((sum, item) => sum + calculateTotalSubsidy(item), 0);
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
+      return selectedScenarioData.value.reduce(
+        (sum, item) => sum + calculateTotalSubsidy(item),
+        0
+      );
     };
 
     const calculateAverageCostRecovery = () => {
-      if (!selectedScenarioData.value || selectedScenarioData.value.length === 0) return 0;
+      if (
+        !selectedScenarioData.value ||
+        selectedScenarioData.value.length === 0
+      )
+        return 0;
 
-      const validItems = selectedScenarioData.value.filter(item => (item.Revenue_Drop_M || 0) > 0);
+      const validItems = selectedScenarioData.value.filter(
+        (item) => (item.Revenue_Drop_M || 0) > 0
+      );
       if (validItems.length === 0) return 0;
 
-      const total = validItems.reduce((sum, item) => sum + calculateCostRecovery(item), 0);
+      const total = validItems.reduce(
+        (sum, item) => sum + calculateCostRecovery(item),
+        0
+      );
       return total / validItems.length;
     };
 
@@ -631,7 +935,7 @@ export default {
     };
 
     const formatH2Volume = (volume) => {
-      if (!volume) return '0';
+      if (!volume) return "0";
       if (volume >= 1000000) {
         return `${volume / 1000000}M gal`;
       } else if (volume >= 1000) {
@@ -641,7 +945,11 @@ export default {
     };
 
     const calculateTotalSubsidy = (item) => {
-      return (item.Req_Tax_Credit_per_gal || 0) * (item.H2_Demand_annual_gal || 0) / 1000000; // Convert to millions
+      return (
+        ((item.Req_Tax_Credit_per_gal || 0) *
+          (item.H2_Demand_annual_gal || 0)) /
+        1000000
+      ); // Convert to millions
     };
 
     const calculateCostRecovery = (item) => {
@@ -660,19 +968,24 @@ export default {
     // Export current scenario data
     const exportCurrentScenario = () => {
       try {
-        const csvData = economicsStore.exportScenarioData(selectedScenario.value);
-        const blob = new Blob([csvData], { type: 'text/csv' });
+        const csvData = economicsStore.exportScenarioData(
+          selectedScenario.value
+        );
+        const blob = new Blob([csvData], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.setAttribute('hidden', '');
-        a.setAttribute('href', url);
-        a.setAttribute('download', `scenario_${selectedScenario.value}_min_per_year.csv`);
+        const a = document.createElement("a");
+        a.setAttribute("hidden", "");
+        a.setAttribute("href", url);
+        a.setAttribute(
+          "download",
+          `scenario_${selectedScenario.value}_min_per_year.csv`
+        );
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
       } catch (error) {
-        console.error('Error exporting data:', error);
-        alert('Failed to export data: ' + error.message);
+        console.error("Error exporting data:", error);
+        alert("Failed to export data: " + error.message);
       }
     };
 
@@ -687,7 +1000,7 @@ export default {
         fleetPercentage: hydrogenStore.fleetPercentage / 100, // Convert from percentage to decimal
         startYear: economicsStore.startYear,
         endYear: hydrogenStore.year,
-        finalH2Year: hydrogenStore.year
+        finalH2Year: hydrogenStore.year,
       });
 
       // Store calculation timestamp
@@ -697,35 +1010,36 @@ export default {
     // Function to get colors for different rates
     const getColorForRate = (rate, alpha = 1) => {
       const colors = [
-        `rgba(255, 107, 107, ${alpha})`,   // 0 annual min/ops
-        `rgba(77, 166, 255, ${alpha})`,   // 1 annual min/ops
-        `rgba(255, 230, 66, ${alpha})`,   // 2 annual min/ops
-        `rgba(75, 222, 172, ${alpha})`,   // 3 annual min/ops
-        `rgba(188, 140, 255, ${alpha})`,  // 4 annual min/ops
-        `rgba(255, 170, 66, ${alpha})`    // 5 annual min/ops
+        `rgba(255, 107, 107, ${alpha})`, // 0 annual min/ops
+        `rgba(77, 166, 255, ${alpha})`, // 1 annual min/ops
+        `rgba(255, 230, 66, ${alpha})`, // 2 annual min/ops
+        `rgba(75, 222, 172, ${alpha})`, // 3 annual min/ops
+        `rgba(188, 140, 255, ${alpha})`, // 4 annual min/ops
+        `rgba(255, 170, 66, ${alpha})`, // 5 annual min/ops
       ];
       return colors[rate] || `rgba(200, 200, 200, ${alpha})`;
     };
 
     // Revenue Drop Chart Data
     const revenueDropChartData = computed(() => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return { labels: [], datasets: [] };
 
       const scenarios = economicsStore.results.scenarios;
       const firstScenario = Object.values(scenarios)[0];
-      const labels = firstScenario.map(item => item.Year);
+      const labels = firstScenario.map((item) => item.Year);
 
       const datasets = Object.entries(scenarios).map(([rate, data]) => ({
         label: `${rate} annual min/ops reduction`,
-        data: data.map(item => item.Pct_Drop),
+        data: data.map((item) => item.Pct_Drop),
         borderColor: getColorForRate(parseInt(rate)),
         backgroundColor: getColorForRate(parseInt(rate), 0.2),
         borderWidth: parseInt(rate) === selectedScenario.value ? 3 : 1,
         pointBackgroundColor: getColorForRate(parseInt(rate)),
-        pointBorderColor: '#000000', // Dark border around points
-        pointRadius: 5,              // Slightly larger points
+        pointBorderColor: "#000000", // Dark border around points
+        pointRadius: 5, // Slightly larger points
         pointHoverRadius: 7,
-        tension: 0.1                 // Slight curve for better visibility
+        tension: 0.1, // Slight curve for better visibility
       }));
 
       return { labels, datasets };
@@ -733,24 +1047,25 @@ export default {
 
     // Subsidy Equivalent Chart Data
     const taxCreditChartData = computed(() => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return { labels: [], datasets: [] };
 
       const scenarios = economicsStore.results.scenarios;
       const firstScenario = Object.values(scenarios)[0];
-      const labels = firstScenario.map(item => item.Year);
+      const labels = firstScenario.map((item) => item.Year);
 
       const datasets = Object.entries(scenarios).map(([rate, data]) => {
         return {
           label: `${rate} annual min/ops reduction`,
-          data: data.map(item => item.Req_Tax_Credit_per_gal || 0),
+          data: data.map((item) => item.Req_Tax_Credit_per_gal || 0),
           borderColor: getColorForRate(parseInt(rate)),
           backgroundColor: getColorForRate(parseInt(rate), 0.2),
           borderWidth: parseInt(rate) === selectedScenario.value ? 3 : 1,
           pointBackgroundColor: getColorForRate(parseInt(rate)),
-          pointBorderColor: '#000000',
+          pointBorderColor: "#000000",
           pointRadius: 5,
           pointHoverRadius: 7,
-          tension: 0.1
+          tension: 0.1,
         };
       });
 
@@ -759,25 +1074,35 @@ export default {
 
     // Cumulative Cost Chart Data
     const cumulativeCostChartData = computed(() => {
-      if (!economicsStore.results || !economicsStore.results.scenarios) return { labels: [], datasets: [] };
+      if (!economicsStore.results || !economicsStore.results.scenarios)
+        return { labels: [], datasets: [] };
 
       const scenarios = economicsStore.results.scenarios;
-      const labels = Object.keys(scenarios).map(rate => `${rate} annual min/ops`);
+      const labels = Object.keys(scenarios).map(
+        (rate) => `${rate} annual min/ops`
+      );
 
       const cumulativeCosts = Object.entries(scenarios).map(([rate, data]) => {
         return data.reduce((sum, item) => {
-          const revenueLoss = (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
+          const revenueLoss =
+            (item.Baseline_Revenue_M || 0) - (item.Hydrogen_Revenue_M || 0);
           return sum + revenueLoss;
         }, 0);
       });
 
-      const datasets = [{
-        label: 'Cumulative Cost ($M)',
-        data: cumulativeCosts,
-        backgroundColor: Object.keys(scenarios).map(rate => getColorForRate(parseInt(rate), 0.8)),
-        borderColor: Object.keys(scenarios).map(rate => getColorForRate(parseInt(rate))),
-        borderWidth: 2
-      }];
+      const datasets = [
+        {
+          label: "Cumulative Cost ($M)",
+          data: cumulativeCosts,
+          backgroundColor: Object.keys(scenarios).map((rate) =>
+            getColorForRate(parseInt(rate), 0.8)
+          ),
+          borderColor: Object.keys(scenarios).map((rate) =>
+            getColorForRate(parseInt(rate))
+          ),
+          borderWidth: 2,
+        },
+      ];
 
       return { labels, datasets };
     });
@@ -789,77 +1114,78 @@ export default {
       plugins: {
         title: {
           display: true,
-          text: 'Revenue Drop vs. Year for Different Turn-Time Reduction Rates',
-          color: '#ffffff', // White text for title on dark background
+          text: "Revenue Drop vs. Year for Different Turn-Time Reduction Rates",
+          color: "#ffffff", // White text for title on dark background
           font: {
-            weight: 'bold',
-            size: 16
-          }
+            weight: "bold",
+            size: 16,
+          },
         },
         legend: {
           labels: {
-            color: '#ffffff', // White text for legend on dark background
+            color: "#ffffff", // White text for legend on dark background
             font: {
-              weight: 'medium',
-              size: 12
+              weight: "medium",
+              size: 12,
             },
             boxWidth: 15, // Smaller legend box for better readability
-            padding: 15,  // More spacing between legend items
+            padding: 15, // More spacing between legend items
             usePointStyle: true, // Use point style instead of rectangles
-            pointStyle: 'circle' // Circle points for better visibility
-          }
+            pointStyle: "circle", // Circle points for better visibility
+          },
         },
         tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)', // Light background for tooltip on dark theme
-          titleColor: '#000000', // Black text for tooltip title
-          bodyColor: '#000000', // Black text for tooltip body
-          borderColor: '#888888',
+          backgroundColor: "rgba(255, 255, 255, 0.9)", // Light background for tooltip on dark theme
+          titleColor: "#000000", // Black text for tooltip title
+          bodyColor: "#000000", // Black text for tooltip body
+          borderColor: "#888888",
           borderWidth: 1,
           callbacks: {
-            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}%`
-          }
-        }
+            label: (context) =>
+              `${context.dataset.label}: ${context.raw.toFixed(2)}%`,
+          },
+        },
       },
       scales: {
         y: {
           title: {
             display: true,
-            text: '% Revenue Drop',
-            color: '#ffffff', // White text for y-axis title
+            text: "% Revenue Drop",
+            color: "#ffffff", // White text for y-axis title
             font: {
-              weight: 'bold'
-            }
+              weight: "bold",
+            },
           },
           ticks: {
-            color: '#cccccc', // Light gray text for y-axis ticks
+            color: "#cccccc", // Light gray text for y-axis ticks
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)' // Subtle light grid lines
-          }
+            color: "rgba(255, 255, 255, 0.1)", // Subtle light grid lines
+          },
         },
         x: {
           title: {
             display: true,
-            text: 'Year',
-            color: '#ffffff', // White text for x-axis title
+            text: "Year",
+            color: "#ffffff", // White text for x-axis title
             font: {
-              weight: 'bold'
-            }
+              weight: "bold",
+            },
           },
           ticks: {
-            color: '#cccccc', // Light gray text for x-axis ticks
+            color: "#cccccc", // Light gray text for x-axis ticks
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)' // Subtle light grid lines
-          }
-        }
-      }
+            color: "rgba(255, 255, 255, 0.1)", // Subtle light grid lines
+          },
+        },
+      },
     };
 
     const taxCreditChartOptions = {
@@ -868,77 +1194,78 @@ export default {
       plugins: {
         title: {
           display: true,
-          text: 'Subsidies Equivalent vs. Year for Different Turn-Time Reduction Rates',
-          color: '#ffffff', // White text for title
+          text: "Subsidies Equivalent vs. Year for Different Turn-Time Reduction Rates",
+          color: "#ffffff", // White text for title
           font: {
-            weight: 'bold',
-            size: 16
-          }
+            weight: "bold",
+            size: 16,
+          },
         },
         legend: {
           labels: {
-            color: '#ffffff', // White text for legend
+            color: "#ffffff", // White text for legend
             font: {
-              weight: 'medium',
-              size: 12
+              weight: "medium",
+              size: 12,
             },
             boxWidth: 15,
             padding: 15,
             usePointStyle: true,
-            pointStyle: 'circle'
-          }
+            pointStyle: "circle",
+          },
         },
         tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#000000',
-          bodyColor: '#000000',
-          borderColor: '#888888',
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          titleColor: "#000000",
+          bodyColor: "#000000",
+          borderColor: "#888888",
           borderWidth: 1,
           callbacks: {
-            label: (context) => `${context.dataset.label}: $${context.raw.toFixed(2)}/gal`
-          }
-        }
+            label: (context) =>
+              `${context.dataset.label}: $${context.raw.toFixed(2)}/gal`,
+          },
+        },
       },
       scales: {
         y: {
           title: {
             display: true,
-            text: 'Subsidy Equivalent ($/gal)',
-            color: '#ffffff',
+            text: "Subsidy Equivalent ($/gal)",
+            color: "#ffffff",
             font: {
-              weight: 'bold'
-            }
+              weight: "bold",
+            },
           },
           ticks: {
-            color: '#cccccc',
+            color: "#cccccc",
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
+            color: "rgba(255, 255, 255, 0.1)",
+          },
         },
         x: {
           title: {
             display: true,
-            text: 'Year',
-            color: '#ffffff',
+            text: "Year",
+            color: "#ffffff",
             font: {
-              weight: 'bold'
-            }
+              weight: "bold",
+            },
           },
           ticks: {
-            color: '#cccccc',
+            color: "#cccccc",
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
-        }
-      }
+            color: "rgba(255, 255, 255, 0.1)",
+          },
+        },
+      },
     };
 
     const cumulativeCostChartOptions = {
@@ -950,57 +1277,57 @@ export default {
         },
         title: {
           display: true,
-          text: 'Cumulative Cost by Scenario',
-          color: '#ffffff',
+          text: "Cumulative Cost by Scenario",
+          color: "#ffffff",
           font: {
-            weight: 'bold',
-            size: 16
-          }
+            weight: "bold",
+            size: 16,
+          },
         },
         tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#000000',
-          bodyColor: '#000000',
-          borderColor: '#888888',
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          titleColor: "#000000",
+          bodyColor: "#000000",
+          borderColor: "#888888",
           borderWidth: 1,
           callbacks: {
-            label: (context) => `${context.label}: $${context.raw.toFixed(2)}M`
-          }
-        }
+            label: (context) => `${context.label}: $${context.raw.toFixed(2)}M`,
+          },
+        },
       },
       scales: {
         y: {
           title: {
             display: true,
-            text: 'Cumulative Cost ($M)',
-            color: '#ffffff',
+            text: "Cumulative Cost ($M)",
+            color: "#ffffff",
             font: {
-              weight: 'bold'
-            }
+              weight: "bold",
+            },
           },
           beginAtZero: true,
           ticks: {
-            color: '#cccccc',
+            color: "#cccccc",
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
+            color: "rgba(255, 255, 255, 0.1)",
+          },
         },
         x: {
           ticks: {
-            color: '#cccccc',
+            color: "#cccccc",
             font: {
-              weight: 'medium'
-            }
+              weight: "medium",
+            },
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
-        }
-      }
+            color: "rgba(255, 255, 255, 0.1)",
+          },
+        },
+      },
     };
 
     // Watch for changes in hydrogen demand data
@@ -1010,18 +1337,23 @@ export default {
         () => hydrogenStore.fleetPercentage,
         () => hydrogenStore.year,
       ],
-      async ([newH2Demand, newFleetPercentage, newYear], [oldH2Demand, oldFleetPercentage, oldYear]) => {
+      async (
+        [newH2Demand, newFleetPercentage, newYear],
+        [oldH2Demand, oldFleetPercentage, oldYear]
+      ) => {
         // Only trigger if auto-recalculate is enabled
         if (economicsStore.autoRecalculate) {
           // Check if any value actually changed
-          if (newH2Demand !== oldH2Demand ||
+          if (
+            newH2Demand !== oldH2Demand ||
             newFleetPercentage !== oldFleetPercentage ||
-            newYear !== oldYear) {
-            console.log('Auto-recalculating due to hydrogen data change');
+            newYear !== oldYear
+          ) {
+            console.log("Auto-recalculating due to hydrogen data change");
             // Make sure we have valid parameters before calculating
             if (isFormValid.value) {
               await calculateEconomicImpact();
-              notifyUser('Economic calculations automatically updated', 'info');
+              notifyUser("Economic calculations automatically updated", "info");
             }
           }
         }
@@ -1033,14 +1365,18 @@ export default {
     onMounted(() => {
       // If economic results exist but are based on different hydrogen data
       if (economicsStore.results && economicsStore.lastParams) {
-        const currentTotalH2Demand = parseFloat(hydrogenStore.totalH2Demand || 0);
-        const currentFleetPercentage = hydrogenStore.fleetPercentage / 100 || 0.1;
+        const currentTotalH2Demand = parseFloat(
+          hydrogenStore.totalH2Demand || 0
+        );
+        const currentFleetPercentage =
+          hydrogenStore.fleetPercentage / 100 || 0.1;
         const currentYear = hydrogenStore.year || 2036;
 
         // Check if current hydrogen data matches the data used for economic calculations
         if (
           currentTotalH2Demand !== economicsStore.lastParams.totalH2Demand ||
-          currentFleetPercentage !== economicsStore.lastParams.fleetPercentage ||
+          currentFleetPercentage !==
+            economicsStore.lastParams.fleetPercentage ||
           currentYear !== economicsStore.lastParams.endYear
         ) {
           // Reset economic calculations if data is inconsistent
@@ -1069,7 +1405,10 @@ export default {
     // Watch for data consistency changes
     watch(isDataConsistent, (newValue) => {
       if (!newValue) {
-        notifyUser('Hydrogen parameters have changed. Please recalculate economic impact.', 'warning');
+        notifyUser(
+          "Hydrogen parameters have changed. Please recalculate economic impact.",
+          "warning"
+        );
       }
     });
 
@@ -1077,22 +1416,26 @@ export default {
     const activeAssumptionTab = ref(0);
 
     const assumptionTabs = [
-      { title: 'Operational', icon: 'fas fa-plane' },
-      { title: 'Technical', icon: 'fas fa-cogs' },
-      { title: 'Financial', icon: 'fas fa-dollar-sign' }
+      { title: "Operational", icon: "fas fa-plane" },
+      { title: "Technical", icon: "fas fa-cogs" },
+      { title: "Financial", icon: "fas fa-dollar-sign" },
     ];
 
     const activeExplanationTab = ref(0);
     const explanationTabs = [
-      { title: 'Time Impact', icon: 'fas fa-clock' },
-      { title: 'Financial Impact', icon: 'fas fa-dollar-sign' },
-      { title: 'Key Metrics', icon: 'fas fa-chart-bar' }
+      { title: "Time Impact", icon: "fas fa-clock" },
+      { title: "Financial Impact", icon: "fas fa-dollar-sign" },
+      { title: "Key Metrics", icon: "fas fa-chart-bar" },
     ];
 
     const dataTabs = [
-      { id: 'details', label: 'Yearly Details', icon: 'fas fa-table' },
-      { id: 'taxCredits', label: 'Subsidies Equivalent', icon: 'fas fa-receipt' },
-      { id: 'charts', label: 'Charts', icon: 'fas fa-chart-bar' }
+      { id: "details", label: "Yearly Details", icon: "fas fa-table" },
+      {
+        id: "taxCredits",
+        label: "Subsidies Equivalent",
+        icon: "fas fa-receipt",
+      },
+      { id: "charts", label: "Charts", icon: "fas fa-chart-bar" },
     ];
 
     return {
@@ -1142,10 +1485,10 @@ export default {
       assumptionTabs,
       activeExplanationTab,
       explanationTabs,
-      dataTabs
+      dataTabs,
     };
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -1890,7 +2233,7 @@ h3 i {
   right: 0;
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.1);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 24px;
 }
 
@@ -1902,15 +2245,15 @@ h3 i {
   left: 4px;
   bottom: 4px;
   background-color: #64ffda;
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 
-input:checked+.toggle-slider {
+input:checked + .toggle-slider {
   background-color: rgba(100, 255, 218, 0.2);
 }
 
-input:checked+.toggle-slider:before {
+input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
 
@@ -2101,7 +2444,11 @@ input:checked+.toggle-slider:before {
 }
 
 .explanation-section {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.03) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
   border-radius: 12px;
   padding: 25px;
   margin-bottom: 30px;
@@ -2449,7 +2796,7 @@ input:checked+.toggle-slider:before {
 
 /****** Width Reactive Enhancements for Scenario Buttons ******/
 
-@media (min-width: 1600px) {
+@media (min-width: 3600px) {
   .scenario-input {
     display: flex;
     align-items: center;
@@ -2463,7 +2810,7 @@ input:checked+.toggle-slider:before {
 
   /* Optional: show label */
   .btn.remove::after {
-    content: ' Remove';
+    content: "";
     font-size: 0.9rem;
     color: #ddd;
   }
