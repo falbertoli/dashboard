@@ -43,7 +43,7 @@
               <div class="metric-icon"><i class="fas fa-ruler-combined"></i></div>
               <div class="metric-content">
                 <div class="metric-label">Storage Footprint</div>
-                <div class="metric-value">{{ $formatArea(storageStore.totalFootprint) }}</div>
+                <div class="metric-value">{{ $formatCompactNumber(storageStore.totalFootprint) }} ft²</div>
               </div>
             </div>
             <div class="metric-item">
@@ -291,8 +291,8 @@
                     'non-compliant': result.available_area_sqft < storageStore.totalFootprint
                   }">
                     <td>{{ result.area_name }}</td>
-                    <td>{{ $formatArea(result.original_area_sqft) }}</td>
-                    <td>{{ $formatArea(result.available_area_sqft) }}</td>
+                    <td>{{ $formatNumber(result.original_area_sqft) }} ft²</td>
+                    <td>{{ $formatNumber(result.available_area_sqft) }} ft²</td>
                     <td>{{ $formatNumber(result.available_area_sqft / result.original_area_sqft * 100, 1) }}%</td>
                     <td>
                       <span class="status-badge"
