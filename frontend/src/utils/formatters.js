@@ -75,7 +75,7 @@ export function formatCompactNumber(value) {
   } else if (absValue >= 1_000) {
     formatted = (value / 1_000).toFixed(0) + "K";
   } else {
-    formatted = value.toString();
+    formatted = value.toFixed(0).toString();
   }
 
   return formatted.replace(/\.0(?=[KMGB])/, ""); // strip trailing ".0" if unnecessary

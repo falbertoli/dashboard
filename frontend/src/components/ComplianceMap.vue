@@ -442,7 +442,7 @@
                   <span class="impact-type">{{ formatHazardType(buffer.hazard_type) }}</span>
                 </div>
                 <div class="impact-stats">
-                  <div class="impact-area">{{ $formatArea(buffer.overlap_area_sqft) }}</div>
+                  <div class="impact-area">{{ $formatCompactNumber(buffer.overlap_area_sqft) }} ft²</div>
                   <div class="impact-percentage">
                     {{ $formatNumber((buffer.overlap_area_sqft / selectedFeature.properties.original_area) * 100) }}%
                     Impact

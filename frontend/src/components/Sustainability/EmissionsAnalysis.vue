@@ -129,7 +129,7 @@
               <span style="color:rgba(231, 76, 60, 0.5);font-weight:rgba(231, 76, 60, 0.5);">Jet A: {{
                 $formatCompactNumber(emissionsResults.jetA_co2) }}</span> +
               <span style="color:rgba(52, 152, 219, 0.8);font-weight:rgba(52, 152, 219, 0.8);">H₂: {{
-                $formatCompactNumber(emissionsResults.H2_co2) }}</span>
+                $formatNumber(emissionsResults.H2_co2, 0) }}</span>
               metric tons CO₂
             </div>
           </div>
@@ -243,7 +243,7 @@
 
           <div class="table-row">
             <div class="row-cell">Hydrogen</div>
-            <div class="row-cell">{{ $formatCompactNumber(emissionsResults.H2_co2) }}</div>
+            <div class="row-cell">{{ $formatCompactNumber(emissionsResults.H2_co2, 0) }}</div>
             <div class="row-cell">{{ ((emissionsResults.H2_co2 / emissionsResults.just_jetA_co2) * 100).toFixed(1)
             }}%
             </div>
