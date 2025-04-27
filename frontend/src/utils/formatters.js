@@ -11,9 +11,10 @@ export function formatCurrency(value) {
 }
 
 export function formatArea(sqft) {
+  sqft = sqft.toFixed(0);
   const value =
     sqft >= 1_000_000
-      ? (sqft / 1_000_000).toFixed(1) + "M"
+      ? (sqft / 1_000_000).toFixed(0) + "M"
       : sqft >= 1_000
       ? new Intl.NumberFormat("en-US").format(sqft)
       : sqft;
