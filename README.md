@@ -50,6 +50,9 @@
       npm run dev
       ```
 
+    (npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/vue-fontawesome --save)
+    (npm install @fortawesome/fontawesome-free --save)
+
 4.  **Access:**
     - Open your browser to the frontend URL provided in the terminal.
 
