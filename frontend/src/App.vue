@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <CustomCursor />
     <Header @toggle-sidebar="toggleSidebar" />
     <NotificationToast />
     <div class="main-container">
@@ -12,12 +13,14 @@
 </template>
 
 <script>
+import CustomCursor from './components/Common/CustomCursor.vue';
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import NotificationToast from '@/components/Common/NotificationToast.vue';
 
 export default {
   components: {
+    CustomCursor,
     Header,
     Sidebar,
     NotificationToast
