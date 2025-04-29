@@ -2,7 +2,10 @@
 
 <template>
   <!-- Alert shown when no hydrogen data is available -->
-  <div v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand" class="alert info">
+  <div
+    v-if="!hydrogenStore.aircraftH2Demand || !hydrogenStore.gseH2Demand"
+    class="alert info"
+  >
     <i class="fas fa-info-circle"></i>
     <span>Please configure hydrogen demand in the Hydrogen section first.</span>
   </div>
@@ -36,10 +39,15 @@
       <h2><i class="fas fa-info-circle"></i> About Turnaround Time Analysis</h2>
 
       <div class="explanation-tabs">
-        <button v-for="(tab, index) in explanationTabs" :key="index" :class="[
-          'explanation-tab',
-          { active: activeExplanationTab === index },
-        ]" @click="activeExplanationTab = index">
+        <button
+          v-for="(tab, index) in explanationTabs"
+          :key="index"
+          :class="[
+            'explanation-tab',
+            { active: activeExplanationTab === index },
+          ]"
+          @click="activeExplanationTab = index"
+        >
           <i :class="tab.icon"></i>
           {{ tab.title }}
           <span class="tab-indicator"></span>
@@ -61,7 +69,10 @@
                 initial technology maturity level in the start year.
               </p>
               <div class="visual-indicators">
-                <div class="visual-indicator" title="Starting impact on operations">
+                <div
+                  class="visual-indicator"
+                  title="Starting impact on operations"
+                >
                   <i class="fas fa-level-up-alt"></i>
                   <span>Initial Impact: Higher Turnaround Time</span>
                   <div class="indicator-graphic">
@@ -71,7 +82,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="visual-indicator" title="Technology improvement over time">
+                <div
+                  class="visual-indicator"
+                  title="Technology improvement over time"
+                >
                   <i class="fas fa-chart-line"></i>
                   <span>Gradual Improvement</span>
                   <div class="indicator-graphic">
@@ -86,7 +100,10 @@
             </div>
           </div>
           <div class="explanation-item">
-            <h3><i class="fas fa-chart-line"></i> Annual Reduction Rate</h3>
+            <div class="item-header">
+              <i class="fas fa-chart-line"></i>
+              <h3>Annual Reduction Rate</h3>
+            </div>
             <p>
               Measured in minutes per operation annually (annual min/ops), this
               rate represents how quickly refueling technology improves. For
@@ -155,8 +172,12 @@
     <div class="assumptions-section">
       <h2><i class="fas fa-clipboard-check"></i> Model Assumptions</h2>
       <div class="assumptions-tabs">
-        <button v-for="(tab, index) in assumptionTabs" :key="index"
-          :class="['assumption-tab', { active: activeAssumptionTab === index }]" @click="activeAssumptionTab = index">
+        <button
+          v-for="(tab, index) in assumptionTabs"
+          :key="index"
+          :class="['assumption-tab', { active: activeAssumptionTab === index }]"
+          @click="activeAssumptionTab = index"
+        >
           <i :class="tab.icon"></i>
           {{ tab.title }}
         </button>
@@ -178,20 +199,26 @@
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Extra turnaround from the destination airport considered</span>
+            <span
+              >Extra turnaround from the destination airport considered</span
+            >
           </div>
         </div>
 
         <div v-show="activeAssumptionTab === 1" class="assumption-list">
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Average Extra Turnaround Time for all hydrogen powered
-              aircrafts</span>
+            <span
+              >Average Extra Turnaround Time for all hydrogen powered
+              aircrafts</span
+            >
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Required subsidies equivalent to compensate only for the
-              turnaround time impact</span>
+            <span
+              >Required subsidies equivalent to compensate only for the
+              turnaround time impact</span
+            >
           </div>
         </div>
 
@@ -206,8 +233,10 @@
           </div>
           <div class="assumption-item">
             <i class="fas fa-check-circle"></i>
-            <span>Annual reduction in turnaround time per flight until Jet A
-              aircraft levels</span>
+            <span
+              >Annual reduction in turnaround time per flight until Jet A
+              aircraft levels</span
+            >
           </div>
         </div>
       </div>
@@ -216,10 +245,16 @@
     <!-- Add auto-recalculate option here -->
     <div class="auto-recalculate-option">
       <label class="toggle-switch">
-        <input type="checkbox" v-model="economicsStore.autoRecalculate" @change="handleAutoRecalculateChange" />
+        <input
+          type="checkbox"
+          v-model="economicsStore.autoRecalculate"
+          @change="handleAutoRecalculateChange"
+        />
         <span class="toggle-slider"></span>
       </label>
-      <span class="toggle-label">Auto-recalculate when hydrogen data changes</span>
+      <span class="toggle-label"
+        >Auto-recalculate when hydrogen data changes</span
+      >
     </div>
 
     <!-- Always show calculation parameters -->
@@ -228,7 +263,9 @@
       <div class="params-grid">
         <div class="param-item">
           <span class="param-label">Fleet Percentage:</span>
-          <span class="param-value">{{ $formatNumber(hydrogenStore.fleetPercentage) }}%</span>
+          <span class="param-value"
+            >{{ $formatNumber(hydrogenStore.fleetPercentage) }}%</span
+          >
           <span class="param-note">(from Hydrogen Demand)</span>
         </div>
         <div class="param-item">
@@ -243,28 +280,47 @@
         </div>
         <div class="param-item">
           <span class="param-label">Years:</span>
-          <span class="param-value">{{ economicsStore.startYear }} - {{ hydrogenStore.year }}</span>
+          <span class="param-value"
+            >{{ economicsStore.startYear }} - {{ hydrogenStore.year }}</span
+          >
         </div>
       </div>
     </div>
 
     <div class="data-consistency-indicator" v-if="economicsStore.results">
-      <div class="calculation-timestamp" v-if="economicsStore.results && economicsStore.lastCalculationTime">
+      <div
+        class="calculation-timestamp"
+        v-if="economicsStore.results && economicsStore.lastCalculationTime"
+      >
         <i class="fas fa-clock"></i>
-        <span>Last calculated:
-          {{ formatTimestamp(economicsStore.lastCalculationTime) }}</span>
+        <span
+          >Last calculated:
+          {{ formatTimestamp(economicsStore.lastCalculationTime) }}</span
+        >
       </div>
-      <div class="indicator" :class="{
-        consistent: isDataConsistent,
-        inconsistent: !isDataConsistent,
-      }">
-        <i :class="isDataConsistent
-          ? 'fas fa-check-circle'
-          : 'fas fa-exclamation-triangle'
-          "></i>
-        <span>Data {{ isDataConsistent ? "is consistent" : "has changed" }}</span>
+      <div
+        class="indicator"
+        :class="{
+          consistent: isDataConsistent,
+          inconsistent: !isDataConsistent,
+        }"
+      >
+        <i
+          :class="
+            isDataConsistent
+              ? 'fas fa-check-circle'
+              : 'fas fa-exclamation-triangle'
+          "
+        ></i>
+        <span
+          >Data {{ isDataConsistent ? "is consistent" : "has changed" }}</span
+        >
       </div>
-      <button v-if="!isDataConsistent" @click="calculateEconomicImpact" class="btn warning">
+      <button
+        v-if="!isDataConsistent"
+        @click="calculateEconomicImpact"
+        class="btn warning"
+      >
         <i class="fas fa-sync"></i> Recalculate
       </button>
     </div>
@@ -291,12 +347,21 @@
       <div class="form-group">
         <div class="extraTurnTime-container">
           <div class="extraTurnTime">
-            <label for="extraTurnTime"><i class="fas fa-clock"></i> Initial Extra Turnaround Time:</label>
-            <input type="number" id="extraTurnTime" v-model.number="extraTurnTime" min="0" max="60" />
+            <label for="extraTurnTime">Initial Extra Turnaround Time:</label>
+            <input
+              type="number"
+              id="extraTurnTime"
+              v-model.number="extraTurnTime"
+              min="0"
+              max="60"
+            />
             <span>minutes</span>
           </div>
         </div>
-        <small>Additional turnaround time required for hydrogen aircraft compared to conventional aircraft</small>
+        <small
+          >Additional turnaround time required for hydrogen aircraft compared to
+          conventional aircraft</small
+        >
       </div>
 
       <div class="scenario-config">
@@ -309,12 +374,27 @@
         </p>
 
         <div class="scenarios-grid">
-          <div v-for="(rate, index) in turnTimeDecreaseRates" :key="index" class="scenario-input">
+          <div
+            v-for="(rate, index) in turnTimeDecreaseRates"
+            :key="index"
+            class="scenario-input"
+          >
             <label :for="`scenario${index}`">Scenario {{ index + 1 }}:</label>
-            <input :id="`scenario${index}`" type="number" v-model.number="turnTimeDecreaseRates[index]" min="0" max="10"
-              step="1" />
+            <input
+              :id="`scenario${index}`"
+              type="number"
+              v-model.number="turnTimeDecreaseRates[index]"
+              min="0"
+              max="10"
+              step="1"
+            />
             <span>annual min/ops</span>
-            <button v-if="index > 0" @click="removeScenario(index)" class="btn remove" title="Remove scenario">
+            <button
+              v-if="index > 0"
+              @click="removeScenario(index)"
+              class="btn remove"
+              title="Remove scenario"
+            >
               ✕
             </button>
           </div>
@@ -328,7 +408,11 @@
       </div>
 
       <div class="form-actions">
-        <button @click="calculateEconomicImpact" class="btn primary" :disabled="!isFormValid">
+        <button
+          @click="calculateEconomicImpact"
+          class="btn primary"
+          :disabled="!isFormValid"
+        >
           <i class="fas fa-calculator"></i> Calculate Economic Impact
         </button>
       </div>
@@ -350,25 +434,36 @@
       <section class="scenario-comparison">
         <h2><i class="fas fa-balance-scale"></i> Scenario Comparison</h2>
         <div class="comparison-cards">
-          <div v-for="scenario in economicsStore.scenarioComparison" :key="scenario.rate" class="comparison-card"
-            :class="{ selected: selectedScenario === scenario.rate }" @click="selectScenario(scenario.rate)">
+          <div
+            v-for="scenario in economicsStore.scenarioComparison"
+            :key="scenario.rate"
+            class="comparison-card"
+            :class="{ selected: selectedScenario === scenario.rate }"
+            @click="selectScenario(scenario.rate)"
+          >
             <h3>
               <i class="fas fa-tachometer-alt"></i> {{ scenario.rate }} annual
               improvements min/ops
             </h3>
             <div class="card-metrics">
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-dollar-sign"></i> Max Subsidy
-                  Equivalent</span>
+                <span class="metric-label"
+                  ><i class="fas fa-dollar-sign"></i> Max Subsidy
+                  Equivalent</span
+                >
                 <span class="metric-value">{{ scenario.maxTaxCredit }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-chart-line"></i> Min Revenue Drop</span>
+                <span class="metric-label"
+                  ><i class="fas fa-chart-line"></i> Min Revenue Drop</span
+                >
                 <span class="metric-value">{{ scenario.maxRevenueDrop }}</span>
               </div>
               <div class="metric">
-                <span class="metric-label"><i class="fas fa-money-bill-wave"></i> Final Subsidy
-                  Equivalent</span>
+                <span class="metric-label"
+                  ><i class="fas fa-money-bill-wave"></i> Final Subsidy
+                  Equivalent</span
+                >
                 <span class="metric-value">{{
                   scenario.finalYearTaxCredit
                 }}</span>
@@ -415,8 +510,12 @@
 
       <!-- Tabs for different data views -->
       <div class="data-tabs">
-        <button v-for="tab in dataTabs" :key="tab.id" :class="['tab-button', { active: activeTab === tab.id }]"
-          @click="activeTab = tab.id">
+        <button
+          v-for="tab in dataTabs"
+          :key="tab.id"
+          :class="['tab-button', { active: activeTab === tab.id }]"
+          @click="activeTab = tab.id"
+        >
           <i :class="tab.icon"></i>
           <span>{{ tab.label }}</span>
         </button>
@@ -453,7 +552,11 @@
             </div>
           </div>
 
-          <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
+          <div
+            v-for="item in selectedScenarioData"
+            :key="item.Year"
+            class="table-row"
+          >
             <div class="row-cell">{{ item.Year }}</div>
             <div class="row-cell">
               {{ $formatNumber(item.Growth_Factor, 2) }}
@@ -498,7 +601,11 @@
             <!-- <div class="header-cell"><i class="fas fa-percentage"></i> Cost Recovery (%)</div> -->
           </div>
 
-          <div v-for="item in selectedScenarioData" :key="item.Year" class="table-row">
+          <div
+            v-for="item in selectedScenarioData"
+            :key="item.Year"
+            class="table-row"
+          >
             <div class="row-cell">{{ item.Year }}</div>
             <div class="row-cell">
               ${{ $formatNumber(item.Revenue_Drop_M || 0, 2) }}M
@@ -551,8 +658,12 @@
             improvement rates. Higher reduction rates lead to lower revenue
             impact.
           </p>
-          <ChartComponent chartId="revenueDropChart" chartType="line" :chartData="revenueDropChartData"
-            :chartOptions="revenueChartOptions" />
+          <ChartComponent
+            chartId="revenueDropChart"
+            chartType="line"
+            :chartData="revenueDropChartData"
+            :chartOptions="revenueChartOptions"
+          />
         </div>
 
         <!-- Subsidy Equivalent Chart -->
@@ -565,8 +676,12 @@
             Required subsidy equivalent per gallon of hydrogen over time.
             Credits decrease as refueling efficiency improves.
           </p>
-          <ChartComponent chartId="taxCreditChart" chartType="line" :chartData="taxCreditChartData"
-            :chartOptions="taxCreditChartOptions" />
+          <ChartComponent
+            chartId="taxCreditChart"
+            chartType="line"
+            :chartData="taxCreditChartData"
+            :chartOptions="taxCreditChartOptions"
+          />
         </div>
 
         <!-- Cumulative Cost Chart -->
@@ -577,8 +692,12 @@
             scenario. Shows the long-term financial impact of different
             improvement rates.
           </p>
-          <ChartComponent chartId="cumulativeCostChart" chartType="bar" :chartData="cumulativeCostChartData"
-            :chartOptions="cumulativeCostChartOptions" />
+          <ChartComponent
+            chartId="cumulativeCostChart"
+            chartType="bar"
+            :chartData="cumulativeCostChartData"
+            :chartOptions="cumulativeCostChartOptions"
+          />
         </div>
       </section>
     </div>
@@ -1262,7 +1381,7 @@ export default {
         if (
           currentTotalH2Demand !== economicsStore.lastParams.totalH2Demand ||
           currentFleetPercentage !==
-          economicsStore.lastParams.fleetPercentage ||
+            economicsStore.lastParams.fleetPercentage ||
           currentYear !== economicsStore.lastParams.endYear
         ) {
           // Reset economic calculations if data is inconsistent
@@ -2047,17 +2166,13 @@ h3 i,
   text-align: center;
 }
 
-.table-header .header-cell i {
+.table-header .header-cell {
   color: #64ffda;
   opacity: 0.8;
 }
 
-h2 i {
+i {
   color: #64ffda;
-}
-
-h3 i {
-  color: #ddd;
 }
 
 .metric-card h3 i {
@@ -2186,11 +2301,11 @@ h3 i {
   border-radius: 50%;
 }
 
-input:checked+.toggle-slider {
+input:checked + .toggle-slider {
   background-color: rgba(100, 255, 218, 0.2);
 }
 
-input:checked+.toggle-slider:before {
+input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
 
@@ -2381,9 +2496,11 @@ input:checked+.toggle-slider:before {
 }
 
 .explanation-section {
-  background: linear-gradient(145deg,
-      rgba(255, 255, 255, 0.07) 0%,
-      rgba(255, 255, 255, 0.03) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
   border-radius: 12px;
   padding: 25px;
   margin-bottom: 30px;
@@ -2472,13 +2589,13 @@ input:checked+.toggle-slider:before {
   margin-bottom: 15px;
 }
 
-.item-header i {
+/* .item-header i {
   color: #64ffda;
   font-size: 1.2rem;
   background: rgba(100, 255, 218, 0.1);
   padding: 8px;
   border-radius: 50%;
-}
+} */
 
 .item-header h3 {
   margin: 0;
