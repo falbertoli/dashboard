@@ -5,29 +5,37 @@
         <button class="menu-toggle" @click="$emit('toggle-sidebar')">
           <i class="fas fa-bars"></i>
         </button>
-        <img src="@/assets/images/gt-asdl-logo.png" alt="ASDL Logo" class="header-logo" />
-        <h1>Hydrogen Infrastructure</h1>
+        <img
+          src="@/assets/images/gt-asdl-logo.svg"
+          alt="ASDL Logo"
+          class="header-logo"
+        />
       </div>
-      <div class="header-right">
+      <h1>Hydrogen Infrastructure</h1>
+      <!-- <div class="header-right">
         <button class="action-button">
           <i class="fas fa-bell"></i>
           <span class="notification-badge">2</span>
         </button>
         <div class="user-menu">
-          <img src="https://api.dicebear.com/7.x/initials/svg?seed=Admin" alt="User" class="user-avatar" />
+          <img
+            src="https://api.dicebear.com/7.x/initials/svg?seed=Admin"
+            alt="User"
+            class="user-avatar"
+          />
           <span>Admin User</span>
           <i class="fas fa-chevron-down"></i>
         </div>
-      </div>
+      </div> -->
     </div>
   </header>
 </template>
 
 <script>
 export default {
-  name: 'Header',
-  emits: ['toggle-sidebar']
-}
+  name: "Header",
+  emits: ["toggle-sidebar"],
+};
 </script>
 
 <style scoped>
@@ -42,7 +50,6 @@ export default {
 }
 
 .header-content {
-  max-width: 1400px;
   margin: 0 auto;
   padding: 12px 24px;
   display: flex;
@@ -77,10 +84,8 @@ export default {
 }
 
 h1 {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0;
+  color: #64ffda;
+  text-align: right;
 }
 
 .header-right {
@@ -146,10 +151,6 @@ h1 {
 
   .header-logo {
     height: 28px;
-  }
-
-  h1 {
-    font-size: 1rem;
   }
 
   .user-menu span {
