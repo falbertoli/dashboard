@@ -1,15 +1,42 @@
 <template>
-  <div class="custom-cursor" :style="{ left: x + 'px', top: y + 'px' }">
-    <font-awesome-icon :icon="currentIcon" :class="{ 'pointer': isPointer, 'clicking': isClicking }" size="lg" />
+  <div>
+    <div class="custom-cursor" :style="{ left: x + 'px', top: y + 'px' }">
+      <font-awesome-icon :icon="currentIcon" :class="{ 'pointer': isPointer, 'clicking': isClicking }" size="lg" />
+    </div>
+    <!-- SVG Filters Definition -->
+    <svg width="0" height="0" style="position: absolute;">
+      <defs>
+        <filter id="default-contour" x="-20%" y="-20%" width="140%" height="140%">
+          <feMorphology operator="dilate" radius="1" in="SourceAlpha" result="thicken" />
+          <feFlood flood-color="#FFFFFF" result="contour-color" />
+          <feComposite in="contour-color" in2="thicken" operator="in" result="contour" />
+          <feComposite in="SourceGraphic" in2="contour" operator="over" />
+        </filter>
+
+        <filter id="pointer-contour" x="-20%" y="-20%" width="140%" height="140%">
+          <feMorphology operator="dilate" radius="1.5" in="SourceAlpha" result="thicken" />
+          <feFlood flood-color="#FFFFFF" result=" contour-color" />
+          <feComposite in="contour-color" in2="thicken" operator="in" result="contour" />
+          <feComposite in="SourceGraphic" in2="contour" operator="over" />
+        </filter>
+
+        <filter id="clicking-contour" x="-20%" y="-20%" width="140%" height="140%">
+          <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="thicken" />
+          <feFlood flood-color="#FFFFFF" result="contour-color" />
+          <feComposite in="contour-color" in2="thicken" operator="in" result="contour" />
+          <feComposite in="SourceGraphic" in2="contour" operator="over" />
+        </filter>
+      </defs>
+    </svg>
   </div>
 </template>
 
 <script>
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowPointer, faHandPointer } from '@fortawesome/free-solid-svg-icons'
+import { faPlaneUp, faHandPointer } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faArrowPointer, faHandPointer)
+library.add(faPlaneUp, faHandPointer)
 
 export default {
   components: {
@@ -21,7 +48,7 @@ export default {
       y: 0,
       isPointer: false,
       isClicking: false,
-      defaultIcon: 'arrow-pointer',
+      defaultIcon: 'plane-up',
       pointerIcon: 'hand-pointer'
     }
   },
@@ -91,9 +118,7 @@ export default {
   z-index: 9999;
   pointer-events: none;
   transform: translate(-50%, -50%);
-  color: #ff9f43;
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
-  transition: transform 0.1s ease;
+  color: #B3A369;
   width: 32px;
   height: 32px;
   display: flex;
@@ -104,21 +129,18 @@ export default {
 .custom-cursor svg {
   width: 24px;
   height: 24px;
+  filter: url(#default-contour);
+  transition: transform 0.2s ease, filter 0.3s ease;
 }
 
 .custom-cursor .pointer {
-  color: #ff9f43;
+  filter: url(#pointer-contour);
   transform: scale(1.2);
 }
 
 .custom-cursor .clicking {
+  filter: url(#clicking-contour);
   transform: scale(0.8);
   opacity: 0.8;
-}
-
-.custom-cursor svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s ease, color 0.2s ease;
 }
 </style>
